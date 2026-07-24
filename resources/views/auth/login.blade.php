@@ -1,47 +1,52 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+@extends('layouts.auth')
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+@section('title', 'Masuk')
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+@section('content')
+<div class="col-md-5 d-none d-md-flex auth-img flex-column text-center">
+    <!-- Placeholder for Mascot/Illustration -->
+    <i class="fa-solid fa-book-open-reader mb-4" style="font-size: 5rem; color: var(--accent);"></i>
+    <h3 class="fw-bold">Sugeng Rawuh!</h3>
+    <p class="text-white-50">Ayo sinau basa Jawa supaya luwih pinter lan ngerti kabudayan.</p>
+</div>
+<div class="col-md-7 p-5 d-flex flex-column justify-content-center">
+    <h3 class="fw-bold mb-1 text-main">Masuk Akun</h3>
+    <p class="text-muted mb-4">Silakan masuk menggunakan email dan password yang terdaftar.</p>
+
+    <form action="#" method="POST">
+        <!-- CSRF Token goes here -->
+        
+        <div class="mb-3">
+            <label for="email" class="form-label fw-semibold text-main">Email</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white text-muted border-end-0">
+                    <i class="fa-regular fa-envelope"></i>
+                </span>
+                <input type="email" class="form-control border-start-0 ps-0" id="email" placeholder="contoh@sekolah.com" required>
+            </div>
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <label for="password" class="form-label fw-semibold text-main mb-0">Password</label>
+                <a href="#" class="text-accent text-decoration-none small fw-semibold">Lupa Password?</a>
+            </div>
+            <div class="input-group">
+                <span class="input-group-text bg-white text-muted border-end-0">
+                    <i class="fa-solid fa-lock"></i>
+                </span>
+                <input type="password" class="form-control border-start-0 ps-0" id="password" placeholder="••••••••" required>
+            </div>
         </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
+        <div class="mb-4 form-check">
+            <input type="checkbox" class="form-check-input" id="remember">
+            <label class="form-check-label text-muted" for="remember">Ingat Saya</label>
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
+        <button type="submit" class="btn btn-primary w-100 py-2 mb-4 rounded-4">Masuk <i class="fa-solid fa-arrow-right ms-2"></i></button>
 
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
+        <p class="text-center text-muted m-0">Belum punya akun? <a href="#" class="text-primary fw-bold text-decoration-none">Daftar Sekarang</a></p>
     </form>
-</x-guest-layout>
+</div>
+@endsection

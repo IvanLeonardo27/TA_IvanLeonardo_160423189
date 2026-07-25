@@ -23,6 +23,10 @@ Route::get('/ui/kosakata/show', function() { return view('student.kosakata.show'
 Route::get('/ui/translator', function() { return view('student.translator.index'); });
 Route::get('/ui/quiz', function() { return view('student.quiz.index'); });
 Route::get('/ui/quiz/show', function() { return view('student.quiz.show'); });
+Route::get('/ui/teacher/kelas', function() { return view('teacher.kelas.index'); });
+Route::get('/ui/teacher/kelas/show', function() { return view('teacher.kelas.show'); });
+Route::get('/ui/student/kelas', function() { return view('student.kelas.index'); });
+Route::get('/ui/student/kelas/show', function() { return view('student.kelas.show'); });
 // -------------------------
 Route::post('/translate', CustomerTranslateController::class)->name('customer.translate');
 Route::post('/quiz/attempt', CustomerQuizAttemptController::class)->name('customer.quiz.attempt');

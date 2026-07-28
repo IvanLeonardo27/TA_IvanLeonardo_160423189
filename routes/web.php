@@ -11,10 +11,20 @@ use App\Http\Controllers\Teacher\ClassroomController as TeacherClassroomControll
 use App\Http\Controllers\Teacher\ClassroomPostController as TeacherClassroomPostController;
 use App\Http\Controllers\Student\ClassroomController as StudentClassroomController;
 use App\Http\Controllers\Student\ClassroomSubmissionController as StudentClassroomSubmissionController;
+use App\Http\Controllers\TtsProxyController;
 use Illuminate\Support\Facades\Route;
 
-// Redirect root to student dashboard view/route for testing
-Route::get('/', function() { return view('student.dashboard'); });
+// Rute Utama: mengarahkan sesuai autentikasi dan peran
+Route::get('/', function() {
+    if (auth()->check()) {
+        $user = auth()->user();
+        if ($user->isTeacher()) {
+            return redirect()->route('teacher.classroom.index');
+        }
+        return redirect()->route('student.classroom.index');
+    }
+    return redirect()->route('login');
+});
 
 // --- Rute Test UI Baru ---
 Route::get('/ui/login', function() { return view('auth.login'); });
@@ -23,7 +33,17 @@ Route::get('/ui/student', function() { return view('student.dashboard'); });
 Route::get('/ui/teacher', function() { return view('teacher.dashboard'); });
 Route::get('/ui/materi', function() { return view('student.materi.index'); });
 Route::get('/ui/materi/show', function() { return view('student.materi.show'); });
-Route::get('/ui/kosakata', function() { return view('student.kosakata.index'); });
+Route::get('/ui/kosakata', function(\Illuminate\Http\Request $request) {
+    $query = \App\Models\Vocabulary::orderBy('indonesian_word', 'asc');
+    if ($request->has('search') && $request->search != '') {
+        $search = $request->search;
+        $query->where('indonesian_word', 'like', "%{$search}%")
+              ->orWhere('javanese_ngoko', 'like', "%{$search}%")
+              ->orWhere('javanese_krama', 'like', "%{$search}%");
+    }
+    $vocabularies = $query->paginate(20);
+    return view('student.kosakata.index', compact('vocabularies'));
+});
 Route::get('/ui/kosakata/show', function() { return view('student.kosakata.show'); });
 Route::get('/ui/translator', function() { return view('student.translator.index'); });
 Route::get('/ui/quiz', function() { return view('student.quiz.index'); });
@@ -34,6 +54,7 @@ Route::get('/ui/teacher/kelas/show', function() { return view('teacher.classroom
 Route::get('/ui/student/kelas', function() { return view('student.classroom.index', ['classrooms' => collect()]); });
 Route::get('/ui/student/kelas/show', function() { return view('student.classroom.show', ['classroom' => new \App\Models\Classroom(['name' => 'Bahasa Jawa - Kelas 5A', 'banner_color' => '#1F4D3A', 'banner_icon' => 'graduation-cap']), 'posts' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10), 'teacher' => new \App\Models\User(['name' => 'Pak Guru']), 'members' => collect(), 'totalMembers' => 0]); });
 Route::get('/ui/student/kelas/submission', function() { return view('student.classroom.submission.show', ['classroom' => new \App\Models\Classroom(['name' => 'Bahasa Jawa - Kelas 5A']), 'assignment' => new \App\Models\ClassroomAssignment(['post' => new \App\Models\ClassroomPost(['title' => 'Tugas: Mengarang Bebas']), 'max_score' => 100]), 'submission' => null]); });
+Route::get('/api/tts', [TtsProxyController::class, 'speak'])->name('api.tts');
 // -------------------------
 
 // Rute Komentar Kelas

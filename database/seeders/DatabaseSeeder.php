@@ -15,25 +15,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(SinauBasaSeeder::class);
-
-        User::query()->updateOrCreate(
-            ['email' => 'admin@sinau.test'],
-            [
-                'name' => 'Admin',
-                'password' => 'password',
-                'role' => 'admin',
-            ]
-        );
-
-        // Optional: example student user
-        User::query()->updateOrCreate(
-            ['email' => 'student@sinau.test'],
-            [
-                'name' => 'Student',
-                'password' => 'password',
-                'role' => 'student',
-            ]
-        );
+        $this->call([
+            TestingUserSeeder::class,
+            RealVocabularySeeder::class,
+        ]);
     }
 }

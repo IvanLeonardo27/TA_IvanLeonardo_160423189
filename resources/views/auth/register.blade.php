@@ -21,9 +21,18 @@
     <form action="{{ route('register') }}" method="POST">
         @csrf
         
-        <div class="mb-3">
-            <label for="name" class="form-label fw-semibold text-main">Nama Lengkap</label>
-            <input type="text" name="name" class="form-control" id="name" value="{{ old('name') }}" placeholder="Budi Santoso" required autofocus>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="name" class="form-label fw-semibold text-main">Nama Lengkap</label>
+                <input type="text" name="name" class="form-control" id="name" value="{{ old('name') }}" placeholder="Budi Santoso" required autofocus>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="role" class="form-label fw-semibold text-main">Daftar Sebagai</label>
+                <select name="role" class="form-select" id="role" required>
+                    <option value="student" {{ old('role') == 'student' ? 'selected' : '' }}>Pelajar / Siswa</option>
+                    <option value="teacher" {{ old('role') == 'teacher' ? 'selected' : '' }}>Pengajar / Guru</option>
+                </select>
+            </div>
         </div>
 
         <div class="mb-3">

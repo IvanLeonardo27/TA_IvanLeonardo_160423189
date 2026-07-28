@@ -22,39 +22,32 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
+        'role_id',
+        'photo',
+        'status',
+        'last_login',
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
+     * Relasi ke model Role
      */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    public function role()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    public function isTeacher(): bool
+    {
+        return $this->role && $this->role->name === 'teacher';
+    }
+
+    public function isStudent(): bool
+    {
+        return $this->role && $this->role->name === 'student';
     }
 
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
-    }
-
-    public function isEditor(): bool
-    {
-        return $this->role === 'editor';
+        return $this->role && $this->role->name === 'admin';
     }
 }

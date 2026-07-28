@@ -18,12 +18,13 @@ return new class extends Migration
         // 14. vocabularies
         Schema::create('vocabularies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->constrained('vocabulary_categories')->cascadeOnDelete();
-            $table->foreignId('teacher_id')->constrained('users')->cascadeOnDelete();
-            $table->string('javanese_word');
             $table->string('indonesian_word');
-            $table->enum('level', ['ngoko', 'krama', 'krama_inggil'])->default('ngoko');
-            $table->text('description')->nullable();
+            $table->string('javanese_ngoko')->nullable();
+            $table->string('javanese_krama')->nullable();
+            $table->string('category')->nullable();
+            $table->text('example_indonesian')->nullable();
+            $table->text('example_ngoko')->nullable();
+            $table->text('example_krama')->nullable();
             $table->timestamps();
         });
 

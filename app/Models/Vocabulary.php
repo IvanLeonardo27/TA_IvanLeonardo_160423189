@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Vocabulary extends Model
 {
@@ -14,8 +15,10 @@ class Vocabulary extends Model
         'javanese_ngoko',
         'javanese_krama',
         'category',
-        'example_indonesian',
-        'example_ngoko',
-        'example_krama',
     ];
+
+    public function examples(): HasMany
+    {
+        return $this->hasMany(VocabularyExample::class, 'vocabulary_id');
+    }
 }

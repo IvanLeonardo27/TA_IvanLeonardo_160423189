@@ -20,6 +20,27 @@
                         <i class="fa-solid fa-plus-circle"></i> Buat Kelas Baru
                     </a>
                 </li>
+                <hr class="my-2 text-muted">
+                <li class="nav-item mb-1">
+                    <a href="/ui/materi" class="nav-link {{ request()->is('*materi*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-book-open"></i> Kelola & View Materi
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a href="/ui/kosakata" class="nav-link {{ request()->is('*kosakata*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-book-journal-whills"></i> Kelola & Tambah Kosakata
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a href="/ui/translator" class="nav-link {{ request()->is('*translator*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-language"></i> Translator Jawa
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a href="/ui/quiz" class="nav-link {{ request()->is('*quiz*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-pen-to-square"></i> Evaluasi / Quiz
+                    </a>
+                </li>
             @else
                 {{-- Menu Khusus Pelajar --}}
                 <li class="nav-item mb-1">

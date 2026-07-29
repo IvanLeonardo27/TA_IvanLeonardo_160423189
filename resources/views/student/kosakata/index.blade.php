@@ -20,6 +20,13 @@
                            value="{{ request('search') }}" id="searchInput">
                 </div>
             </form>
+            @auth
+                @if(auth()->user()->isTeacher())
+                <button class="btn btn-primary rounded-4 px-4 py-2 d-flex align-items-center justify-content-center gap-2 text-nowrap shadow-sm" data-bs-toggle="modal" data-bs-target="#addVocabModal">
+                    <i class="fa-solid fa-plus-circle"></i> Tambah Kosakata
+                </button>
+                @endif
+            @endauth
         </div>
         
         {{-- Pengaturan Suara TTS --}}
@@ -95,26 +102,30 @@
             {{-- Collapsible Contoh Penggunaan --}}
             <div class="collapse mt-4 pt-3 border-top" id="example-{{ $vocab->id }}">
                 <h6 class="fw-bold text-main mb-3"><i class="fa-solid fa-lightbulb text-warning me-2"></i>Contoh Penggunaan Kalimat</h6>
-                <div class="row g-3">
+                @forelse($vocab->examples as $index => $example)
+                <div class="row g-3 @if(!$loop->first) mt-2 pt-2 border-top border-dashed @endif">
                     <div class="col-md-4">
-                        <div class="p-3 bg-light rounded-4">
-                            <small class="fw-semibold text-muted d-block mb-1">Bahasa Indonesia</small>
-                            <p class="mb-0 text-dark small fw-semibold">{{ $vocab->example_indonesian ?? '-' }}</p>
+                        <div class="p-3 bg-light rounded-4 h-100">
+                            <small class="fw-semibold text-muted d-block mb-1">Bahasa Indonesia @if($vocab->examples->count() > 1) #{{ $index + 1 }} @endif</small>
+                            <p class="mb-0 text-dark small fw-semibold">{{ $example->indonesian_sentence ?? '-' }}</p>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="p-3 bg-success bg-opacity-10 rounded-4">
+                        <div class="p-3 bg-success bg-opacity-10 rounded-4 h-100">
                             <small class="fw-semibold text-success d-block mb-1">Bahasa Jawa Ngoko</small>
-                            <p class="mb-0 text-dark small fw-semibold">{{ $vocab->example_ngoko ?? '-' }}</p>
+                            <p class="mb-0 text-dark small fw-semibold">{{ $example->ngoko_sentence ?? $example->javanese_sentence ?? '-' }}</p>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="p-3 bg-primary bg-opacity-10 rounded-4">
+                        <div class="p-3 bg-primary bg-opacity-10 rounded-4 h-100">
                             <small class="fw-semibold text-primary d-block mb-1">Bahasa Jawa Krama</small>
-                            <p class="mb-0 text-dark small fw-semibold">{{ $vocab->example_krama ?? '-' }}</p>
+                            <p class="mb-0 text-dark small fw-semibold">{{ $example->krama_sentence ?? '-' }}</p>
                         </div>
                     </div>
                 </div>
+                @empty
+                <p class="text-muted small mb-0">Belum ada contoh penggunaan kalimat untuk kata ini.</p>
+                @endforelse
             </div>
         </div>
     </div>
@@ -137,7 +148,69 @@
         {{ $vocabularies->onEachSide(1)->links() }}
     </div>
 </div>
+</div>
 @endif
+
+{{-- Modal Tambah Kosakata (Pengajar) --}}
+@auth
+@if(auth()->user()->isTeacher())
+<div class="modal fade" id="addVocabModal" tabindex="-1" aria-labelledby="addVocabModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-primary text-white rounded-top-4 p-4">
+                <h5 class="modal-title fw-bold" id="addVocabModalLabel">
+                    <i class="fa-solid fa-plus-circle me-2"></i>Tambah Kosakata Baru (Pengajar)
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('admin.vocab.store') }}" method="POST">
+                @csrf
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Kata Bahasa Indonesia <span class="text-danger">*</span></label>
+                            <input type="text" name="indonesian_word" class="form-control rounded-3" placeholder="Contoh: Belajar" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Kategori Kosakata</label>
+                            <input type="text" name="category" class="form-control rounded-3" placeholder="Contoh: Pendidikan / Kata Kerja">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Javanese Ngoko <span class="text-danger">*</span></label>
+                            <input type="text" name="javanese_ngoko" class="form-control rounded-3" placeholder="Contoh: Sinau" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Javanese Krama <span class="text-danger">*</span></label>
+                            <input type="text" name="javanese_krama" class="form-control rounded-3" placeholder="Contoh: Sinau / Piwulang" required>
+                        </div>
+                        
+                        <hr class="my-3 text-muted">
+                        <h6 class="fw-bold text-main mb-2">Contoh Penggunaan Kalimat</h6>
+                        
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold text-muted">Contoh Kalimat (Indonesia)</label>
+                            <input type="text" name="example_indonesian" class="form-control rounded-3" placeholder="Contoh: Saya sedang belajar Bahasa Jawa.">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-muted">Contoh Kalimat (Ngoko)</label>
+                            <input type="text" name="example_ngoko" class="form-control rounded-3" placeholder="Contoh: Aku lagi sinau Basa Jawa.">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-muted">Contoh Kalimat (Krama)</label>
+                            <input type="text" name="example_krama" class="form-control rounded-3" placeholder="Contoh: Kula saweg sinau Basa Jawi.">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light rounded-bottom-4 p-3">
+                    <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary rounded-3 px-4 fw-semibold"><i class="fa-solid fa-save me-1"></i> Simpan Kosakata</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endif
+@endauth
 @endsection
 
 @push('scripts')

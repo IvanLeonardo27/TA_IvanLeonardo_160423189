@@ -49,7 +49,7 @@
     <!-- Canvas Confetti (For Quiz/Success Effects) -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
-    <!-- Core JS -->
+    <!-- Core JS & Auto Logout AFK Detector -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // Sidebar Toggle Logic
@@ -61,6 +61,28 @@
                     sidebar.classList.toggle('active');
                 });
             }
+
+            // --- AFK Auto Logout System (20 Menit Inaktivitas) ---
+            const timeoutDuration = 20 * 60 * 1000; // 20 Menit dalam Milidetik
+            let afkTimer;
+
+            function resetAfkTimer() {
+                clearTimeout(afkTimer);
+                afkTimer = setTimeout(function() {
+                    // Redirect paksa ke halaman login saat idle / AFK 20 menit
+                    alert("Sesi Anda telah berakhir karena tidak ada aktivitas selama 20 menit.");
+                    window.location.href = "{{ route('login') }}";
+                }, timeoutDuration);
+            }
+
+            // Event listener untuk mendeteksi aktivitas pengguna (Mouse, Keyboard, Touch, Scroll)
+            const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+            activityEvents.forEach(event => {
+                window.addEventListener(event, resetAfkTimer, true);
+            });
+
+            // Inisialisasi timer pertama kali
+            resetAfkTimer();
         });
     </script>
     

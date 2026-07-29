@@ -34,7 +34,7 @@ Route::get('/ui/teacher', function() { return view('teacher.dashboard'); });
 Route::get('/ui/materi', function() { return view('student.materi.index'); });
 Route::get('/ui/materi/show', function() { return view('student.materi.show'); });
 Route::get('/ui/kosakata', function(\Illuminate\Http\Request $request) {
-    $query = \App\Models\Vocabulary::orderBy('indonesian_word', 'asc');
+    $query = \App\Models\Vocabulary::with('examples')->orderBy('indonesian_word', 'asc');
     if ($request->has('search') && $request->search != '') {
         $search = $request->search;
         $query->where('indonesian_word', 'like', "%{$search}%")

@@ -62,7 +62,9 @@
                         <h4 class="fw-bold text-main mb-0">{{ $vocab->indonesian_word }}</h4>
                     </div>
                     <span class="badge bg-soft-blue text-primary rounded-pill small me-1">Bahasa Indonesia</span>
-                    @if($vocab->category)
+                    @if($vocab->categoryObj)
+                    <span class="badge bg-warning bg-opacity-20 text-dark rounded-pill small"><i class="fa-solid fa-tag me-1"></i>{{ $vocab->categoryObj->name }}</span>
+                    @elseif($vocab->category)
                     <span class="badge bg-warning bg-opacity-20 text-dark rounded-pill small"><i class="fa-solid fa-tag me-1"></i>{{ $vocab->category }}</span>
                     @endif
                 </div>
@@ -80,7 +82,7 @@
                         </div>
 
                         <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1 fw-semibold" style="width:110px;">Krama</span>
+                            <span class="badge bg-primary text-white rounded-pill px-3 py-1 fw-semibold" style="width:110px;">Krama</span>
                             <span class="fs-5 fw-bold text-primary">{{ $vocab->javanese_krama ?? '-' }}</span>
                             <button class="btn btn-sm btn-light rounded-circle shadow-sm btn-speak ms-2"
                                     data-text="{{ $vocab->javanese_krama }}" title="Dengar Suara Krama">
@@ -117,9 +119,9 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="p-3 bg-primary bg-opacity-10 rounded-4 h-100">
-                            <small class="fw-semibold text-primary d-block mb-1">Bahasa Jawa Krama</small>
-                            <p class="mb-0 text-dark small fw-semibold">{{ $example->krama_sentence ?? '-' }}</p>
+                        <div class="p-3 bg-primary text-white rounded-4 h-100">
+                            <small class="fw-semibold text-white-50 d-block mb-1">Bahasa Jawa Krama</small>
+                            <p class="mb-0 text-white small fw-semibold">{{ $example->krama_sentence ?? '-' }}</p>
                         </div>
                     </div>
                 </div>
@@ -163,7 +165,7 @@
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{{ route('admin.vocab.store') }}" method="POST">
+            <form action="{{ route('kosakata.store') }}" method="POST">
                 @csrf
                 <div class="modal-body p-4">
                     <div class="row g-3">
@@ -173,7 +175,12 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Kategori Kosakata</label>
-                            <input type="text" name="category" class="form-control rounded-3" placeholder="Contoh: Pendidikan / Kata Kerja">
+                            <select name="category_id" class="form-select rounded-3">
+                                <option value="">-- Pilih Kategori --</option>
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Javanese Ngoko <span class="text-danger">*</span></label>

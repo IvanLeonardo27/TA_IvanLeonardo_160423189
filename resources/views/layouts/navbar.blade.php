@@ -15,15 +15,7 @@
 
         <div class="d-flex align-items-center ms-auto">
             
-            <!-- Global Search -->
-            <div class="d-none d-md-block me-4">
-                <div class="input-group">
-                    <span class="input-group-text bg-transparent border-end-0 text-muted" id="search-addon">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </span>
-                    <input type="text" class="form-control border-start-0 ps-0" placeholder="Cari materi..." aria-label="Search" aria-describedby="search-addon" style="width: 200px;">
-                </div>
-            </div>
+
 
             <!-- Notifications -->
             <div class="dropdown me-3">

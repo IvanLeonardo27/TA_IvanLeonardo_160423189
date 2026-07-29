@@ -33,17 +33,8 @@ Route::get('/ui/student', function() { return view('student.dashboard'); });
 Route::get('/ui/teacher', function() { return view('teacher.dashboard'); });
 Route::get('/ui/materi', function() { return view('student.materi.index'); });
 Route::get('/ui/materi/show', function() { return view('student.materi.show'); });
-Route::get('/ui/kosakata', function(\Illuminate\Http\Request $request) {
-    $query = \App\Models\Vocabulary::with('examples')->orderBy('indonesian_word', 'asc');
-    if ($request->has('search') && $request->search != '') {
-        $search = $request->search;
-        $query->where('indonesian_word', 'like', "%{$search}%")
-              ->orWhere('javanese_ngoko', 'like', "%{$search}%")
-              ->orWhere('javanese_krama', 'like', "%{$search}%");
-    }
-    $vocabularies = $query->paginate(20);
-    return view('student.kosakata.index', compact('vocabularies'));
-});
+Route::get('/ui/kosakata', [\App\Http\Controllers\VocabularyController::class, 'index'])->name('kosakata.index');
+Route::post('/ui/kosakata', [\App\Http\Controllers\VocabularyController::class, 'store'])->name('kosakata.store');
 Route::get('/ui/kosakata/show', function() { return view('student.kosakata.show'); });
 Route::get('/ui/translator', function() { return view('student.translator.index'); });
 Route::get('/ui/quiz', function() { return view('student.quiz.index'); });

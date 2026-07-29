@@ -27,7 +27,7 @@
                     </a>
                 </li>
                 <li class="nav-item mb-1">
-                    <a href="/ui/kosakata" class="nav-link {{ request()->is('*kosakata*') ? 'active' : '' }}">
+                    <a href="/ui/kosakata/kategori" class="nav-link {{ request()->is('*kosakata*') ? 'active' : '' }}">
                         <i class="fa-solid fa-book-journal-whills"></i> Kelola & Tambah Kosakata
                     </a>
                 </li>
@@ -59,7 +59,7 @@
                     </a>
                 </li>
                 <li class="nav-item mb-1">
-                    <a href="/ui/kosakata" class="nav-link {{ request()->is('*kosakata*') ? 'active' : '' }}">
+                    <a href="/ui/kosakata/kategori" class="nav-link {{ request()->is('*kosakata*') ? 'active' : '' }}">
                         <i class="fa-solid fa-book-journal-whills"></i> Kamus Kosakata
                     </a>
                 </li>

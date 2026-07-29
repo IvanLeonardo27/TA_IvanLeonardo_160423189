@@ -1,16 +1,35 @@
 @extends('layouts.app')
 
-@section('title', 'Kamus Kosakata Basa Jawa')
+@section('title', isset($activeCategory) ? 'Kosakata - ' . $activeCategory->name : 'Kamus Kosakata Basa Jawa')
 
 @section('content')
 <div class="row mb-4 align-items-center">
     <div class="col-md-5">
-        <h3 class="fw-bold text-main mb-1">Kamus Basa Jawa</h3>
-        <p class="text-muted mb-0">Daftar kosakata Bahasa Jawa lengkap Ngoko & Krama beserta contoh penggunaan dan audio TTS.</p>
+        <div class="d-flex align-items-center gap-3">
+            <a href="{{ route('kosakata.categories') }}" class="btn btn-light rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;" title="Kembali ke Semua Kategori">
+                <i class="fa-solid fa-arrow-left text-primary fs-5"></i>
+            </a>
+            <div>
+                <h3 class="fw-bold text-main mb-1">
+                    @if(isset($activeCategory))
+                        Kategori: <span class="text-primary">{{ $activeCategory->name }}</span>
+                    @else
+                        Kamus Basa Jawa
+                    @endif
+                </h3>
+                <p class="text-muted mb-0 small">
+                    @if(isset($activeCategory))
+                        Menampilkan kosakata khusus kategori <strong>{{ $activeCategory->name }}</strong>.
+                    @else
+                        Daftar kosakata Bahasa Jawa lengkap Ngoko & Krama beserta contoh penggunaan dan audio TTS.
+                    @endif
+                </p>
+            </div>
+        </div>
     </div>
     <div class="col-md-7 mt-3 mt-md-0">
         <div class="d-flex flex-column flex-sm-row gap-2">
-            <form action="{{ url('/ui/kosakata') }}" method="GET" class="flex-grow-1">
+            <form action="{{ url()->current() }}" method="GET" class="flex-grow-1">
                 <div class="input-group input-group-lg shadow-sm rounded-4">
                     <span class="input-group-text bg-white border-end-0 rounded-start-4">
                         <i class="fa-solid fa-magnifying-glass text-muted"></i>
@@ -20,6 +39,9 @@
                            value="{{ request('search') }}" id="searchInput">
                 </div>
             </form>
+            <a href="{{ route('kosakata.categories') }}" class="btn btn-outline-primary rounded-4 px-3 py-2 d-flex align-items-center justify-content-center gap-2 text-nowrap shadow-sm">
+                <i class="fa-solid fa-shapes"></i> Lihat Kategori
+            </a>
             @auth
                 @if(auth()->user()->isTeacher())
                 <button class="btn btn-primary rounded-4 px-4 py-2 d-flex align-items-center justify-content-center gap-2 text-nowrap shadow-sm" data-bs-toggle="modal" data-bs-target="#addVocabModal">
@@ -35,9 +57,8 @@
                 <i class="fa-solid fa-user-gear text-primary fs-5"></i>
                 <span class="small fw-semibold text-muted text-nowrap">Karakter Suara:</span>
                 <select id="ttsVoiceSelect" class="form-select form-select-sm border-0 bg-light rounded-3 fw-semibold">
-                    <option value="female" selected>👩 Bu Guru (Suara Wanita)</option>
-                    <option value="male">👨 Pak Guru (Suara Pria)</option>
-                    <option value="browser_fallback">🌐 Suara Default Browser (Web Speech API)</option>
+                    <option value="female" selected>👩 Gentle Voice</option>
+                    <option value="male">👨 Soft Spoken</option>
                 </select>
             </div>
             
@@ -63,7 +84,9 @@
                     </div>
                     <span class="badge bg-soft-blue text-primary rounded-pill small me-1">Bahasa Indonesia</span>
                     @if($vocab->categoryObj)
-                    <span class="badge bg-warning bg-opacity-20 text-dark rounded-pill small"><i class="fa-solid fa-tag me-1"></i>{{ $vocab->categoryObj->name }}</span>
+                    <a href="{{ route('kosakata.category.show', $vocab->categoryObj->id) }}" class="text-decoration-none">
+                        <span class="badge bg-warning bg-opacity-20 text-dark rounded-pill small hover-lift"><i class="fa-solid fa-tag me-1"></i>{{ $vocab->categoryObj->name }}</span>
+                    </a>
                     @elseif($vocab->category)
                     <span class="badge bg-warning bg-opacity-20 text-dark rounded-pill small"><i class="fa-solid fa-tag me-1"></i>{{ $vocab->category }}</span>
                     @endif
@@ -135,7 +158,10 @@
     <div class="text-center py-5">
         <lottie-player src="https://assets8.lottiefiles.com/packages/lf20_q7uarxsb.json" background="transparent" speed="1" style="width:150px;height:150px;margin:0 auto;" loop autoplay></lottie-player>
         <h5 class="fw-bold text-main mt-3">Kosakata Tidak Ditemukan</h5>
-        <p class="text-muted">Coba ketik kata lain dalam pencarian.</p>
+        <p class="text-muted mb-3">Coba ketik kata lain atau lihat kategori yang lain.</p>
+        <a href="{{ route('kosakata.categories') }}" class="btn btn-primary rounded-pill px-4">
+            <i class="fa-solid fa-shapes me-1"></i> Kembali ke Kategori
+        </a>
     </div>
     @endforelse
 </div>
@@ -147,9 +173,8 @@
         Menampilkan <span class="text-dark fw-bold">{{ $vocabularies->firstItem() ?? 0 }}</span> - <span class="text-dark fw-bold">{{ $vocabularies->lastItem() ?? 0 }}</span> dari <span class="text-primary fw-bold">{{ $vocabularies->total() }}</span> kosakata
     </div>
     <div class="pagination-custom">
-        {{ $vocabularies->onEachSide(1)->links() }}
+        {{ $vocabularies->appends(request()->query())->onEachSide(1)->links() }}
     </div>
-</div>
 </div>
 @endif
 
@@ -178,7 +203,7 @@
                             <select name="category_id" class="form-select rounded-3">
                                 <option value="">-- Pilih Kategori --</option>
                                 @foreach($categories as $category)
-                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                    <option value="{{ $category->id }}" {{ isset($activeCategory) && $activeCategory->id == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -249,89 +274,25 @@
                 const rateSpeed = rateRange ? parseFloat(rateRange.value) : 0.85;
 
                 if (selectedVoice === 'female' || selectedVoice === 'male') {
-                    // Gunakan Backend Audio Stream (Jaminan Suara Pria & Wanita 100% Berbeda)
                     const audioUrl = `{{ url('/api/tts') }}?text=${encodeURIComponent(textToSpeak)}&gender=${selectedVoice}`;
                     const audio = new Audio(audioUrl);
                     audio.playbackRate = rateSpeed;
 
                     audio.onplay = function() {
-                        icon.className = 'fa-solid fa-volume-high text-success animate-pulse-glow';
+                        icon.className = 'fa-solid fa-volume-high text-success';
                     };
                     audio.onended = function() {
                         icon.className = originalClass;
                     };
                     audio.onerror = function() {
-                        // Fallback ke ResponsiveVoice / Web Speech API jika koneksi offline
-                        if (typeof responsiveVoice !== 'undefined') {
-                            responsiveVoice.speak(textToSpeak, selectedVoice === 'male' ? 'Indonesian Male' : 'Indonesian Female', {
-                                rate: rateSpeed,
-                                onend: function() { icon.className = originalClass; }
-                            });
-                        } else {
-                            speakWithWebSpeech(textToSpeak, rateSpeed, icon, originalClass);
-                        }
+                        icon.className = originalClass;
                     };
-
                     audio.play().catch(() => {
-                        speakWithWebSpeech(textToSpeak, rateSpeed, icon, originalClass);
+                        icon.className = originalClass;
                     });
-                } else {
-                    speakWithWebSpeech(textToSpeak, rateSpeed, icon, originalClass);
                 }
             });
         });
-
-        // Helper Function untuk Web Speech API Browser
-        function speakWithWebSpeech(textToSpeak, rateSpeed, icon, originalClass) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(textToSpeak);
-                utterance.lang = 'id-ID';
-                utterance.rate = rateSpeed;
-
-                utterance.onend = function() { icon.className = originalClass; };
-                utterance.onerror = function() { icon.className = originalClass; };
-
-                window.speechSynthesis.speak(utterance);
-            } else {
-                icon.className = originalClass;
-                alert("Fitur Text-to-Speech tidak didukung oleh browser Anda.");
-            }
-        }
     });
-
-    /* =========================================================================
-     * KODINGAN TTS LAMA (WEB SPEECH API MURNI BROWSER) - DI-COMMENT SESUAI PERMINTAAN
-     * =========================================================================
-    /*
-    document.addEventListener('DOMContentLoaded', function() {
-        const voiceSelect = document.getElementById('ttsVoiceSelect');
-        const rateRange = document.getElementById('ttsRateRange');
-        const rateVal = document.getElementById('ttsRateVal');
-        let availableVoices = [];
-
-        function populateVoiceList() {
-            if (!('speechSynthesis' in window)) return;
-            availableVoices = window.speechSynthesis.getVoices();
-            if (!voiceSelect) return;
-            voiceSelect.innerHTML = '';
-
-            let selectedIndex = 0;
-            availableVoices.forEach((voice, index) => {
-                const option = document.createElement('option');
-                option.textContent = `${voice.name} (${voice.lang})`;
-                option.value = index;
-                if (voice.lang.includes('id') || voice.lang.includes('ID')) selectedIndex = index;
-                voiceSelect.appendChild(option);
-            });
-            if (availableVoices.length > 0) voiceSelect.selectedIndex = selectedIndex;
-        }
-
-        populateVoiceList();
-        if (speechSynthesis.onvoiceschanged !== undefined) {
-            speechSynthesis.onvoiceschanged = populateVoiceList;
-        }
-    });
-    */
 </script>
 @endpush

@@ -9,9 +9,37 @@ use Illuminate\Http\Request;
 
 class VocabularyController extends Controller
 {
-    public function index(Request $request)
+    /**
+     * Halaman Utama: Daftar Semua Kategori Kosakata (Grid View)
+     */
+    public function categories(Request $request)
+    {
+        $query = VocabularyCategory::withCount('vocabularies')->orderBy('name');
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', "%{$request->search}%");
+        }
+
+        $categories = $query->paginate(18);
+
+        return view('student.kosakata.categories', compact('categories'));
+    }
+
+    /**
+     * Halaman Kosakata Berdasarkan Kategori yang Dipilih / Semua Kosakata
+     */
+    public function index(Request $request, $categoryId = null)
     {
         $query = Vocabulary::with(['examples', 'categoryObj'])->orderBy('indonesian_word', 'asc');
+
+        $activeCategory = null;
+        if ($categoryId) {
+            $activeCategory = VocabularyCategory::findOrFail($categoryId);
+            $query->where('category_id', $categoryId);
+        } elseif ($request->filled('category_id')) {
+            $activeCategory = VocabularyCategory::find($request->category_id);
+            $query->where('category_id', $request->category_id);
+        }
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -22,14 +50,10 @@ class VocabularyController extends Controller
             });
         }
 
-        if ($request->filled('category_id')) {
-            $query->where('category_id', $request->category_id);
-        }
-
         $vocabularies = $query->paginate(20);
         $categories = VocabularyCategory::orderBy('name')->get();
 
-        return view('student.kosakata.index', compact('vocabularies', 'categories'));
+        return view('student.kosakata.index', compact('vocabularies', 'categories', 'activeCategory'));
     }
 
     public function store(Request $request)

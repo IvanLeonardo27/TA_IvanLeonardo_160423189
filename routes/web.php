@@ -33,6 +33,8 @@ Route::get('/ui/student', function() { return view('student.dashboard'); });
 Route::get('/ui/teacher', function() { return view('teacher.dashboard'); });
 Route::get('/ui/materi', function() { return view('student.materi.index'); });
 Route::get('/ui/materi/show', function() { return view('student.materi.show'); });
+Route::get('/ui/kosakata/kategori', [\App\Http\Controllers\VocabularyController::class, 'categories'])->name('kosakata.categories');
+Route::get('/ui/kosakata/kategori/{category}', [\App\Http\Controllers\VocabularyController::class, 'index'])->name('kosakata.category.show');
 Route::get('/ui/kosakata', [\App\Http\Controllers\VocabularyController::class, 'index'])->name('kosakata.index');
 Route::post('/ui/kosakata', [\App\Http\Controllers\VocabularyController::class, 'store'])->name('kosakata.store');
 Route::get('/ui/kosakata/show', function() { return view('student.kosakata.show'); });

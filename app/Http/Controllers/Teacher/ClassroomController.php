@@ -45,6 +45,14 @@ class ClassroomController extends Controller
             'code'       => Classroom::generateCode(),
         ]);
 
+        // Catat pengajar yang membuat kelas ke classroom_members sebagai role teacher
+        ClassroomMember::create([
+            'classroom_id' => $classroom->id,
+            'user_id'      => Auth::id(),
+            'role'         => 'teacher',
+            'joined_at'    => now(),
+        ]);
+
         return redirect()->route('teacher.classroom.show', $classroom)
             ->with('success', 'Kelas berhasil dibuat!');
     }
@@ -100,16 +108,21 @@ class ClassroomController extends Controller
             ->with('success', 'Kelas berhasil dihapus.');
     }
 
-    /** Hapus anggota dari kelas */
+    /** Hapus anggota dari kelas (Catat out_at) */
     public function removeMember(Classroom $classroom, User $user)
     {
         abort_if($classroom->teacher_id !== Auth::id(), 403);
 
-        ClassroomMember::where('classroom_id', $classroom->id)
+        $member = ClassroomMember::where('classroom_id', $classroom->id)
             ->where('user_id', $user->id)
-            ->delete();
+            ->whereNull('out_at')
+            ->first();
 
-        return back()->with('success', 'Anggota berhasil dihapus.');
+        if ($member) {
+            $member->update(['out_at' => now()]);
+        }
+
+        return back()->with('success', 'Anggota berhasil dikeluarkan dari kelas.');
     }
 
     /** Nilai submission siswa */

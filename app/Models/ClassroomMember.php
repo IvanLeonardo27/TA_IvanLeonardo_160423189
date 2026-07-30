@@ -9,9 +9,12 @@ class ClassroomMember extends Model
 {
     public $timestamps = false;
 
-    protected $fillable = ['classroom_id', 'user_id', 'role'];
+    protected $fillable = ['classroom_id', 'user_id', 'role', 'joined_at', 'out_at'];
 
-    protected $casts = ['joined_at' => 'datetime'];
+    protected $casts = [
+        'joined_at' => 'datetime',
+        'out_at'    => 'datetime',
+    ];
 
     public function classroom(): BelongsTo
     {

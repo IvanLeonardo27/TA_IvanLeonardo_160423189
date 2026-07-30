@@ -14,7 +14,8 @@ class ClassroomController extends Controller
     public function index()
     {
         $classrooms = Classroom::whereHas('members', function ($q) {
-                $q->where('user_id', Auth::id());
+                $q->where('user_id', Auth::id())
+                  ->whereNull('out_at');
             })
             ->with('teacher')
             ->withCount('students')
@@ -32,25 +33,33 @@ class ClassroomController extends Controller
 
         $classroom = Classroom::where('code', strtoupper(trim($request->code)))
             ->where('status', 'active')
-            ->firstOrFail();
+            ->first();
 
-        // Cek apakah sudah menjadi anggota atau pengajar
+        if (!$classroom) {
+            return back()->withErrors(['code' => 'Kode kelas tidak ditemukan atau tidak aktif.']);
+        }
+
+        // Cek apakah sudah menjadi anggota pengajar atau aktif
         if ($classroom->teacher_id === Auth::id()) {
             return back()->withErrors(['code' => 'Anda adalah pengajar kelas ini.']);
         }
 
-        $alreadyJoined = ClassroomMember::where('classroom_id', $classroom->id)
+        $activeMember = ClassroomMember::where('classroom_id', $classroom->id)
             ->where('user_id', Auth::id())
-            ->exists();
+            ->whereNull('out_at')
+            ->first();
 
-        if ($alreadyJoined) {
+        if ($activeMember) {
             return back()->withErrors(['code' => 'Anda sudah bergabung di kelas ini.']);
         }
 
+        // Jika pernah keluar dan gabung kembali, buat record baru dengan joined_at terbaru
         ClassroomMember::create([
             'classroom_id' => $classroom->id,
             'user_id'      => Auth::id(),
             'role'         => 'student',
+            'joined_at'    => now(),
+            'out_at'       => null,
         ]);
 
         return redirect()->route('student.classroom.show', $classroom)
@@ -60,10 +69,11 @@ class ClassroomController extends Controller
     /** Lihat detail kelas beserta stream/feed */
     public function show(Classroom $classroom)
     {
-        // Pastikan pelajar adalah anggota kelas ini
+        // Pastikan pelajar adalah anggota aktif kelas ini
         abort_unless(
             ClassroomMember::where('classroom_id', $classroom->id)
                 ->where('user_id', Auth::id())
+                ->whereNull('out_at')
                 ->exists(),
             403
         );

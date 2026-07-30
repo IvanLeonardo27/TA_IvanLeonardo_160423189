@@ -6,8 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class QuizAttempt extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'quiz_set_id',
         'player_name',

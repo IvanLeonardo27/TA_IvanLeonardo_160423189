@@ -17,9 +17,11 @@
 
         <div class="position-relative" style="z-index: 2;">
             <div class="d-flex align-items-center gap-2 mb-2">
-                <span class="badge rounded-pill px-3 py-1.5 fw-bold bg-white bg-opacity-20 text-white shadow-sm" style="font-size: 0.72rem; letter-spacing: 0.5px;">
-                    <i class="fa-solid fa-book-journal-whills me-1"></i> {{ strtoupper($classroom->subject ?? 'Bahasa Jawa') }}
+                @if($classroom->subject)
+                <span class="badge rounded-pill px-3 py-1.5 fw-bold bg-dark bg-opacity-40 text-white shadow-sm border border-white border-opacity-20" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+                    <i class="fa-solid fa-book-journal-whills me-1 text-accent"></i> {{ strtoupper($classroom->subject) }}
                 </span>
+                @endif
                 <span class="badge rounded-pill px-3 py-1.5 fw-bold bg-accent text-white shadow-sm" style="font-size: 0.72rem;">
                     <i class="fa-solid fa-users me-1"></i> {{ $totalMembers }} Siswa
                 </span>
@@ -30,10 +32,10 @@
             </h1>
             
             <div class="d-flex align-items-center gap-3 mt-3">
-                <div class="d-flex align-items-center gap-2 bg-white bg-opacity-15 rounded-pill px-3 py-1.5 backdrop-blur">
+                <div class="d-flex align-items-center gap-2 bg-dark bg-opacity-40 border border-white border-opacity-20 rounded-pill px-3 py-1.5 shadow-sm">
                     <img src="https://ui-avatars.com/api/?name={{ urlencode($teacher->name) }}&size=32&background=C9A66B&color=fff" 
                          class="rounded-circle border border-2 border-white shadow-sm" width="28" height="28" alt="Pengajar">
-                    <span class="small fw-semibold text-white me-1">Pengajar: <strong>{{ $teacher->name }}</strong></span>
+                    <span class="small fw-bold text-white me-1">Pengajar: <span class="text-accent">{{ $teacher->name }}</span></span>
                 </div>
             </div>
         </div>

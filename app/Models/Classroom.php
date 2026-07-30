@@ -7,8 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Classroom extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'teacher_id', 'name', 'description', 'subject',
         'code', 'banner_color', 'banner_icon', 'status',
@@ -20,19 +23,21 @@ class Classroom extends Model
         return $this->belongsTo(User::class, 'teacher_id');
     }
 
-    /** Seluruh anggota melalui pivot classroom_members */
+    /** Seluruh anggota aktif melalui pivot classroom_members */
     public function members(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'classroom_members', 'classroom_id', 'user_id')
-                    ->withPivot('role', 'joined_at');
+                    ->wherePivotNull('out_at')
+                    ->withPivot('role', 'joined_at', 'out_at');
     }
 
-    /** Hanya siswa */
+    /** Hanya siswa aktif */
     public function students(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'classroom_members', 'classroom_id', 'user_id')
                     ->wherePivot('role', 'student')
-                    ->withPivot('joined_at');
+                    ->wherePivotNull('out_at')
+                    ->withPivot('joined_at', 'out_at');
     }
 
     /** Seluruh post (pengumuman, materi, tugas) */

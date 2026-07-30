@@ -7,8 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class ClassroomPost extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'classroom_id', 'author_id', 'type', 'title', 'body', 'is_pinned',
     ];

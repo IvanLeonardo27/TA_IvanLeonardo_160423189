@@ -45,26 +45,6 @@ Route::get('/ui/teacher/kelas', function() { return view('teacher.classroom.inde
 Route::get('/ui/teacher/kelas/create', function() { return view('teacher.classroom.create'); });
 Route::get('/ui/teacher/kelas/show', function() { return view('teacher.classroom.show', ['classroom' => new \App\Models\Classroom(['name' => 'Bahasa Jawa - Kelas 5A', 'code' => 'JW5A-26', 'banner_color' => '#1F4D3A', 'banner_icon' => 'graduation-cap']), 'posts' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10), 'students' => collect(), 'members' => collect()]); });
 Route::get('/ui/student/kelas', function() { return view('student.classroom.index', ['classrooms' => collect()]); });
-Route::match(['get', 'post'], '/ui/student/kelas/join', function(\Illuminate\Http\Request $request) {
-    if ($request->isMethod('post')) {
-        if (auth()->check()) {
-            $controller = new \App\Http\Controllers\Student\ClassroomController();
-            return $controller->join($request);
-        }
-        return redirect('/ui/student/kelas/show')->with('success', 'Berhasil bergabung ke kelas demo!');
-    }
-    return redirect('/ui/student/kelas');
-});
-Route::match(['get', 'post'], '/student/classroom/join', function(\Illuminate\Http\Request $request) {
-    if ($request->isMethod('post')) {
-        if (auth()->check()) {
-            $controller = new \App\Http\Controllers\Student\ClassroomController();
-            return $controller->join($request);
-        }
-        return redirect('/ui/student/kelas/show')->with('success', 'Berhasil bergabung ke kelas demo!');
-    }
-    return redirect('/ui/student/kelas');
-})->name('student.classroom.join');
 Route::get('/ui/student/kelas/show', function() { return view('student.classroom.show', ['classroom' => new \App\Models\Classroom(['name' => 'Bahasa Jawa - Kelas 5A', 'banner_color' => '#1F4D3A', 'banner_icon' => 'graduation-cap']), 'posts' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10), 'teacher' => new \App\Models\User(['name' => 'Pak Guru']), 'members' => collect(), 'totalMembers' => 0]); });
 Route::get('/ui/student/kelas/submission', function() { return view('student.classroom.submission.show', ['classroom' => new \App\Models\Classroom(['name' => 'Bahasa Jawa - Kelas 5A']), 'assignment' => new \App\Models\ClassroomAssignment(['post' => new \App\Models\ClassroomPost(['title' => 'Tugas: Mengarang Bebas']), 'max_score' => 100]), 'submission' => null]); });
 Route::get('/api/tts', [TtsProxyController::class, 'speak'])->name('api.tts');

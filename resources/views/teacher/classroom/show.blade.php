@@ -3,33 +3,42 @@
 @section('title', $classroom->name . ' – Kelola Kelas')
 
 @section('content')
-{{-- HERO BANNER KELAS --}}
-<div class="card border-0 shadow-sm mb-4 overflow-hidden animate__animated animate__fadeInDown" style="border-radius:20px;">
-    <div class="p-5 position-relative text-white" style="background:{{ $classroom->banner_color }}; min-height:180px;">
-        <i class="fa-solid fa-{{ $classroom->banner_icon }} position-absolute opacity-10"
-           style="font-size:14rem; right:-20px; bottom:-40px;"></i>
-        <div class="position-relative" style="z-index:1;">
-            <span class="badge rounded-pill px-3 py-1 mb-2 fw-semibold"
-                  style="background:rgba(255,255,255,.2); letter-spacing:.5px; font-size:.7rem;">
-                {{ strtoupper($classroom->subject ?? 'Bahasa Jawa') }}
+{{-- HERO BANNER KELAS REDESIGN --}}
+<div class="card border-0 shadow-sm mb-4 overflow-hidden animate__animated animate__fadeInDown" 
+     style="border-radius:24px; background: linear-gradient(135deg, var(--primary) 0%, #16382a 100%);">
+    <div class="p-4 p-md-5 position-relative text-white" style="min-height:190px;">
+        <i class="fa-solid fa-{{ $classroom->banner_icon ?? 'graduation-cap' }} position-absolute opacity-10"
+           style="font-size:15rem; right:-20px; bottom:-40px; color:#ffffff;"></i>
+        
+        <div class="position-relative" style="z-index:2;">
+            @if($classroom->subject)
+            <span class="badge rounded-pill px-3 py-1.5 mb-2 fw-bold bg-dark bg-opacity-40 text-white shadow-sm border border-white border-opacity-20"
+                  style="letter-spacing:.5px; font-size:.72rem;">
+                <i class="fa-solid fa-book-journal-whills me-1 text-accent"></i> {{ strtoupper($classroom->subject) }}
             </span>
-            <h1 class="fw-bold display-6 mb-1" style="text-shadow:0 2px 8px rgba(0,0,0,.15);">{{ $classroom->name }}</h1>
-            <div class="d-flex align-items-center gap-3 mt-2 flex-wrap">
-                <span class="opacity-80 small"><i class="fa-solid fa-users me-1"></i>{{ $students->count() }} Siswa</span>
-                <span class="opacity-80 small"><i class="fa-solid fa-key me-1"></i>Kode: <strong style="letter-spacing:2px;">{{ $classroom->code }}</strong></span>
-                <span class="badge bg-white text-success fw-semibold px-3 py-1 rounded-pill shadow-sm">Aktif</span>
+            @endif
+
+            <h1 class="fw-bold display-6 mb-2 text-white" style="text-shadow:0 2px 10px rgba(0,0,0,.25);">{{ $classroom->name }}</h1>
+
+            <div class="d-flex align-items-center gap-2 mt-3 flex-wrap">
+                <div class="d-flex align-items-center gap-2 bg-dark bg-opacity-40 border border-white border-opacity-20 rounded-pill px-3 py-1.5 shadow-sm">
+                    <span class="small fw-bold text-white"><i class="fa-solid fa-users me-1 text-accent"></i> {{ $students->count() }} Siswa</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 bg-dark bg-opacity-40 border border-white border-opacity-20 rounded-pill px-3 py-1.5 shadow-sm">
+                    <span class="small fw-bold text-white"><i class="fa-solid fa-key me-1 text-accent"></i> Kode: <strong class="text-accent" style="letter-spacing:2px;">{{ $classroom->code }}</strong></span>
+                </div>
+                <span class="badge bg-success text-white fw-bold px-3 py-2 rounded-pill shadow-sm">Status: Aktif</span>
             </div>
         </div>
 
         {{-- Tombol aksi --}}
-        <div class="position-absolute top-0 end-0 p-4 d-flex gap-2">
+        <div class="position-absolute top-0 end-0 p-4 d-flex gap-2" style="z-index: 3;">
             <a href="{{ route('teacher.classroom.post.create', $classroom) }}"
-               class="btn btn-sm fw-semibold rounded-pill shadow-sm px-3"
-               style="background:rgba(255,255,255,.9); color:{{ $classroom->banner_color }};">
+               class="btn btn-sm fw-bold rounded-pill shadow btn-bouncy px-3 py-2 bg-white text-primary border-0">
                 <i class="fa-solid fa-plus me-1"></i> Tambah Post
             </a>
             <div class="dropdown">
-                <button class="btn btn-sm rounded-circle shadow-sm" style="background:rgba(255,255,255,.9); color:{{ $classroom->banner_color }}; width:36px;height:36px;padding:0;" data-bs-toggle="dropdown">
+                <button class="btn btn-sm rounded-circle shadow bg-white text-primary border-0" style="width:38px;height:38px;padding:0;" data-bs-toggle="dropdown">
                     <i class="fa-solid fa-ellipsis-vertical"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4 py-2">

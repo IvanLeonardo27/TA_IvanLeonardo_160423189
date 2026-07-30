@@ -7,8 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class ClassroomAssignment extends Model
 {
+    use SoftDeletes;
     public $timestamps = false;
 
     protected $fillable = ['post_id', 'material_id', 'due_date', 'max_score', 'instructions'];

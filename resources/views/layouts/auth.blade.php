@@ -57,7 +57,7 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-12 text-center mb-4">
-                <h2 class="fw-bold text-white"><i class="fa-solid fa-graduation-cap me-2"></i>SinauBasa</h2>
+                <h2 class="fw-bold text-white"><i class="fa-solid fa-graduation-cap me-2"></i>VanJava <span style="color: var(--accent);">iLearning</span></h2>
                 <p class="text-white-50">Platform Belajar Bahasa Jawa Interaktif</p>
             </div>
         </div>

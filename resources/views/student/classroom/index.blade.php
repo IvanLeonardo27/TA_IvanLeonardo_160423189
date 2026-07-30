@@ -4,14 +4,9 @@
 
 @section('content')
 {{-- Header --}}
-<div class="d-flex justify-content-between align-items-center mb-5 animate__animated animate__fadeInDown">
-    <div>
-        <h2 class="fw-bold text-main mb-1">Kelas Saya</h2>
-        <p class="text-muted mb-0">Semua kelas yang sedang Anda ikuti</p>
-    </div>
-    <button class="btn btn-primary rounded-pill px-4 shadow btn-bouncy" data-bs-toggle="modal" data-bs-target="#joinModal">
-        <i class="fa-solid fa-plus me-2"></i>Gabung Kelas
-    </button>
+<div class="mb-4 animate__animated animate__fadeInDown">
+    <h2 class="fw-bold text-main mb-1">Kelas Saya</h2>
+    <p class="text-muted mb-0">Semua kelas yang sedang Anda ikuti</p>
 </div>
 
 @if(session('success'))

@@ -1,7 +1,8 @@
 <nav class="sidebar d-flex flex-column p-3">
     <div class="sidebar-header mb-4 mt-2 px-3">
-        <h4 class="text-primary m-0 fw-bold">
-            <i class="fa-solid fa-graduation-cap me-2"></i>SinauBasa
+        <h4 class="text-primary m-0 fw-bold d-flex align-items-center gap-2">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>VanJava <span class="text-accent" style="font-size: 0.85em;">iLearning</span></span>
         </h4>
     </div>
 
@@ -21,11 +22,6 @@
                     </a>
                 </li>
                 <hr class="my-2 text-muted">
-                <li class="nav-item mb-1">
-                    <a href="/ui/materi" class="nav-link {{ request()->is('*materi*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-book-open"></i> Kelola & View Materi
-                    </a>
-                </li>
                 <li class="nav-item mb-1">
                     <a href="/ui/kosakata" class="nav-link {{ request()->is('*kosakata*') ? 'active' : '' }}">
                         <i class="fa-solid fa-book-journal-whills"></i> Kelola & Tambah Kosakata
@@ -51,11 +47,6 @@
                 <li class="nav-item mb-1">
                     <a href="{{ route('student.classroom.index') }}" class="nav-link {{ request()->is('*classroom*') || request()->is('*kelas*') ? 'active' : '' }}">
                         <i class="fa-solid fa-chalkboard-user"></i> Ruang Kelas Saya
-                    </a>
-                </li>
-                <li class="nav-item mb-1">
-                    <a href="/ui/materi" class="nav-link {{ request()->is('*materi*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-book-open"></i> Materi Belajar
                     </a>
                 </li>
                 <li class="nav-item mb-1">

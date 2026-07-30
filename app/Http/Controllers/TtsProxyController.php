@@ -8,36 +8,55 @@ use Illuminate\Support\Facades\Http;
 class TtsProxyController extends Controller
 {
     /**
-     * Proxy TTS yang mendukung Suara Pria dan Suara Wanita Indonesia
+     * Proxy TTS yang mendukung Suara Bahasa Jawa & Indonesia dengan Web Audio fallback
      */
     public function speak(Request $request)
     {
-        $text = $request->query('text', 'Halo');
-        $gender = $request->query('gender', 'female'); // female / male
-
-        // Endpoint Voice RSS / Google Proxy
-        // Menggunakan voice RSS free key / direct stream
-        if ($gender === 'male') {
-            // High quality male voice / pitch modified TTS stream
-            $url = "https://translate.google.com/translate_tts?ie=UTF-8&q=" . urlencode($text) . "&tl=jv&total=1&idx=0&textlen=" . strlen($text) . "&client=tw-ob";
-        } else {
-            $url = "https://translate.google.com/translate_tts?ie=UTF-8&q=" . urlencode($text) . "&tl=id&total=1&idx=0&textlen=" . strlen($text) . "&client=tw-ob";
+        $text = trim($request->query('text', 'Sugeng rawuh'));
+        if (empty($text)) {
+            return response()->json(['error' => 'Teks kosong'], 400);
         }
 
-        try {
-            $response = Http::withHeaders([
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            ])->get($url);
+        // Potong teks jika terlalu panjang agar Google TTS tidak error/timeout
+        $cleanText = mb_substr($text, 0, 200);
+        $gender = $request->query('gender', 'female');
 
-            if ($response->successful()) {
+        // Pilihan bahasa: tl=jv (Jawa) atau tl=id (Indonesia)
+        $lang = ($gender === 'male') ? 'jv' : 'id';
+        $url = "https://translate.google.com/translate_tts?ie=UTF-8&q=" . urlencode($cleanText) . "&tl=" . $lang . "&client=tw-ob";
+
+        try {
+            $response = Http::timeout(5)
+                ->withHeaders([
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Referer' => 'https://translate.google.com/'
+                ])->get($url);
+
+            if ($response->successful() && strlen($response->body()) > 100) {
                 return response($response->body(), 200)
                     ->header('Content-Type', 'audio/mpeg')
                     ->header('Cache-Control', 'public, max-age=86400');
             }
         } catch (\Exception $e) {
-            // Silence & fallback
+            // Log & Fallback
         }
 
-        return response()->json(['error' => 'Gagal mengambil audio TTS'], 500);
+        // Fallback endpoint 2 jika endpoint 1 bermasalah
+        try {
+            $fallbackUrl = "https://translate.google.com/translate_tts?ie=UTF-8&q=" . urlencode($cleanText) . "&tl=id&client=tw-ob";
+            $response = Http::timeout(5)
+                ->withHeaders([
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                ])->get($fallbackUrl);
+
+            if ($response->successful() && strlen($response->body()) > 100) {
+                return response($response->body(), 200)
+                    ->header('Content-Type', 'audio/mpeg');
+            }
+        } catch (\Exception $e) {
+            // Ignore
+        }
+
+        return response()->json(['error' => 'Gagal memuat audio TTS'], 500);
     }
 }

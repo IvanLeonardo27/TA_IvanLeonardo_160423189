@@ -1,182 +1,118 @@
 @extends('layouts.app')
 
-@section('title', isset($activeCategory) ? 'Kosakata - ' . $activeCategory->name : 'Kamus Kosakata Basa Jawa')
+@section('title', 'Kamus Kosakata Basa Jawa')
 
 @section('content')
-<div class="row mb-4 align-items-center">
-    <div class="col-md-5">
-        <div class="d-flex align-items-center gap-3">
-            <a href="{{ route('kosakata.categories') }}" class="btn btn-light rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;" title="Kembali ke Semua Kategori">
-                <i class="fa-solid fa-arrow-left text-primary fs-5"></i>
-            </a>
-            <div>
-                <h3 class="fw-bold text-main mb-1">
-                    @if(isset($activeCategory))
-                        Kategori: <span class="text-primary">{{ $activeCategory->name }}</span>
-                    @else
-                        Kamus Basa Jawa
-                    @endif
-                </h3>
-                <p class="text-muted mb-0 small">
-                    @if(isset($activeCategory))
-                        Menampilkan kosakata khusus kategori <strong>{{ $activeCategory->name }}</strong>.
-                    @else
-                        Daftar kosakata Bahasa Jawa lengkap Ngoko & Krama beserta contoh penggunaan dan audio TTS.
-                    @endif
-                </p>
-            </div>
-        </div>
+{{-- Header Area & Modern Clean Search Engine --}}
+<div class="row mb-4 align-items-center g-3">
+    <div class="col-xl-5 col-lg-4">
+        <h3 class="fw-bold text-main mb-1">
+            <i class="fa-solid fa-book-journal-whills text-primary me-2"></i>Kamus Basa Jawa
+        </h3>
+        <p class="text-muted mb-0 small">Kamus kosakata Bahasa Jawa (Ngoko & Krama) diurutkan berurutan secara Abjad (A-Z).</p>
     </div>
-    <div class="col-md-7 mt-3 mt-md-0">
-        <div class="d-flex flex-column flex-sm-row gap-2">
-            <form action="{{ url()->current() }}" method="GET" class="flex-grow-1">
-                <div class="input-group input-group-lg shadow-sm rounded-4">
-                    <span class="input-group-text bg-white border-end-0 rounded-start-4">
-                        <i class="fa-solid fa-magnifying-glass text-muted"></i>
-                    </span>
-                    <input type="text" name="search" class="form-control border-start-0 ps-0 rounded-end-4"
-                           placeholder="Cari kata (Indonesia / Ngoko / Krama)..."
-                           value="{{ request('search') }}" id="searchInput">
+    
+    <div class="col-xl-7 col-lg-8">
+        <form action="{{ url('/ui/kosakata') }}" method="GET" id="searchFilterForm">
+            <div class="p-2 bg-white rounded-4 shadow-sm border border-light">
+                <div class="row g-2 align-items-center">
+                    {{-- Input Cari Kata --}}
+                    <div class="col-12 col-sm-6 col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-0 text-muted ps-3 pe-1">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <input type="text" name="search" class="form-control border-0 ps-1 py-2"
+                                   placeholder="Cari kata (Indonesia / Ngoko / Krama)..."
+                                   value="{{ request('search') }}" id="searchInput" style="box-shadow: none;">
+                        </div>
+                    </div>
+                    
+                    {{-- Filter Dropdown Kategori --}}
+                    <div class="col-12 col-sm-6 col-md-4 border-start-custom">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-0 text-primary ps-2 pe-1">
+                                <i class="fa-solid fa-tags"></i>
+                            </span>
+                            <select name="category_id" class="form-select border-0 bg-transparent fw-semibold text-main py-2 pe-4" onchange="this.form.submit()" style="box-shadow: none; cursor: pointer;">
+                                <option value="">Semua Kategori ({{ $categories->count() }})</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>
+                                        {{ $cat->name }} ({{ $cat->vocabularies_count }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    {{-- Tombol Cari & Reset --}}
+                    <div class="col-12 col-md-2 d-flex gap-1 justify-content-end">
+                        <button type="submit" class="btn btn-primary rounded-3 px-3 py-2 fw-semibold flex-grow-1" title="Cari">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                        @if(request('search') || request('category_id'))
+                            <a href="{{ url('/ui/kosakata') }}" class="btn btn-soft-danger rounded-3 px-3 py-2 text-danger" title="Reset Filter">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </a>
+                        @endif
+                    </div>
                 </div>
-            </form>
-            <a href="{{ route('kosakata.categories') }}" class="btn btn-outline-primary rounded-4 px-3 py-2 d-flex align-items-center justify-content-center gap-2 text-nowrap shadow-sm">
-                <i class="fa-solid fa-shapes"></i> Lihat Kategori
-            </a>
-            @auth
-                @if(auth()->user()->isTeacher())
-                <button class="btn btn-primary rounded-4 px-4 py-2 d-flex align-items-center justify-content-center gap-2 text-nowrap shadow-sm" data-bs-toggle="modal" data-bs-target="#addVocabModal">
-                    <i class="fa-solid fa-plus-circle"></i> Tambah Kosakata
-                </button>
-                @endif
-            @endauth
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Sub-header info filter & audio settings --}}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 p-3 bg-white rounded-4 shadow-sm border border-light">
+    <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-soft-blue text-primary rounded-pill px-3 py-2 fw-bold">
+            <i class="fa-solid fa-arrow-down-a-z me-1"></i> Urutan Abjad (A-Z)
+        </span>
+        @if($selectedCategory)
+            <span class="badge bg-warning bg-opacity-20 text-dark rounded-pill px-3 py-2 fw-semibold">
+                <i class="fa-solid fa-tag me-1"></i> Filter: {{ $selectedCategory->name }}
+            </span>
+        @endif
+    </div>
+
+    {{-- Pengaturan Suara TTS --}}
+    <div class="d-flex align-items-center gap-3">
+        <div class="d-flex align-items-center gap-2">
+            <i class="fa-solid fa-user-gear text-primary fs-6"></i>
+            <span class="small fw-semibold text-muted text-nowrap">Suara:</span>
+            <select id="ttsVoiceSelect" class="form-select form-select-sm border-0 bg-light rounded-3 fw-semibold">
+                <option value="female" selected>👩 Bu Guru</option>
+                <option value="male">👨 Pak Guru</option>
+            </select>
         </div>
         
-        {{-- Pengaturan Suara TTS --}}
-        <div class="d-flex flex-wrap align-items-center gap-3 mt-3 p-2 px-3 bg-white rounded-4 shadow-sm border border-light">
-            <div class="d-flex align-items-center gap-2 flex-grow-1">
-                <i class="fa-solid fa-user-gear text-primary fs-5"></i>
-                <span class="small fw-semibold text-muted text-nowrap">Karakter Suara:</span>
-                <select id="ttsVoiceSelect" class="form-select form-select-sm border-0 bg-light rounded-3 fw-semibold">
-                    <option value="female" selected>👩 Gentle Voice</option>
-                    <option value="male">👨 Soft Spoken</option>
-                </select>
-            </div>
-            
-            <div class="d-flex align-items-center gap-2" style="min-width: 170px;">
-                <i class="fa-solid fa-gauge-high text-accent"></i>
-                <span class="small fw-semibold text-muted">Laju:</span>
-                <input type="range" id="ttsRateRange" class="form-range ms-1" min="0.5" max="1.5" step="0.1" value="0.85">
-                <span id="ttsRateVal" class="badge bg-soft-blue text-primary rounded-pill small">0.85x</span>
-            </div>
-        </div>
+        @auth
+            @if(auth()->user()->isTeacher())
+            <button class="btn btn-sm btn-primary rounded-pill px-3 py-1 fw-semibold d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#addVocabModal">
+                <i class="fa-solid fa-plus-circle"></i> Tambah Kata
+            </button>
+            @endif
+        @endauth
     </div>
 </div>
 
+{{-- Container Daftar Kosakata --}}
 <div class="row g-4" id="vocabListContainer">
-    @forelse($vocabularies as $vocab)
-    <div class="col-12 vocab-card-item">
-        <div class="card card-modern p-4 border-0 shadow-sm rounded-4">
-            <div class="row align-items-center">
-                {{-- Kata Utama --}}
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <div class="d-flex align-items-center gap-2 mb-1">
-                        <h4 class="fw-bold text-main mb-0">{{ $vocab->indonesian_word }}</h4>
-                    </div>
-                    <span class="badge bg-soft-blue text-primary rounded-pill small me-1">Bahasa Indonesia</span>
-                    @if($vocab->categoryObj)
-                    <a href="{{ route('kosakata.category.show', $vocab->categoryObj->id) }}" class="text-decoration-none">
-                        <span class="badge bg-warning bg-opacity-20 text-dark rounded-pill small hover-lift"><i class="fa-solid fa-tag me-1"></i>{{ $vocab->categoryObj->name }}</span>
-                    </a>
-                    @elseif($vocab->category)
-                    <span class="badge bg-warning bg-opacity-20 text-dark rounded-pill small"><i class="fa-solid fa-tag me-1"></i>{{ $vocab->category }}</span>
-                    @endif
-                </div>
+    @include('student.kosakata._vocab_items')
+</div>
 
-                {{-- Padanan Jawa Ngoko & Krama --}}
-                <div class="col-md-6 mb-3 mb-md-0">
-                    <div class="d-flex flex-column gap-2">
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 fw-semibold" style="width:110px;">Ngoko</span>
-                            <span class="fs-5 fw-bold text-dark">{{ $vocab->javanese_ngoko ?? '-' }}</span>
-                            <button class="btn btn-sm btn-light rounded-circle shadow-sm btn-speak ms-2"
-                                    data-text="{{ $vocab->javanese_ngoko }}" title="Dengar Suara Ngoko">
-                                <i class="fa-solid fa-volume-high text-accent"></i>
-                            </button>
-                        </div>
-
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-primary text-white rounded-pill px-3 py-1 fw-semibold" style="width:110px;">Krama</span>
-                            <span class="fs-5 fw-bold text-primary">{{ $vocab->javanese_krama ?? '-' }}</span>
-                            <button class="btn btn-sm btn-light rounded-circle shadow-sm btn-speak ms-2"
-                                    data-text="{{ $vocab->javanese_krama }}" title="Dengar Suara Krama">
-                                <i class="fa-solid fa-volume-high text-primary"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Tombol Toggle Contoh --}}
-                <div class="col-md-2 text-md-end">
-                    <button class="btn btn-outline-primary btn-bouncy rounded-pill px-3 py-2 w-100 btn-toggle-example"
-                            type="button" data-bs-toggle="collapse" data-bs-target="#example-{{ $vocab->id }}">
-                        <i class="fa-solid fa-book-open me-1"></i> Contoh
-                    </button>
-                </div>
-            </div>
-
-            {{-- Collapsible Contoh Penggunaan --}}
-            <div class="collapse mt-4 pt-3 border-top" id="example-{{ $vocab->id }}">
-                <h6 class="fw-bold text-main mb-3"><i class="fa-solid fa-lightbulb text-warning me-2"></i>Contoh Penggunaan Kalimat</h6>
-                @forelse($vocab->examples as $index => $example)
-                <div class="row g-3 @if(!$loop->first) mt-2 pt-2 border-top border-dashed @endif">
-                    <div class="col-md-4">
-                        <div class="p-3 bg-light rounded-4 h-100">
-                            <small class="fw-semibold text-muted d-block mb-1">Bahasa Indonesia @if($vocab->examples->count() > 1) #{{ $index + 1 }} @endif</small>
-                            <p class="mb-0 text-dark small fw-semibold">{{ $example->indonesian_sentence ?? '-' }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="p-3 bg-success bg-opacity-10 rounded-4 h-100">
-                            <small class="fw-semibold text-success d-block mb-1">Bahasa Jawa Ngoko</small>
-                            <p class="mb-0 text-dark small fw-semibold">{{ $example->ngoko_sentence ?? $example->javanese_sentence ?? '-' }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="p-3 bg-primary text-white rounded-4 h-100">
-                            <small class="fw-semibold text-white-50 d-block mb-1">Bahasa Jawa Krama</small>
-                            <p class="mb-0 text-white small fw-semibold">{{ $example->krama_sentence ?? '-' }}</p>
-                        </div>
-                    </div>
-                </div>
-                @empty
-                <p class="text-muted small mb-0">Belum ada contoh penggunaan kalimat untuk kata ini.</p>
-                @endforelse
-            </div>
+{{-- Area Tombol "Tampilkan Lebih Banyak / Load More" --}}
+<div class="text-center mt-5 mb-4" id="loadMoreContainer">
+    @if($vocabularies->hasMorePages())
+        <button id="btnLoadMore" class="btn btn-primary rounded-pill px-5 py-3 fw-bold shadow-sm btn-bouncy" data-next-url="{{ $vocabularies->nextPageUrl() }}">
+            <i class="fa-solid fa-angle-down me-2"></i> Tampilkan Lebih Banyak (See More)
+        </button>
+    @else
+        <div class="p-3 bg-white rounded-pill d-inline-block shadow-sm border border-light text-muted small fw-semibold">
+            <i class="fa-solid fa-check-circle text-success me-1"></i> Semua kosakata telah ditampilkan (Total: {{ $vocabularies->total() }} kata)
         </div>
-    </div>
-    @empty
-    <div class="text-center py-5">
-        <lottie-player src="https://assets8.lottiefiles.com/packages/lf20_q7uarxsb.json" background="transparent" speed="1" style="width:150px;height:150px;margin:0 auto;" loop autoplay></lottie-player>
-        <h5 class="fw-bold text-main mt-3">Kosakata Tidak Ditemukan</h5>
-        <p class="text-muted mb-3">Coba ketik kata lain atau lihat kategori yang lain.</p>
-        <a href="{{ route('kosakata.categories') }}" class="btn btn-primary rounded-pill px-4">
-            <i class="fa-solid fa-shapes me-1"></i> Kembali ke Kategori
-        </a>
-    </div>
-    @endforelse
+    @endif
 </div>
-
-{{-- Pagination jika menggunakan data asli dari DB --}}
-@if(method_exists($vocabularies, 'links'))
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-5 mb-4 p-3 bg-white rounded-4 shadow-sm border border-light gap-3">
-    <div class="text-muted small fw-semibold">
-        Menampilkan <span class="text-dark fw-bold">{{ $vocabularies->firstItem() ?? 0 }}</span> - <span class="text-dark fw-bold">{{ $vocabularies->lastItem() ?? 0 }}</span> dari <span class="text-primary fw-bold">{{ $vocabularies->total() }}</span> kosakata
-    </div>
-    <div class="pagination-custom">
-        {{ $vocabularies->appends(request()->query())->onEachSide(1)->links() }}
-    </div>
-</div>
-@endif
 
 {{-- Modal Tambah Kosakata (Pengajar) --}}
 @auth
@@ -203,7 +139,7 @@
                             <select name="category_id" class="form-select rounded-3">
                                 <option value="">-- Pilih Kategori --</option>
                                 @foreach($categories as $category)
-                                    <option value="{{ $category->id }}" {{ isset($activeCategory) && $activeCategory->id == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -245,38 +181,50 @@
 @endauth
 @endsection
 
+@push('styles')
+<style>
+@media (min-width: 576px) {
+    .border-start-custom {
+        border-left: 1px solid rgba(0, 0, 0, 0.08) !important;
+    }
+}
+.btn-soft-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    border: none;
+}
+.btn-soft-danger:hover {
+    background-color: rgba(220, 53, 69, 0.2);
+}
+</style>
+@endpush
+
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const voiceSelect = document.getElementById('ttsVoiceSelect');
-        const rateRange = document.getElementById('ttsRateRange');
-        const rateVal = document.getElementById('ttsRateVal');
+        const btnLoadMore = document.getElementById('btnLoadMore');
+        const vocabContainer = document.getElementById('vocabListContainer');
+        const loadMoreContainer = document.getElementById('loadMoreContainer');
 
-        // Update indicator nilai rate/kecepatan
-        if (rateRange && rateVal) {
-            rateRange.addEventListener('input', function() {
-                rateVal.textContent = this.value + 'x';
-            });
-        }
+        // Function binding untuk Audio TTS
+        function initTtsButtons() {
+            const voiceSelect = document.getElementById('ttsVoiceSelect');
+            document.querySelectorAll('.btn-speak').forEach(button => {
+                if (button.dataset.bound) return;
+                button.dataset.bound = "true";
 
-        // Handler saat tombol speaker diklik menggunakan Server Audio / Proxy API & Fallback
-        document.querySelectorAll('.btn-speak').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const textToSpeak = this.getAttribute('data-text');
-                if (!textToSpeak) return;
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const textToSpeak = this.getAttribute('data-text');
+                    if (!textToSpeak) return;
 
-                const icon = this.querySelector('i');
-                const originalClass = icon.className;
-                icon.className = 'fa-solid fa-spinner fa-spin text-primary';
+                    const icon = this.querySelector('i');
+                    const originalClass = icon.className;
+                    icon.className = 'fa-solid fa-spinner fa-spin text-primary';
 
-                const selectedVoice = voiceSelect ? voiceSelect.value : 'female';
-                const rateSpeed = rateRange ? parseFloat(rateRange.value) : 0.85;
-
-                if (selectedVoice === 'female' || selectedVoice === 'male') {
+                    const selectedVoice = voiceSelect ? voiceSelect.value : 'female';
                     const audioUrl = `{{ url('/api/tts') }}?text=${encodeURIComponent(textToSpeak)}&gender=${selectedVoice}`;
                     const audio = new Audio(audioUrl);
-                    audio.playbackRate = rateSpeed;
+                    audio.playbackRate = 0.85;
 
                     audio.onplay = function() {
                         icon.className = 'fa-solid fa-volume-high text-success';
@@ -290,9 +238,55 @@
                     audio.play().catch(() => {
                         icon.className = originalClass;
                     });
-                }
+                });
             });
-        });
+        }
+
+        initTtsButtons();
+
+        // AJAX Load More "Tampilkan Lebih Banyak"
+        if (btnLoadMore) {
+            btnLoadMore.addEventListener('click', function() {
+                const nextUrl = this.getAttribute('data-next-url');
+                if (!nextUrl) return;
+
+                const originalText = this.innerHTML;
+                this.disabled = true;
+                this.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Memuat kosakata...';
+
+                fetch(nextUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Append HTML baru ke container
+                    vocabContainer.insertAdjacentHTML('beforeend', data.html);
+
+                    // Re-bind TTS untuk elemen baru
+                    initTtsButtons();
+
+                    // Update next page URL atau sembunyikan tombol jika sudah habis
+                    if (data.has_more) {
+                        btnLoadMore.setAttribute('data-next-url', data.next_page_url);
+                        btnLoadMore.disabled = false;
+                        btnLoadMore.innerHTML = originalText;
+                    } else {
+                        loadMoreContainer.innerHTML = `
+                            <div class="p-3 bg-white rounded-pill d-inline-block shadow-sm border border-light text-muted small fw-semibold animate__animated animate__fadeIn">
+                                <i class="fa-solid fa-check-circle text-success me-1"></i> Semua kosakata telah ditampilkan (Total: ${data.total} kata)
+                            </div>
+                        `;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error loading more vocabulary:', err);
+                    btnLoadMore.disabled = false;
+                    btnLoadMore.innerHTML = originalText;
+                });
+            });
+        }
     });
 </script>
 @endpush

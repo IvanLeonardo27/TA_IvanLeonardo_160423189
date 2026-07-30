@@ -43,7 +43,10 @@
                 <span class="input-group-text bg-white text-muted border-end-0">
                     <i class="fa-solid fa-lock"></i>
                 </span>
-                <input type="password" name="password" class="form-control border-start-0 ps-0" id="password" placeholder="••••••••" required>
+                <input type="password" name="password" class="form-control border-start-0 border-end-0 ps-0" id="password" placeholder="••••••••" required>
+                <button type="button" class="input-group-text bg-white text-muted border-start-0 toggle-password-btn" data-target="#password" style="cursor: pointer;">
+                    <i class="fa-solid fa-eye text-muted"></i>
+                </button>
             </div>
         </div>
 

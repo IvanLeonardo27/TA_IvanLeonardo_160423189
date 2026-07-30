@@ -69,5 +69,34 @@
 
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Toggle Password Visibility Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.toggle-password-btn').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const targetSelector = this.getAttribute('data-target');
+                    const input = document.querySelector(targetSelector);
+                    const icon = this.querySelector('i');
+                    
+                    if (input) {
+                        if (input.type === 'password') {
+                            input.type = 'text';
+                            icon.classList.remove('fa-eye');
+                            icon.classList.add('fa-eye-slash');
+                            icon.classList.remove('text-muted');
+                            icon.classList.add('text-primary');
+                        } else {
+                            input.type = 'password';
+                            icon.classList.remove('fa-eye-slash');
+                            icon.classList.add('fa-eye');
+                            icon.classList.remove('text-primary');
+                            icon.classList.add('text-muted');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

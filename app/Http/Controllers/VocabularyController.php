@@ -10,37 +10,14 @@ use Illuminate\Http\Request;
 class VocabularyController extends Controller
 {
     /**
-     * Halaman Utama: Daftar Semua Kategori Kosakata (Grid View)
+     * Halaman Utama Kamus Kosakata (Single Page + Filter Kategori + Search + Load More / Pagination)
      */
-    public function categories(Request $request)
+    public function index(Request $request)
     {
-        $query = VocabularyCategory::withCount('vocabularies')->orderBy('name');
-
-        if ($request->filled('search')) {
-            $query->where('name', 'like', "%{$request->search}%");
-        }
-
-        $categories = $query->paginate(18);
-
-        return view('student.kosakata.categories', compact('categories'));
-    }
-
-    /**
-     * Halaman Kosakata Berdasarkan Kategori yang Dipilih / Semua Kosakata
-     */
-    public function index(Request $request, $categoryId = null)
-    {
+        // Urutkan kosakata berdasarkan Abjad (A-Z) Bahasa Indonesia
         $query = Vocabulary::with(['examples', 'categoryObj'])->orderBy('indonesian_word', 'asc');
 
-        $activeCategory = null;
-        if ($categoryId) {
-            $activeCategory = VocabularyCategory::findOrFail($categoryId);
-            $query->where('category_id', $categoryId);
-        } elseif ($request->filled('category_id')) {
-            $activeCategory = VocabularyCategory::find($request->category_id);
-            $query->where('category_id', $request->category_id);
-        }
-
+        // Filter berdasarkan kata kunci pencarian
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -50,10 +27,34 @@ class VocabularyController extends Controller
             });
         }
 
-        $vocabularies = $query->paginate(20);
-        $categories = VocabularyCategory::orderBy('name')->get();
+        // Filter berdasarkan kategori yang dipilih dari dropdown search bar
+        $selectedCategory = null;
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+            $selectedCategory = VocabularyCategory::find($request->category_id);
+        }
 
-        return view('student.kosakata.index', compact('vocabularies', 'categories', 'activeCategory'));
+        // Default 15 data per halaman untuk performa ringan
+        $perPage = 15;
+        $vocabularies = $query->paginate($perPage);
+
+        // Jika request via AJAX (Tombol "Tampilkan Lebih Banyak / Load More")
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('student.kosakata._vocab_items', compact('vocabularies'))->render(),
+                'next_page_url' => $vocabularies->nextPageUrl(),
+                'has_more' => $vocabularies->hasMorePages(),
+                'current_count' => $vocabularies->count(),
+                'total' => $vocabularies->total(),
+            ]);
+        }
+
+        // Ambil semua kategori untuk dropdown filter di search bar
+        $categories = VocabularyCategory::withCount('vocabularies')
+            ->orderBy('name')
+            ->get();
+
+        return view('student.kosakata.index', compact('vocabularies', 'categories', 'selectedCategory'));
     }
 
     public function store(Request $request)

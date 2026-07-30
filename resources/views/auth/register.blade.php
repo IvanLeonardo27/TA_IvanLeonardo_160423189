@@ -51,7 +51,10 @@
                 <span class="input-group-text bg-white text-muted border-end-0">
                     <i class="fa-solid fa-lock"></i>
                 </span>
-                <input type="password" name="password" class="form-control border-start-0 ps-0" id="password" placeholder="Minimal 8 karakter" required>
+                <input type="password" name="password" class="form-control border-start-0 border-end-0 ps-0" id="password" placeholder="Minimal 8 karakter" required>
+                <button type="button" class="input-group-text bg-white text-muted border-start-0 toggle-password-btn" data-target="#password" style="cursor: pointer;">
+                    <i class="fa-solid fa-eye text-muted"></i>
+                </button>
             </div>
         </div>
 
@@ -61,7 +64,10 @@
                 <span class="input-group-text bg-white text-muted border-end-0">
                     <i class="fa-solid fa-lock"></i>
                 </span>
-                <input type="password" name="password_confirmation" class="form-control border-start-0 ps-0" id="password_confirmation" placeholder="Ulangi password" required>
+                <input type="password" name="password_confirmation" class="form-control border-start-0 border-end-0 ps-0" id="password_confirmation" placeholder="Ulangi password" required>
+                <button type="button" class="input-group-text bg-white text-muted border-start-0 toggle-password-btn" data-target="#password_confirmation" style="cursor: pointer;">
+                    <i class="fa-solid fa-eye text-muted"></i>
+                </button>
             </div>
         </div>
 

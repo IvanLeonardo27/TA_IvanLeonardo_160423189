@@ -68,10 +68,12 @@ Route::middleware(['auth'])->prefix('teacher/classroom')->name('teacher.classroo
     Route::delete('/{classroom}/members/{user}', [TeacherClassroomController::class, 'removeMember'])->name('member.remove');
     Route::post('/submissions/{submission}/grade', [TeacherClassroomController::class, 'gradeSubmission'])->name('submission.grade');
 
-    // Post & Assignments
+    // Post & Assignments & Quiz Export / Preview
     Route::get('/{classroom}/posts/create', [TeacherClassroomPostController::class, 'create'])->name('post.create');
     Route::post('/{classroom}/posts', [TeacherClassroomPostController::class, 'store'])->name('post.store');
     Route::delete('/{classroom}/posts/{post}', [TeacherClassroomPostController::class, 'destroy'])->name('post.destroy');
+    Route::get('/quizzes/{quiz}/export-excel', [TeacherClassroomPostController::class, 'exportQuizAnswersExcel'])->name('quiz.export_excel');
+    Route::get('/quizzes/{quiz}/preview', [TeacherClassroomPostController::class, 'previewQuizSubmissions'])->name('quiz.preview_submissions');
 });
 
 // Rute Kelas untuk Pelajar (Student)
@@ -84,6 +86,11 @@ Route::middleware(['auth'])->prefix('student/classroom')->name('student.classroo
     Route::get('/assignments/{assignment}', [StudentClassroomSubmissionController::class, 'show'])->name('submission.show');
     Route::post('/assignments/{assignment}', [StudentClassroomSubmissionController::class, 'store'])->name('submission.store');
     Route::delete('/assignments/{assignment}', [StudentClassroomSubmissionController::class, 'destroy'])->name('submission.destroy');
+
+    // Evaluasi / Quiz Kelas
+    Route::get('/quizzes/{quiz}', [\App\Http\Controllers\Student\ClassroomQuizController::class, 'show'])->name('quiz.show');
+    Route::post('/quizzes/{quiz}', [\App\Http\Controllers\Student\ClassroomQuizController::class, 'submit'])->name('quiz.submit');
+    Route::get('/quizzes/{quiz}/result/{attempt?}', [\App\Http\Controllers\Student\ClassroomQuizController::class, 'result'])->name('quiz.result');
 });
 
 Route::post('/translate', CustomerTranslateController::class)->name('customer.translate');
@@ -114,5 +121,14 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::post('/kosakata/import', [AdminVocabCsvController::class, 'import'])->name('vocab.import');
     });
 });
+
+// Download attachment dengan nama asli file
+Route::get('/attachments/{attachment}/download', function (\App\Models\ClassroomPostAttachment $attachment) {
+    $path = storage_path('app/public/' . $attachment->file_path);
+    if (!file_exists($path)) {
+        abort(404, 'File tidak ditemukan.');
+    }
+    return response()->download($path, $attachment->original_name);
+})->name('attachment.download');
 
 require __DIR__ . '/auth.php';

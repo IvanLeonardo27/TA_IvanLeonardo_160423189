@@ -84,6 +84,7 @@ class ClassroomController extends Controller
                 'attachments',
                 'comments' => fn($q) => $q->with('user')->latest(),
                 'assignment.mySubmission',
+                'quiz.quizSet',
             ])
             ->paginate(10);
 

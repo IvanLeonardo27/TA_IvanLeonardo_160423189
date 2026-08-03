@@ -63,7 +63,7 @@ class ClassroomController extends Controller
         abort_if($classroom->teacher_id !== Auth::id(), 403);
 
         $posts = $classroom->posts()
-            ->with(['author', 'attachments', 'comments.user', 'assignment.submissions'])
+            ->with(['author', 'attachments', 'comments.user', 'assignment.submissions', 'quiz'])
             ->paginate(10);
 
         $students = $classroom->students()->get();

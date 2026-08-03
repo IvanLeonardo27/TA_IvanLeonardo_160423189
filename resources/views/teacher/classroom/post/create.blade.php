@@ -28,6 +28,7 @@
                                 ['announcement','Pengumuman','bullhorn','#10B981'],
                                 ['material','Materi Belajar','book-open','#3B82F6'],
                                 ['assignment','Tugas','clipboard-list','#EF4444'],
+                                ['quiz','Evaluasi / Quiz','pen-to-square','#8B5CF6'],
                             ] as [$val, $label, $icon, $color])
                             <button type="button" class="type-btn btn border-2 rounded-4 px-4 py-3 d-flex flex-column align-items-center gap-1 {{ $val === 'announcement' ? 'btn-primary border-primary text-white' : 'btn-light' }}"
                                     data-type="{{ $val }}" data-color="{{ $color }}" style="min-width:130px; transition:.2s;">
@@ -47,7 +48,7 @@
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Isi / Deskripsi</label>
                         <textarea name="body" rows="5" class="form-control rounded-4 border-0 bg-light"
-                                  placeholder="Tuliskan isi pengumuman, deskripsi materi, atau instruksi tugas...">{{ old('body') }}</textarea>
+                                  placeholder="Tuliskan isi pengumuman, deskripsi materi, instruksi tugas, atau petunjuk kuis...">{{ old('body') }}</textarea>
                     </div>
 
                     {{-- Field Khusus Tugas --}}
@@ -69,6 +70,54 @@
                                 <textarea name="instructions" rows="3" class="form-control rounded-4 border-0 bg-light"
                                           placeholder="Jelaskan cara pengerjaan tugas...">{{ old('instructions') }}</textarea>
                             </div>
+                        </div>
+                    </div>
+
+                    {{-- Field Khusus Evaluasi / Quiz --}}
+                    <div id="quizFields" class="d-none">
+                        <hr class="my-4">
+                        <h6 class="fw-bold text-purple mb-3" style="color: #8B5CF6;"><i class="fa-solid fa-pen-to-square me-2"></i>Pengaturan Evaluasi / Quiz Kelas</h6>
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Tenggat Waktu Kuis</label>
+                                <input type="datetime-local" name="due_date" class="form-control rounded-4 border-0 bg-light" value="{{ old('due_date') }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Durasi (Menit)</label>
+                                <input type="number" name="duration_minutes" class="form-control rounded-4 border-0 bg-light"
+                                       placeholder="30" min="1" max="300" value="{{ old('duration_minutes', 30) }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Visibilitas Nilai Siswa</label>
+                                <select name="show_score" class="form-select rounded-4 border-0 bg-light fw-semibold">
+                                    <option value="1" {{ old('show_score', '1') == '1' ? 'selected' : '' }}>👁️ Tampilkan Nilai</option>
+                                    <option value="0" {{ old('show_score') == '0' ? 'selected' : '' }}>🙈 Sembunyikan Nilai</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Batas Pengisian Siswa</label>
+                                <select name="max_attempts" class="form-select rounded-4 border-0 bg-light fw-semibold">
+                                    <option value="1" {{ old('max_attempts', '1') == '1' ? 'selected' : '' }}>🔒 Hanya 1 Kali Pengerjaan</option>
+                                    <option value="0" {{ old('max_attempts') == '0' ? 'selected' : '' }}>🔄 Bebas Pengerjaan (Berkali-kali)</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Instruksi & Petunjuk Kuis</label>
+                                <textarea name="instructions" rows="2" class="form-control rounded-4 border-0 bg-light"
+                                          placeholder="Tuliskan petunjuk pengerjaan kuis untuk siswa...">{{ old('instructions') }}</textarea>
+                            </div>
+                        </div>
+
+                        {{-- DYNAMIC QUESTION BUILDER (PILIHAN GANDA) --}}
+                        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                            <h6 class="fw-bold text-main m-0"><i class="fa-solid fa-list-ol text-purple me-2"></i>Daftar Soal Pilihan Ganda</h6>
+                            <button type="button" id="addQuestionBtn" class="btn btn-sm rounded-pill text-white fw-bold px-3 btn-bouncy" style="background:#8B5CF6;">
+                                <i class="fa-solid fa-plus me-1"></i> Tambah Soal Baru
+                            </button>
+                        </div>
+
+                        <div id="questionsContainer" class="d-flex flex-column gap-4">
+                            <!-- Question Card Template will be injected via JS -->
                         </div>
                     </div>
 
@@ -108,9 +157,10 @@
 
 @push('scripts')
 <script>
-    const typeButtons = document.querySelectorAll('.type-btn');
-    const typeInput   = document.getElementById('typeInput');
+    const typeButtons  = document.querySelectorAll('.type-btn');
+    const typeInput    = document.getElementById('typeInput');
     const assignFields = document.getElementById('assignmentFields');
+    const quizFields   = document.getElementById('quizFields');
 
     typeButtons.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -119,6 +169,7 @@
 
             typeInput.value = type;
             assignFields.classList.toggle('d-none', type !== 'assignment');
+            quizFields.classList.toggle('d-none', type !== 'quiz');
 
             typeButtons.forEach(b => {
                 b.className = b.className.replace(/btn-primary|border-primary|text-white/g, '').trim();
@@ -148,6 +199,136 @@
             el.querySelector('button').onclick = () => el.remove();
             preview.appendChild(el);
         });
+    });
+
+    // Dynamic MCQ Question Builder Engine
+    const questionsContainer = document.getElementById('questionsContainer');
+    const addQuestionBtn     = document.getElementById('addQuestionBtn');
+    let questionIndexCount   = 0;
+
+    function renderQuestionCard(qIndex) {
+        const card = document.createElement('div');
+        card.className = 'card border-0 shadow-sm rounded-4 question-card p-4 bg-white border-start border-4 border-purple';
+        card.style.borderColor = '#8B5CF6';
+        card.dataset.qIndex = qIndex;
+
+        card.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="badge rounded-pill px-3 py-2 fw-bold text-white fs-6 question-number-badge" style="background:#8B5CF6;">
+                    Soal #${qIndex + 1}
+                </span>
+                <button type="button" class="btn btn-light btn-sm text-danger rounded-circle remove-q-btn" title="Hapus Soal Ini" style="width:36px;height:36px;padding:0;">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-semibold text-main">Pertanyaan Soal</label>
+                <textarea name="questions[${qIndex}][text]" rows="2" class="form-control rounded-4 border-0 bg-light"
+                          placeholder="Tuliskan pertanyaan pilihan ganda..." required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <label class="form-label fw-semibold text-main m-0">Pilihan Jawaban & Kunci</label>
+                    <small class="text-muted"><i class="fa-solid fa-circle-info me-1"></i>Pilih radio button untuk menentukan kunci jawaban yang benar</small>
+                </div>
+
+                <div class="options-list d-flex flex-column gap-2"></div>
+
+                <div class="mt-3">
+                    <button type="button" class="btn btn-light border btn-sm rounded-pill fw-semibold text-purple add-option-btn" style="color:#8B5CF6;">
+                        <i class="fa-solid fa-plus me-1"></i> Tambah Pilihan Jawaban (+ E, F...)
+                    </button>
+                </div>
+            </div>
+        `;
+
+        const optionsList = card.querySelector('.options-list');
+        const addOptBtn   = card.querySelector('.add-option-btn');
+        const removeQBtn  = card.querySelector('.remove-q-btn');
+
+        // Render default 4 options: A, B, C, D
+        ['A', 'B', 'C', 'D'].forEach(letter => {
+            renderOptionRow(optionsList, qIndex, letter);
+        });
+
+        // Add option click handler (+ E, + F, etc.)
+        addOptBtn.addEventListener('click', () => {
+            const currentCount = optionsList.children.length;
+            const nextLetter = String.fromCharCode(65 + currentCount); // 65 = 'A'
+            renderOptionRow(optionsList, qIndex, nextLetter);
+        });
+
+        // Remove question handler
+        removeQBtn.addEventListener('click', () => {
+            if (questionsContainer.children.length <= 1) {
+                alert('Kuis harus memiliki minimal 1 soal.');
+                return;
+            }
+            card.remove();
+            updateQuestionNumbers();
+        });
+
+        questionsContainer.appendChild(card);
+    }
+
+    function renderOptionRow(container, qIndex, letter) {
+        const row = document.createElement('div');
+        row.className = 'd-flex align-items-center gap-2 option-row animate__animated animate__fadeIn';
+
+        row.innerHTML = `
+            <div class="form-check d-flex align-items-center m-0">
+                <input class="form-check-input me-2" type="radio" name="questions[${qIndex}][correct]" value="${letter}" ${letter === 'A' ? 'checked' : ''} style="cursor:pointer; width:20px; height:20px;">
+                <span class="badge bg-light text-dark border font-monospace fw-bold fs-6 px-3 py-2 option-letter-badge" style="min-width:42px;">${letter}</span>
+            </div>
+            <input type="text" name="questions[${qIndex}][options][${letter}]" class="form-control rounded-4 border-0 bg-light"
+                   placeholder="Tuliskan pilihan jawaban ${letter}..." required>
+            <button type="button" class="btn btn-light btn-sm text-danger rounded-circle remove-opt-btn" style="width:32px;height:32px;padding:0;" title="Hapus Pilihan">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        `;
+
+        const removeBtn = row.querySelector('.remove-opt-btn');
+        removeBtn.addEventListener('click', () => {
+            if (container.children.length <= 2) {
+                alert('Pilihan ganda harus memiliki minimal 2 pilihan jawaban.');
+                return;
+            }
+            row.remove();
+            reorderOptionBadges(container);
+        });
+
+        container.appendChild(row);
+    }
+
+    function reorderOptionBadges(container) {
+        [...container.children].forEach((row, idx) => {
+            const letter = String.fromCharCode(65 + idx);
+            const badge  = row.querySelector('.option-letter-badge');
+            const radio  = row.querySelector('input[type="radio"]');
+            const text   = row.querySelector('input[type="text"]');
+
+            badge.textContent = letter;
+            radio.value = letter;
+            text.placeholder = `Tuliskan pilihan jawaban ${letter}...`;
+        });
+    }
+
+    function updateQuestionNumbers() {
+        [...questionsContainer.children].forEach((card, idx) => {
+            const badge = card.querySelector('.question-number-badge');
+            badge.textContent = `Soal #${idx + 1}`;
+        });
+    }
+
+    // Initialize with 1 Question Card by default
+    renderQuestionCard(0);
+
+    addQuestionBtn.addEventListener('click', () => {
+        questionIndexCount++;
+        renderQuestionCard(questionIndexCount);
+        updateQuestionNumbers();
     });
 </script>
 @endpush

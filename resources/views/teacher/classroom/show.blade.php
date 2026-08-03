@@ -107,7 +107,7 @@
                             </div>
                             <div class="d-flex align-items-center gap-2">
                                 <span class="badge rounded-pill px-3 fw-semibold" style="background:{{ $post->type_color }}20; color:{{ $post->type_color }}; font-size:.72rem;">
-                                    {{ ['announcement'=>'Pengumuman','material'=>'Materi','assignment'=>'Tugas'][$post->type] }}
+                                    {{ ['announcement'=>'Pengumuman','material'=>'Materi','assignment'=>'Tugas','quiz'=>'Evaluasi / Quiz'][$post->type] }}
                                 </span>
                                 <form action="{{ route('teacher.classroom.post.destroy', [$classroom, $post]) }}" method="POST"
                                       onsubmit="return confirm('Hapus postingan ini?')">
@@ -144,16 +144,47 @@
                         </div>
                         @endif
 
+                        {{-- Info Quiz --}}
+                        @if($post->type === 'quiz' && $post->quiz)
+                        <div class="rounded-3 p-3 mb-3 d-flex gap-3 align-items-center" style="background:#F3E8FF; border-left:4px solid #8B5CF6;">
+                            <div>
+                                <div class="fw-bold text-purple small d-flex align-items-center gap-2" style="color:#8B5CF6;">
+                                    Evaluasi / Quiz Kelas
+                                    @if($post->quiz->show_score)
+                                        <span class="badge bg-white text-purple border rounded-pill shadow-sm" style="font-size: 0.68rem; color:#8B5CF6;">👁️ Nilai Tampil</span>
+                                    @else
+                                        <span class="badge bg-white text-muted border rounded-pill shadow-sm" style="font-size: 0.68rem;">🙈 Nilai Sembunyi</span>
+                                    @endif
+                                </div>
+                                <div class="fw-semibold text-main small mt-1">
+                                    <i class="fa-solid fa-clock me-1 text-purple"></i> Durasi: {{ $post->quiz->duration_minutes }} Menit
+                                    <span class="mx-2">•</span>
+                                    <i class="fa-solid fa-calendar me-1 text-purple"></i> Tenggat: {{ $post->quiz->due_date ? $post->quiz->due_date->format('d M Y, H:i') : 'Tidak ada tenggat' }}
+                                </div>
+                            </div>
+                            <div class="ms-auto text-end d-flex gap-2">
+                                <a href="{{ route('teacher.classroom.quiz.export_excel', $post->quiz) }}" 
+                                   class="btn btn-sm btn-success rounded-pill fw-bold px-3 btn-bouncy shadow-sm" title="Download Spreadsheet / Excel Hasil Siswa">
+                                    <i class="fa-solid fa-file-excel me-1"></i> Ekspor Excel / CSV
+                                </a>
+                                <a href="{{ route('teacher.classroom.quiz.preview_submissions', $post->quiz) }}" target="_blank" class="btn btn-sm rounded-pill text-white fw-bold px-3 btn-bouncy" style="background:#8B5CF6;">
+                                    <i class="fa-solid fa-chart-simple me-1"></i> Preview Laporan Kuis
+                                </a>
+                            </div>
+                        </div>
+                        @endif
+
                         {{-- Lampiran --}}
                         @if($post->attachments->isNotEmpty())
                         <div class="d-flex flex-wrap gap-2 mb-3">
                             @foreach($post->attachments as $att)
-                            <a href="{{ asset('storage/' . $att->file_path) }}" target="_blank"
-                               class="btn btn-light border rounded-3 d-inline-flex align-items-center gap-2 text-decoration-none py-2 px-3">
+                            <button type="button" 
+                                    onclick="previewFile('{{ asset('storage/' . $att->file_path) }}', '{{ addslashes($att->original_name) }}', '{{ $att->file_size_human }}', 'fa-{{ $att->file_icon }}', '{{ route('attachment.download', $att) }}')"
+                                    class="btn btn-light border rounded-3 d-inline-flex align-items-center gap-2 text-decoration-none py-2 px-3 btn-bouncy text-start">
                                 <i class="fa-solid fa-{{ $att->file_icon }} text-primary"></i>
                                 <span class="fw-semibold small text-main">{{ $att->original_name }}</span>
                                 <small class="text-muted">{{ $att->file_size_human }}</small>
-                            </a>
+                            </button>
                             @endforeach
                         </div>
                         @endif
@@ -213,9 +244,9 @@
             <div class="col-lg-4">
                 <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius:18px;">
                     <h6 class="fw-bold text-main mb-3">Kode Gabung Kelas</h6>
-                    <div class="bg-primary bg-opacity-10 rounded-3 p-3 text-center">
-                        <h3 class="fw-bold text-primary font-monospace mb-1" style="letter-spacing:4px;">{{ $classroom->code }}</h3>
-                        <small class="text-muted">Bagikan kode ini ke siswa</small>
+                    <div class="rounded-3 p-4 text-center shadow-sm" style="background: linear-gradient(135deg, var(--primary) 0%, #16382a 100%);">
+                        <h3 class="fw-bold text-white font-monospace mb-2" style="letter-spacing:4px; text-shadow:0 2px 8px rgba(0,0,0,0.3);">{{ $classroom->code }}</h3>
+                        <small class="text-white-50 d-block">Bagikan kode ini ke siswa untuk bergabung</small>
                     </div>
                 </div>
 

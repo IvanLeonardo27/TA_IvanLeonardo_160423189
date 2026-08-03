@@ -44,11 +44,18 @@ class ClassroomPost extends Model
         return $this->hasOne(ClassroomAssignment::class, 'post_id');
     }
 
+    /** Hanya ada jika type = 'quiz' */
+    public function quiz(): HasOne
+    {
+        return $this->hasOne(ClassroomQuiz::class, 'post_id');
+    }
+
     public function getTypeColorAttribute(): string
     {
         return match($this->type) {
             'material'     => '#3B82F6',
             'assignment'   => '#EF4444',
+            'quiz'         => '#8B5CF6',
             'announcement' => '#10B981',
             default        => '#6B7280',
         };
@@ -59,6 +66,7 @@ class ClassroomPost extends Model
         return match($this->type) {
             'material'     => 'book-open',
             'assignment'   => 'clipboard-list',
+            'quiz'         => 'pen-to-square',
             'announcement' => 'bullhorn',
             default        => 'info-circle',
         };

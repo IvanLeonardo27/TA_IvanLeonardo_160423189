@@ -87,7 +87,7 @@
                             </div>
                             <span class="badge rounded-pill ms-auto px-3 py-1.5 fw-semibold"
                                   style="background:{{ $post->type_color }}18; color:{{ $post->type_color }}; font-size:.75rem;">
-                                {{ ['announcement'=>'Pengumuman','material'=>'Materi','assignment'=>'Tugas'][$post->type] }}
+                                {{ ['announcement'=>'Pengumuman','material'=>'Materi','assignment'=>'Tugas','quiz'=>'Evaluasi / Quiz'][$post->type] }}
                             </span>
                         </div>
                         @if($post->title)
@@ -132,16 +132,111 @@
                         </div>
                         @endif
 
+                        {{-- Info Kuis Kelas untuk Siswa --}}
+                        @if($post->type === 'quiz' && $post->quiz)
+                        @php
+                            $userAttempts = \App\Models\QuizAttempt::query()
+                                ->where('quiz_set_id', $post->quiz->quiz_set_id)
+                                ->where('user_id', auth()->id())
+                                ->orderBy('created_at', 'desc')
+                                ->get();
+                            $hasAttempted = $userAttempts->isNotEmpty();
+                            $lastAttempt  = $userAttempts->first();
+                            $isSingleOnly = ((int)$post->quiz->max_attempts === 1);
+                        @endphp
+                        <div class="rounded-4 p-4 mb-3" style="background:#F3E8FF; border-left:4px solid #8B5CF6;">
+                            <div class="row align-items-center g-3">
+                                <div class="col-sm-7">
+                                    <div class="fw-bold small d-flex align-items-center gap-2 flex-wrap" style="color:#8B5CF6;">
+                                        <i class="fa-solid fa-pen-to-square me-1"></i> Evaluasi / Quiz Kelas
+                                        @if($post->quiz->show_score)
+                                            <span class="badge bg-white text-purple border rounded-pill shadow-sm" style="font-size: 0.68rem; color:#8B5CF6;">👁️ Nilai Ditampilkan</span>
+                                        @else
+                                            <span class="badge bg-white text-muted border rounded-pill shadow-sm" style="font-size: 0.68rem;">🙈 Nilai Disembunyikan</span>
+                                        @endif
+                                        @if($isSingleOnly)
+                                            <span class="badge bg-white text-dark border rounded-pill shadow-sm" style="font-size: 0.68rem;">🔒 1 Kali Pengerjaan</span>
+                                        @else
+                                            <span class="badge bg-white text-success border rounded-pill shadow-sm" style="font-size: 0.68rem;">🔄 Pengerjaan Berkali-kali</span>
+                                        @endif
+                                    </div>
+                                    <div class="small text-muted mt-1">
+                                        <i class="fa-solid fa-clock me-1 text-purple"></i> Durasi: {{ $post->quiz->duration_minutes }} Menit
+                                        <span class="mx-2">•</span>
+                                        <i class="fa-solid fa-calendar me-1 text-purple"></i> Tenggat: {{ $post->quiz->due_date ? $post->quiz->due_date->format('d M Y, H:i') : 'Tidak ada tenggat' }}
+                                    </div>
+
+                                    {{-- Keterangan Waktu Pengerjaan Jika 1 Kali Saja --}}
+                                    @if($hasAttempted && $isSingleOnly)
+                                    <div class="alert alert-success bg-white border border-success rounded-3 p-2.5 mt-2.5 mb-0 text-success small fw-semibold">
+                                        <i class="fa-solid fa-circle-check me-1"></i> Anda telah menyelesaikan kuis ini pada <strong class="user-local-time" data-utc="{{ $lastAttempt->taken_at ? $lastAttempt->taken_at->toIso8601String() : $lastAttempt->created_at->toIso8601String() }}">{{ $lastAttempt->taken_at ? $lastAttempt->taken_at->format('d M Y, H:i') : $lastAttempt->created_at->format('d M Y, H:i') }}</strong>
+                                        @if($post->quiz->show_score)
+                                            <span class="ms-1">(Nilai Anda: <strong>{{ $lastAttempt->score }} / {{ $post->quiz->max_score }}</strong>)</span>
+                                        @endif
+                                    </div>
+                                    @endif
+                                </div>
+
+                                <div class="col-sm-5 text-sm-end">
+                                    @if($hasAttempted && $isSingleOnly)
+                                        {{-- Tombol Lihat Hasil untuk 1 Kali Pengerjaan & Sudah Mengisi --}}
+                                        <a href="{{ route('student.classroom.quiz.result', [$post->quiz, $lastAttempt]) }}" target="_blank" class="btn rounded-pill fw-bold btn-bouncy shadow-sm px-4 text-white" style="background:#8B5CF6;">
+                                            <i class="fa-solid fa-square-poll-vertical me-2"></i>Lihat Hasil Evaluasi
+                                        </a>
+                                    @else
+                                        {{-- Masih Bisa Mengerjakan --}}
+                                        <a href="{{ route('student.classroom.quiz.show', $post->quiz) }}" target="_blank" class="btn rounded-pill fw-bold btn-bouncy shadow-sm px-4 text-white" style="background:#8B5CF6;">
+                                            <i class="fa-solid fa-play me-2"></i>{{ $hasAttempted ? 'Ulangi Kerjakan Kuis' : 'Kerjakan Kuis' }}
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+
+                            {{-- Riwayat Pengerjaan Berkali-kali --}}
+                            @if($hasAttempted && !$isSingleOnly)
+                            <div class="mt-3 pt-3 border-top border-purple border-opacity-25">
+                                <div class="fw-bold small text-purple mb-2" style="color:#8B5CF6;">
+                                    <i class="fa-solid fa-clock-rotate-left me-1"></i> Riwayat Pengerjaan Anda ({{ $userAttempts->count() }} kali):
+                                </div>
+                                <div class="d-flex flex-column gap-2">
+                                    @foreach($userAttempts as $attIndex => $att)
+                                    <div class="bg-white rounded-3 p-2.5 px-3 border d-flex align-items-center justify-content-between small">
+                                        <div>
+                                            <span class="fw-bold text-main">Percobaan #{{ $userAttempts->count() - $attIndex }}</span>
+                                            <span class="text-muted mx-2">•</span>
+                                            <span class="text-muted user-local-time" data-utc="{{ $att->taken_at ? $att->taken_at->toIso8601String() : $att->created_at->toIso8601String() }}">{{ $att->taken_at ? $att->taken_at->format('d M Y, H:i') : $att->created_at->format('d M Y, H:i') }}</span>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            @if($post->quiz->show_score)
+                                            <span class="badge bg-purple bg-opacity-10 text-purple fw-bold px-3 py-1.5 fs-6" style="color:#8B5CF6;">
+                                                Nilai: {{ $att->score }} / {{ $post->quiz->max_score }}
+                                            </span>
+                                            @else
+                                            <span class="badge bg-light text-muted fw-semibold">Nilai Disembunyikan</span>
+                                            @endif
+                                            <a href="{{ route('student.classroom.quiz.result', [$post->quiz, $att]) }}" target="_blank" class="btn btn-sm btn-light border rounded-pill px-3 fw-bold text-purple" style="color:#8B5CF6;">
+                                                <i class="fa-solid fa-eye me-1"></i> Detail
+                                            </a>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                        @endif
+
                         {{-- Lampiran --}}
                         @if($post->attachments->isNotEmpty())
                         <div class="d-flex flex-wrap gap-2 mb-3">
                             @foreach($post->attachments as $att)
-                            <a href="{{ asset('storage/'.$att->file_path) }}" target="_blank"
-                               class="btn btn-light border rounded-3 d-inline-flex align-items-center gap-2 text-decoration-none py-2 px-3 btn-bouncy">
+                            <button type="button" 
+                                    onclick="previewFile('{{ asset('storage/'.$att->file_path) }}', '{{ addslashes($att->original_name) }}', '{{ $att->file_size_human }}', 'fa-{{ $att->file_icon }}', '{{ route('attachment.download', $att) }}')"
+                                    class="btn btn-light border rounded-3 d-inline-flex align-items-center gap-2 text-decoration-none py-2 px-3 btn-bouncy text-start">
                                 <i class="fa-solid fa-{{ $att->file_icon }} text-primary"></i>
                                 <span class="fw-semibold small text-main">{{ $att->original_name }}</span>
                                 <small class="text-muted">{{ $att->file_size_human }}</small>
-                            </a>
+                            </button>
                             @endforeach
                         </div>
                         @endif
@@ -382,4 +477,27 @@
     color: var(--primary) !important;
 }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const timeElements = document.querySelectorAll('.user-local-time');
+    timeElements.forEach(el => {
+        const utcStr = el.dataset.utc;
+        if (utcStr) {
+            const date = new Date(utcStr);
+            if (!isNaN(date.getTime())) {
+                const day   = String(date.getDate()).padStart(2, '0');
+                const month = date.toLocaleString('id-ID', { month: 'short' });
+                const year  = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, '0');
+                const mins  = String(date.getMinutes()).padStart(2, '0');
+
+                el.textContent = `${day} ${month} ${year}, ${hours}:${mins}`;
+            }
+        }
+    });
+});
+</script>
 @endpush

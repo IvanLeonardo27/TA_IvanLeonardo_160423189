@@ -93,6 +93,23 @@ Route::middleware(['auth'])->prefix('student/classroom')->name('student.classroo
     Route::get('/quizzes/{quiz}/result/{attempt?}', [\App\Http\Controllers\Student\ClassroomQuizController::class, 'result'])->name('quiz.result');
 });
 
+// Rute Materi Pembelajaran untuk Pengajar (Teacher)
+Route::middleware(['auth'])->prefix('teacher/materials')->name('teacher.materials.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Teacher\MaterialController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\Teacher\MaterialController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\Teacher\MaterialController::class, 'store'])->name('store');
+    Route::get('/{material}', [\App\Http\Controllers\Teacher\MaterialController::class, 'show'])->name('show');
+    Route::get('/{material}/edit', [\App\Http\Controllers\Teacher\MaterialController::class, 'edit'])->name('edit');
+    Route::put('/{material}', [\App\Http\Controllers\Teacher\MaterialController::class, 'update'])->name('update');
+    Route::delete('/{material}', [\App\Http\Controllers\Teacher\MaterialController::class, 'destroy'])->name('destroy');
+});
+
+// Rute Materi Pembelajaran untuk Pelajar (Student)
+Route::middleware(['auth'])->prefix('student/materials')->name('student.materials.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Student\MaterialController::class, 'index'])->name('index');
+    Route::get('/{material}', [\App\Http\Controllers\Student\MaterialController::class, 'show'])->name('show');
+});
+
 Route::post('/translate', CustomerTranslateController::class)->name('customer.translate');
 Route::post('/quiz/attempt', CustomerQuizAttemptController::class)->name('customer.quiz.attempt');
 

@@ -2,7 +2,7 @@
     <div class="sidebar-header mb-4 mt-2 px-3">
         <h4 class="text-primary m-0 fw-bold d-flex align-items-center gap-2">
             <i class="fa-solid fa-graduation-cap"></i>
-            <span>VanJava <span class="text-accent" style="font-size: 0.85em;">iLearning</span></span>
+            <span>Basa<span class="text-accent" style="font-size: 0.85em;">Kula</span></span>
         </h4>
     </div>
 

@@ -58,12 +58,6 @@ class MaterialController extends Controller
                     'krama_text' => $request->krama_text,
                     'indonesian_text' => $request->indonesian_text,
                 ]);
-            } elseif ($request->type === 'sastra_jawa') {
-                $material->sastraJawas()->create([
-                    'author' => $request->author,
-                    'genre' => $request->genre,
-                    'content' => $request->content,
-                ]);
             }
 
             DB::commit();
@@ -76,14 +70,14 @@ class MaterialController extends Controller
 
     public function show(Material $material)
     {
-        $material->load(['category', 'unggahUngguhBasas', 'sastraJawas', 'attachments']);
+        $material->load(['category', 'unggahUngguhBasas', 'attachments']);
         return view('teacher.materials.show', compact('material'));
     }
 
     public function edit(Material $material)
     {
         $categories = MaterialCategory::all();
-        $material->load(['unggahUngguhBasas', 'sastraJawas']);
+        $material->load(['unggahUngguhBasas']);
         return view('teacher.materials.edit', compact('material', 'categories'));
     }
 
@@ -120,15 +114,6 @@ class MaterialController extends Controller
                         'ngoko_text' => $request->ngoko_text,
                         'krama_text' => $request->krama_text,
                         'indonesian_text' => $request->indonesian_text,
-                    ]
-                );
-            } elseif ($material->type === 'sastra_jawa') {
-                $material->sastraJawas()->updateOrCreate(
-                    ['material_id' => $material->id],
-                    [
-                        'author' => $request->author,
-                        'genre' => $request->genre,
-                        'content' => $request->content,
                     ]
                 );
             }

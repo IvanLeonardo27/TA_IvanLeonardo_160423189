@@ -110,6 +110,43 @@ Route::middleware(['auth'])->prefix('student/materials')->name('student.material
     Route::get('/{material}', [\App\Http\Controllers\Student\MaterialController::class, 'show'])->name('show');
 });
 
+// Rute Tembang Macapat untuk Pengajar (Teacher)
+Route::middleware(['auth'])->prefix('teacher/macapat')->name('teacher.macapat.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Teacher\MacapatController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\Teacher\MacapatController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\Teacher\MacapatController::class, 'store'])->name('store');
+    Route::get('/{macapat}', [\App\Http\Controllers\Teacher\MacapatController::class, 'show'])->name('show');
+    Route::get('/{macapat}/edit', [\App\Http\Controllers\Teacher\MacapatController::class, 'edit'])->name('edit');
+    Route::put('/{macapat}', [\App\Http\Controllers\Teacher\MacapatController::class, 'update'])->name('update');
+    Route::delete('/{macapat}', [\App\Http\Controllers\Teacher\MacapatController::class, 'destroy'])->name('destroy');
+    Route::post('/{macapat}/details', [\App\Http\Controllers\Teacher\MacapatController::class, 'storeDetail'])->name('details.store');
+    Route::delete('/details/{detail}', [\App\Http\Controllers\Teacher\MacapatController::class, 'destroyDetail'])->name('details.destroy');
+});
+
+// Kelola Aksara Jawa untuk Pengajar (Teacher CRUD)
+Route::middleware(['auth'])->prefix('teacher/javanese-script')->name('teacher.javanese-script.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Teacher\JavaneseScriptController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\Teacher\JavaneseScriptController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\Teacher\JavaneseScriptController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [\App\Http\Controllers\Teacher\JavaneseScriptController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [\App\Http\Controllers\Teacher\JavaneseScriptController::class, 'update'])->name('update');
+    Route::delete('/{id}', [\App\Http\Controllers\Teacher\JavaneseScriptController::class, 'destroy'])->name('destroy');
+});
+
+// Rute Tembang Macapat untuk Pelajar (Student)
+Route::middleware(['auth'])->prefix('student/macapat')->name('student.macapat.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Student\MacapatController::class, 'index'])->name('index');
+    Route::get('/{macapat}', [\App\Http\Controllers\Student\MacapatController::class, 'show'])->name('show');
+});
+
+// Halaman Pembelajaran Tembang Macapat (Utama & Detail)
+Route::get('/macapat', [\App\Http\Controllers\MacapatController::class, 'index'])->name('macapat.index');
+Route::get('/macapat/{id}', [\App\Http\Controllers\MacapatController::class, 'show'])->name('macapat.show');
+
+// Halaman Pembelajaran Aksara Jawa (Utama & Detail)
+Route::get('/aksara-jawa', [\App\Http\Controllers\JavaneseScriptController::class, 'index'])->name('javanese-script.index');
+Route::get('/aksara-jawa/{id}', [\App\Http\Controllers\JavaneseScriptController::class, 'show'])->name('javanese-script.show');
+
 Route::post('/translate', CustomerTranslateController::class)->name('customer.translate');
 Route::post('/quiz/attempt', CustomerQuizAttemptController::class)->name('customer.quiz.attempt');
 

@@ -39,9 +39,4 @@ class Material extends Model
     {
         return $this->hasMany(UnggahUngguhBasa::class);
     }
-
-    public function sastraJawas(): HasMany
-    {
-        return $this->hasMany(SastraJawa::class);
-    }
 }

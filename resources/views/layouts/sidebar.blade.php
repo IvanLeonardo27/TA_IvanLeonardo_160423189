@@ -23,6 +23,16 @@
                 </li>
                 <hr class="my-2 text-muted">
                 <li class="nav-item mb-1">
+                    <a href="{{ route('teacher.javanese-script.index') }}" class="nav-link {{ request()->is('*teacher/javanese-script*') || request()->is('*aksara-jawa*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-font"></i> Kelola Aksara Jawa
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a href="{{ route('teacher.macapat.index') }}" class="nav-link {{ request()->is('*macapat*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-music"></i> Tembang Macapat
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
                     <a href="/ui/kosakata" class="nav-link {{ request()->is('*kosakata*') ? 'active' : '' }}">
                         <i class="fa-solid fa-book-journal-whills"></i> Kelola & Tambah Kosakata
                     </a>
@@ -47,6 +57,16 @@
                 <li class="nav-item mb-1">
                     <a href="{{ route('student.classroom.index') }}" class="nav-link {{ request()->is('*classroom*') || request()->is('*kelas*') ? 'active' : '' }}">
                         <i class="fa-solid fa-chalkboard-user"></i> Ruang Kelas Saya
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a href="{{ route('javanese-script.index') }}" class="nav-link {{ request()->is('*aksara-jawa*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-font"></i> Aksara Jawa
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a href="{{ route('macapat.index') }}" class="nav-link {{ request()->is('*macapat*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-music"></i> Tembang Macapat
                     </a>
                 </li>
                 <li class="nav-item mb-1">

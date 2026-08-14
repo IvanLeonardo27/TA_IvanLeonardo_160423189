@@ -35,7 +35,7 @@ class MaterialController extends Controller
             abort(404);
         }
 
-        $material->load(['category', 'unggahUngguhBasas', 'sastraJawas', 'attachments']);
+        $material->load(['category', 'unggahUngguhBasas', 'attachments']);
         return view('student.materials.show', compact('material'));
     }
 }

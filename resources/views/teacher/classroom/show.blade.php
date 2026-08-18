@@ -124,7 +124,59 @@
                     </div>
 
                     <div class="card-body px-4 pb-3 pt-2">
-                        @if($post->body)
+                        {{-- Card Materi Interaktif (Link ke Halaman Khusus Pratinjau Pembelajaran) --}}
+                        @if($post->type === 'material')
+                        @php
+                            $slidesList       = $post->slides;
+                            $totalSlides      = count($slidesList);
+                            $checkpointSlide  = $post->checkpoint_slide;
+                            $firstAtt         = $post->attachments->first();
+                            $isPdf            = $firstAtt && str_ends_with(strtolower($firstAtt->file_path), '.pdf');
+                        @endphp
+
+                        @if($post->body && !str_starts_with(trim($post->body), '{'))
+                        <p class="text-muted mb-3" style="white-space:pre-line;">{{ $post->body }}</p>
+                        @endif
+
+                        <div class="card border-0 rounded-4 overflow-hidden shadow-xs mb-3" style="background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%); border: 1.5px solid #E2E8F0 !important;">
+                            <div class="card-body p-3.5 p-md-4">
+                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="rounded-4 d-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger shadow-xs" style="width: 52px; height: 52px; flex-shrink:0;">
+                                            <i class="fa-solid {{ $isPdf ? 'fa-file-pdf' : 'fa-file-powerpoint' }} fs-3"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold text-main mb-1 fs-6">{{ $firstAtt ? $firstAtt->original_name : ($post->title ?? 'Materi Pembelajaran') }}</h6>
+                                            <div class="d-flex align-items-center gap-2 flex-wrap text-muted small" style="font-size:0.78rem;">
+                                                <span class="badge bg-white text-dark border rounded-pill px-2.5 py-1">
+                                                    <i class="fa-solid fa-layer-group text-primary me-1"></i> {{ $totalSlides > 0 ? $totalSlides . ' Halaman Slide' : 'Dokumen PDF' }}
+                                                </span>
+                                                @if($checkpointSlide > 0)
+                                                <span class="badge bg-primary-subtle text-primary border rounded-pill px-2.5 py-1">
+                                                    <i class="fa-solid fa-lock me-1"></i> Checkpoint di Hal. {{ $checkpointSlide }}
+                                                </span>
+                                                @endif
+                                                @if($firstAtt)
+                                                <span class="text-muted"><i class="fa-solid fa-paperclip me-1"></i> {{ $firstAtt->file_size_human }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if($firstAtt)
+                                        <a href="{{ route('attachment.download', $firstAtt) }}" class="btn btn-outline-secondary rounded-pill px-3 py-2 btn-sm fw-semibold shadow-xs" title="Unduh File">
+                                            <i class="fa-solid fa-download me-1"></i> Unduh
+                                        </a>
+                                        @endif
+                                        <a href="{{ route('teacher.classroom.material.show', [$classroom, $post]) }}" class="btn btn-primary rounded-pill px-4 py-2 fw-bold btn-bouncy shadow-sm">
+                                            <i class="fa-solid fa-book-open-reader me-1.5"></i> Buka Materi <i class="fa-solid fa-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @elseif($post->body)
                         <p class="text-muted mb-3" style="white-space:pre-line;">{{ $post->body }}</p>
                         @endif
 
@@ -174,8 +226,8 @@
                         </div>
                         @endif
 
-                        {{-- Lampiran --}}
-                        @if($post->attachments->isNotEmpty())
+                        {{-- Lampiran (Hanya untuk post selain materi) --}}
+                        @if($post->type !== 'material' && $post->attachments->isNotEmpty())
                         <div class="d-flex flex-wrap gap-2 mb-3">
                             @foreach($post->attachments as $att)
                             <button type="button" 
@@ -350,3 +402,138 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const slideDecks = document.querySelectorAll('.slide-reader-deck');
+    slideDecks.forEach(deck => {
+        const deckId      = deck.dataset.deckId;
+        const totalSlides = parseInt(deck.dataset.total) || 1;
+        let currentSlideIdx = 0;
+
+        const slideItems  = deck.querySelectorAll('.slide-content-item');
+        const pdfCanvas   = deck.querySelector('#pdfCanvas' + deckId);
+        const pdfLoading  = deck.querySelector('#pdfLoading' + deckId);
+        const pdfUrl      = deck.dataset.pdfUrl;
+        const prevBtn     = deck.querySelector('.prev-slide-btn');
+        const nextBtn     = deck.querySelector('.next-slide-btn');
+        const nextBtnText = deck.querySelector('.next-btn-text');
+        const nextBtnIcon = deck.querySelector('.next-btn-icon');
+        const numBadge    = deck.querySelector('.current-slide-num');
+        const titleBadge  = deck.querySelector('.current-slide-title');
+        const progressBar = deck.querySelector('.slide-progress-bar');
+        const dots        = deck.querySelectorAll('.slide-dot');
+
+        let pdfDocInstance = null;
+        let isRendering = false;
+        let pageNumPending = null;
+
+        function renderPdfPage(num) {
+            if (!pdfDocInstance || !pdfCanvas) return;
+            isRendering = true;
+            pdfDocInstance.getPage(num).then(function(page) {
+                const ctx = pdfCanvas.getContext('2d');
+                const canvasArea = deck.querySelector('.slide-canvas-area');
+                const availableWidth = Math.min((canvasArea ? canvasArea.clientWidth : 750) - 30, 850) || 720;
+                const unscaledViewport = page.getViewport({ scale: 1 });
+                const scale = (availableWidth / unscaledViewport.width) * 1.5;
+                const viewport = page.getViewport({ scale: scale });
+
+                pdfCanvas.height = viewport.height;
+                pdfCanvas.width  = viewport.width;
+
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+                page.render(renderContext).promise.then(function() {
+                    isRendering = false;
+                    if (pageNumPending !== null) {
+                        renderPdfPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                });
+            });
+        }
+
+        function queueRenderPdfPage(num) {
+            if (isRendering) {
+                pageNumPending = num;
+            } else {
+                renderPdfPage(num);
+            }
+        }
+
+        if (pdfUrl && window.pdfjsLib && pdfCanvas) {
+            pdfjsLib.getDocument(pdfUrl).promise.then(function(doc) {
+                pdfDocInstance = doc;
+                if (pdfLoading) pdfLoading.classList.add('d-none');
+                if (pdfCanvas) pdfCanvas.classList.remove('d-none');
+                renderPdfPage(currentSlideIdx + 1);
+            }).catch(function(e) {
+                console.error("PDF load error:", e);
+                if (pdfLoading) pdfLoading.innerHTML = '<p class="text-white-50 small mb-0">Klik tombol Layar Penuh / Unduh File untuk membuka dokumen.</p>';
+            });
+        }
+
+        function updateDeckUI(idx) {
+            currentSlideIdx = idx;
+
+            // Render PDF page
+            if (pdfDocInstance) {
+                queueRenderPdfPage(idx + 1);
+            }
+
+            slideItems.forEach((item, sIdx) => {
+                item.classList.toggle('d-none', sIdx !== idx);
+            });
+
+            if (numBadge) numBadge.textContent = idx + 1;
+            if (titleBadge) titleBadge.textContent = `Halaman ${idx + 1}`;
+
+            const progressPct = ((idx + 1) / totalSlides) * 100;
+            if (progressBar) progressBar.style.width = `${progressPct}%`;
+
+            if (dots) {
+                dots.forEach((dot, dIdx) => {
+                    if (dIdx === idx) {
+                        dot.style.width = '22px';
+                        dot.style.background = '#3B82F6';
+                    } else {
+                        dot.style.width = '8px';
+                        dot.style.background = '#CBD5E1';
+                    }
+                });
+            }
+
+            if (prevBtn) prevBtn.disabled = (idx === 0);
+
+            if (idx === totalSlides - 1) {
+                if (nextBtnText) nextBtnText.textContent = 'Selesai';
+                if (nextBtnIcon) nextBtnIcon.className = 'fa-solid fa-check ms-1';
+            } else {
+                if (nextBtnText) nextBtnText.textContent = 'Selanjutnya';
+                if (nextBtnIcon) nextBtnIcon.className = 'fa-solid fa-chevron-right ms-1';
+            }
+        }
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (currentSlideIdx > 0) updateDeckUI(currentSlideIdx - 1);
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                if (currentSlideIdx < totalSlides - 1) {
+                    updateDeckUI(currentSlideIdx + 1);
+                }
+            });
+        }
+
+        updateDeckUI(0);
+    });
+});
+</script>
+@endpush

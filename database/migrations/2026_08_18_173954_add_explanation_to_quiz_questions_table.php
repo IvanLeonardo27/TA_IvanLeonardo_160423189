@@ -1,0 +1,38 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('quiz_questions', function (Blueprint $table) {
+            if (!Schema::hasColumn('quiz_questions', 'explanation')) {
+                $table->text('explanation')->nullable()->after('correct_index');
+            }
+            if (!Schema::hasColumn('quiz_questions', 'difficulty')) {
+                $table->string('difficulty', 50)->nullable()->after('explanation');
+            }
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('quiz_questions', function (Blueprint $table) {
+            if (Schema::hasColumn('quiz_questions', 'explanation')) {
+                $table->dropColumn('explanation');
+            }
+            if (Schema::hasColumn('quiz_questions', 'difficulty')) {
+                $table->dropColumn('difficulty');
+            }
+        });
+    }
+};

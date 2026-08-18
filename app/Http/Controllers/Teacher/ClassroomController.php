@@ -137,4 +137,16 @@ class ClassroomController extends Controller
 
         return back()->with('success', 'Nilai berhasil disimpan!');
     }
+
+    /** Halaman khusus membaca/pratinjau materi presentasi PDF untuk guru */
+    public function showMaterial(Classroom $classroom, \App\Models\ClassroomPost $post)
+    {
+        abort_if($classroom->teacher_id !== Auth::id(), 403);
+        abort_if($post->classroom_id !== $classroom->id, 404);
+        abort_if($post->type !== 'material', 404);
+
+        $post->load(['author', 'attachments', 'comments.user']);
+
+        return view('teacher.classroom.material.show', compact('classroom', 'post'));
+    }
 }

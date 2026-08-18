@@ -40,12 +40,74 @@ class ClassroomPostController extends Controller
             'instructions'     => 'nullable|string',
         ]);
 
+        $postBody = $validated['body'] ?? null;
+        if ($validated['type'] === 'material') {
+            $inputMode = $request->input('material_input_mode', 'ppt');
+            
+            $checkpointData = null;
+            if ($request->boolean('has_practice_questions')) {
+                $questionsInput = $request->input('material_questions', $request->input('questions', []));
+                if (is_array($questionsInput) && count($questionsInput) > 0) {
+                    $q1 = $questionsInput[0];
+                    $optionsRaw = $q1['options'] ?? [];
+                    $correctLetter = $q1['correct'] ?? 'A';
+                    $optionsList = [];
+                    $correctIndex = 0;
+                    $idx = 0;
+                    foreach ($optionsRaw as $letter => $optText) {
+                        if (!empty($optText)) {
+                            $optionsList[] = $optText;
+                            if ($letter === $correctLetter) {
+                                $correctIndex = $idx;
+                            }
+                            $idx++;
+                        }
+                    }
+                    if (!empty($q1['text'])) {
+                        $checkpointData = [
+                            'question'         => $q1['text'],
+                            'options'          => $optionsList,
+                            'correct_index'    => $correctIndex,
+                            'checkpoint_slide' => (int) $request->input('checkpoint_slide', 1),
+                        ];
+                    }
+                }
+            }
+
+            if ($inputMode === 'ppt' || $request->filled('total_ppt_slides')) {
+                $totalSlides = max(1, (int) $request->input('total_ppt_slides', 10));
+                $postBody = json_encode([
+                    'total_slides'  => $totalSlides,
+                    'plain_summary' => $validated['body'] ?? 'Materi Pembelajaran PDF',
+                    'is_ppt'        => true,
+                    'checkpoint'    => $checkpointData,
+                ]);
+            } elseif ($request->has('slides') && is_array($request->input('slides'))) {
+                $slidesList = [];
+                foreach ($request->input('slides') as $sIndex => $s) {
+                    if (!empty($s['content']) || !empty($s['title'])) {
+                        $slidesList[] = [
+                            'title'   => !empty($s['title']) ? $s['title'] : ('Slide ' . (count($slidesList) + 1)),
+                            'content' => $s['content'] ?? '',
+                        ];
+                    }
+                }
+                if (count($slidesList) > 0) {
+                    $postBody = json_encode([
+                        'slides'        => $slidesList,
+                        'plain_summary' => $validated['body'] ?? '',
+                        'checkpoint'    => $checkpointData,
+                    ]);
+                }
+            }
+        }
+
         $post = ClassroomPost::create([
             'classroom_id' => $classroom->id,
             'author_id'    => Auth::id(),
             'type'         => $validated['type'],
             'title'        => $validated['title'] ?? null,
-            'body'         => $validated['body'] ?? null,
+            'body'         => $postBody,
             'is_pinned'    => $request->boolean('is_pinned'),
         ]);
 
@@ -73,22 +135,31 @@ class ClassroomPostController extends Controller
             ]);
         }
 
-        // Jika tipe kuis, simpan detail classroom_quiz dan buat QuizSet beserta QuizQuestions (Pilihan Ganda)
+        // Jika tipe kuis formal, simpan detail classroom_quiz dan buat QuizSet beserta QuizQuestions
         if ($validated['type'] === 'quiz') {
+            $quizTitle = $validated['title'] ?? ('Kuis Kelas: ' . $classroom->name);
+            $durationMinutes = (int) ($validated['duration_minutes'] ?? 30);
+
             // 1. Buat Set Kuis untuk bank soal
             $quizSet = \App\Models\QuizSet::create([
-                'title'               => $validated['title'] ?? 'Kuis Kelas: ' . $classroom->name,
-                'slug'                => \Illuminate\Support\Str::slug(($validated['title'] ?? 'kuis') . '-' . time()),
-                'time_limit_seconds'  => ($validated['duration_minutes'] ?? 30) * 60,
+                'title'               => $quizTitle,
+                'slug'                => \Illuminate\Support\Str::slug($quizTitle . '-' . time()),
+                'time_limit_seconds'  => max(1, $durationMinutes) * 60,
                 'is_active'           => true,
             ]);
 
             // 2. Simpan setiap soal pilihan ganda yang diinput pengajar
-            if ($request->has('questions') && is_array($request->input('questions'))) {
-                foreach ($request->input('questions') as $qData) {
+            $questionsInput = $validated['type'] === 'material' 
+                ? $request->input('material_questions', $request->input('questions', []))
+                : $request->input('questions', []);
+
+            $checkpointSlide = (int) $request->input('checkpoint_slide', 1);
+
+            if (is_array($questionsInput)) {
+                foreach ($questionsInput as $qData) {
                     if (empty($qData['text'])) continue;
 
-                    $optionsRaw   = $qData['options'] ?? [];
+                    $optionsRaw    = $qData['options'] ?? [];
                     $correctLetter = $qData['correct'] ?? 'A';
                     
                     // Format options ke array dan cari correct_index (0 untuk A, 1 untuk B, dst)
@@ -110,25 +181,35 @@ class ClassroomPostController extends Controller
                         'correct_index' => $correctIndex,
                         'points'        => 10,
                         'is_active'     => true,
+                        'explanation'   => "checkpoint_slide:{$checkpointSlide}",
                     ]);
                 }
             }
 
-            // 3. Tautkan post kuis dengan quiz_set_id yang baru dibuat
+            // 3. Tautkan post dengan quiz_set_id yang baru dibuat
+            $baseInstructions = $request->input('material_instructions') ?: 'Kerjakan pertanyaan checkpoint berikut untuk menguji pemahaman materi yang baru saja dipelajari.';
             \App\Models\ClassroomQuiz::create([
                 'post_id'          => $post->id,
                 'quiz_set_id'      => $quizSet->id,
-                'due_date'         => $validated['due_date'] ?? null,
-                'duration_minutes' => $validated['duration_minutes'] ?? 30,
+                'due_date'         => $validated['type'] === 'material' ? null : ($validated['due_date'] ?? null),
+                'duration_minutes' => $durationMinutes,
                 'max_score'        => $validated['max_score'] ?? 100,
-                'show_score'       => $request->boolean('show_score', true),
-                'max_attempts'     => $request->input('max_attempts', 1),
-                'instructions'     => $validated['instructions'] ?? null,
+                'show_score'       => true,
+                'max_attempts'     => $validated['type'] === 'material' ? (int)$request->input('material_max_attempts', 0) : (int)$request->input('max_attempts', 1),
+                'instructions'     => $validated['type'] === 'material' ? "{$baseInstructions} [checkpoint_slide:{$checkpointSlide}]" : ($validated['instructions'] ?? null),
             ]);
         }
 
+        $successMsg = match($validated['type']) {
+            'material'     => $hasPractice ? 'Materi belajar beserta latihan soal berhasil dipublikasikan!' : 'Materi belajar berhasil dipublikasikan!',
+            'assignment'   => 'Tugas berhasil dipublikasikan!',
+            'quiz'         => 'Evaluasi / Kuis pilihan ganda berhasil dibuat!',
+            'announcement' => 'Pengumuman berhasil dipublikasikan!',
+            default        => 'Postingan berhasil dipublikasikan!',
+        };
+
         return redirect()->route('teacher.classroom.show', $classroom)
-            ->with('success', 'Kuis pilihan ganda berhasil dibuat!');
+            ->with('success', $successMsg);
     }
 
     /** Hapus post */

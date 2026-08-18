@@ -94,4 +94,24 @@ class ClassroomController extends Controller
 
         return view('student.classroom.show', compact('classroom', 'posts', 'teacher', 'members', 'totalMembers'));
     }
+
+    /** Halaman khusus membaca materi presentasi / PDF (Coursera style) */
+    public function showMaterial(Classroom $classroom, \App\Models\ClassroomPost $post)
+    {
+        // Pastikan pelajar adalah anggota aktif kelas
+        abort_unless(
+            ClassroomMember::where('classroom_id', $classroom->id)
+                ->where('user_id', Auth::id())
+                ->whereNull('out_at')
+                ->exists(),
+            403
+        );
+
+        abort_if($post->classroom_id !== $classroom->id, 404);
+        abort_if($post->type !== 'material', 404);
+
+        $post->load(['author', 'attachments', 'comments.user']);
+
+        return view('student.classroom.material.show', compact('classroom', 'post'));
+    }
 }

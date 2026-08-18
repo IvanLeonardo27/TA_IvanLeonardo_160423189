@@ -21,6 +21,11 @@
                         <i class="fa-solid fa-plus-circle"></i> Buat Kelas Baru
                     </a>
                 </li>
+                <li class="nav-item mb-1">
+                    <a href="{{ route('calendar.index') }}" class="nav-link {{ request()->routeIs('calendar.index') ? 'active' : '' }}">
+                        <i class="fa-solid fa-calendar-days"></i> Kalender Pembelajaran
+                    </a>
+                </li>
                 <hr class="my-2 text-muted">
                 <li class="nav-item mb-1">
                     <a href="{{ route('teacher.javanese-script.index') }}" class="nav-link {{ request()->is('*teacher/javanese-script*') || request()->is('*aksara-jawa*') ? 'active' : '' }}">
@@ -57,6 +62,11 @@
                 <li class="nav-item mb-1">
                     <a href="{{ route('student.classroom.index') }}" class="nav-link {{ request()->is('*classroom*') || request()->is('*kelas*') ? 'active' : '' }}">
                         <i class="fa-solid fa-chalkboard-user"></i> Ruang Kelas Saya
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a href="{{ route('calendar.index') }}" class="nav-link {{ request()->routeIs('calendar.index') ? 'active' : '' }}">
+                        <i class="fa-solid fa-calendar-days"></i> Kalender Pembelajaran
                     </a>
                 </li>
                 <li class="nav-item mb-1">

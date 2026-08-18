@@ -50,10 +50,12 @@ Route::get('/ui/student/kelas/submission', function() { return view('student.cla
 Route::get('/api/tts', [TtsProxyController::class, 'speak'])->name('api.tts');
 // -------------------------
 
-// Rute Komentar Kelas
+// Rute Komentar & Kalender Pembelajaran
 Route::middleware('auth')->group(function () {
     Route::post('/classroom/posts/{post}/comments', [ClassroomCommentController::class, 'store'])->name('classroom.comment.store');
     Route::delete('/classroom/comments/{comment}', [ClassroomCommentController::class, 'destroy'])->name('classroom.comment.destroy');
+    Route::get('/calendar', [\App\Http\Controllers\CalendarController::class, 'index'])->name('calendar.index');
+    Route::get('/calendar/export-ics', [\App\Http\Controllers\CalendarController::class, 'exportIcs'])->name('calendar.export_ics');
 });
 
 // Rute Kelas untuk Pengajar (Teacher)
@@ -72,6 +74,7 @@ Route::middleware(['auth'])->prefix('teacher/classroom')->name('teacher.classroo
     Route::get('/{classroom}/posts/create', [TeacherClassroomPostController::class, 'create'])->name('post.create');
     Route::post('/{classroom}/posts', [TeacherClassroomPostController::class, 'store'])->name('post.store');
     Route::delete('/{classroom}/posts/{post}', [TeacherClassroomPostController::class, 'destroy'])->name('post.destroy');
+    Route::get('/{classroom}/material/{post}', [TeacherClassroomController::class, 'showMaterial'])->name('material.show');
     Route::get('/quizzes/{quiz}/export-excel', [TeacherClassroomPostController::class, 'exportQuizAnswersExcel'])->name('quiz.export_excel');
     Route::get('/quizzes/{quiz}/preview', [TeacherClassroomPostController::class, 'previewQuizSubmissions'])->name('quiz.preview_submissions');
 });
@@ -81,6 +84,7 @@ Route::middleware(['auth'])->prefix('student/classroom')->name('student.classroo
     Route::get('/', [StudentClassroomController::class, 'index'])->name('index');
     Route::post('/join', [StudentClassroomController::class, 'join'])->name('join');
     Route::get('/{classroom}', [StudentClassroomController::class, 'show'])->name('show');
+    Route::get('/{classroom}/material/{post}', [StudentClassroomController::class, 'showMaterial'])->name('material.show');
 
     // Submissions / Upload Tugas
     Route::get('/assignments/{assignment}', [StudentClassroomSubmissionController::class, 'show'])->name('submission.show');

@@ -5,14 +5,18 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Classroom;
 use App\Models\ClassroomMember;
+use App\Models\ClassroomPost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class ClassroomController extends Controller
 {
     /** Daftar kelas yang diikuti pelajar */
     public function index()
     {
+        Gate::authorize('student');
+
         $classrooms = Classroom::whereHas('members', function ($q) {
                 $q->where('user_id', Auth::id())
                   ->whereNull('out_at');
@@ -39,19 +43,7 @@ class ClassroomController extends Controller
             return back()->withErrors(['code' => 'Kode kelas tidak ditemukan atau tidak aktif.']);
         }
 
-        // Cek apakah sudah menjadi anggota pengajar atau aktif
-        if ($classroom->teacher_id === Auth::id()) {
-            return back()->withErrors(['code' => 'Anda adalah pengajar kelas ini.']);
-        }
-
-        $activeMember = ClassroomMember::where('classroom_id', $classroom->id)
-            ->where('user_id', Auth::id())
-            ->whereNull('out_at')
-            ->first();
-
-        if ($activeMember) {
-            return back()->withErrors(['code' => 'Anda sudah bergabung di kelas ini.']);
-        }
+        Gate::authorize('join', $classroom);
 
         // Jika pernah keluar dan gabung kembali, buat record baru dengan joined_at terbaru
         ClassroomMember::create([
@@ -69,14 +61,7 @@ class ClassroomController extends Controller
     /** Lihat detail kelas beserta stream/feed */
     public function show(Classroom $classroom)
     {
-        // Pastikan pelajar adalah anggota aktif kelas ini
-        abort_unless(
-            ClassroomMember::where('classroom_id', $classroom->id)
-                ->where('user_id', Auth::id())
-                ->whereNull('out_at')
-                ->exists(),
-            403
-        );
+        Gate::authorize('view', $classroom);
 
         $posts = $classroom->posts()
             ->with([
@@ -96,16 +81,9 @@ class ClassroomController extends Controller
     }
 
     /** Halaman khusus membaca materi presentasi / PDF (Coursera style) */
-    public function showMaterial(Classroom $classroom, \App\Models\ClassroomPost $post)
+    public function showMaterial(Classroom $classroom, ClassroomPost $post)
     {
-        // Pastikan pelajar adalah anggota aktif kelas
-        abort_unless(
-            ClassroomMember::where('classroom_id', $classroom->id)
-                ->where('user_id', Auth::id())
-                ->whereNull('out_at')
-                ->exists(),
-            403
-        );
+        Gate::authorize('view', $classroom);
 
         abort_if($post->classroom_id !== $classroom->id, 404);
         abort_if($post->type !== 'material', 404);

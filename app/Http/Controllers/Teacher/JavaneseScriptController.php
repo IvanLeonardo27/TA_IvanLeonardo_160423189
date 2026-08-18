@@ -17,6 +17,7 @@ class JavaneseScriptController extends Controller
      */
     public function index(Request $request)
     {
+        \Illuminate\Support\Facades\Gate::authorize('teacher');
         $categories = JavaneseScriptCategory::all();
         $query = JavaneseScriptDetail::with(['category', 'examples']);
 
@@ -43,6 +44,7 @@ class JavaneseScriptController extends Controller
      */
     public function create()
     {
+        \Illuminate\Support\Facades\Gate::authorize('teacher');
         $categories = JavaneseScriptCategory::all();
         return view('teacher.javanese-script.create', compact('categories'));
     }

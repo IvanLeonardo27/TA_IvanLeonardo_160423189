@@ -16,14 +16,14 @@ class ClassroomPostController extends Controller
     /** Form buat post (pengumuman / materi / tugas) */
     public function create(Classroom $classroom)
     {
-        abort_if($classroom->teacher_id !== Auth::id(), 403);
+        \Illuminate\Support\Facades\Gate::authorize('create', [ClassroomPost::class, $classroom]);
         return view('teacher.classroom.post.create', compact('classroom'));
     }
 
     /** Simpan post baru */
     public function store(Request $request, Classroom $classroom)
     {
-        abort_if($classroom->teacher_id !== Auth::id(), 403);
+        \Illuminate\Support\Facades\Gate::authorize('create', [ClassroomPost::class, $classroom]);
 
         $validated = $request->validate([
             'type'             => 'required|in:announcement,material,assignment,quiz',
@@ -215,7 +215,7 @@ class ClassroomPostController extends Controller
     /** Hapus post */
     public function destroy(Classroom $classroom, ClassroomPost $post)
     {
-        abort_if($classroom->teacher_id !== Auth::id(), 403);
+        \Illuminate\Support\Facades\Gate::authorize('delete', $post);
 
         // Hapus file lampiran dari storage
         foreach ($post->attachments as $attachment) {
@@ -230,9 +230,9 @@ class ClassroomPostController extends Controller
     /** Ekspor hasil & jawaban kuis siswa ke file Excel / Spreadsheet CSV */
     public function exportQuizAnswersExcel(\App\Models\ClassroomQuiz $quiz)
     {
+        \Illuminate\Support\Facades\Gate::authorize('manageResults', $quiz);
         $post      = $quiz->post;
         $classroom = $post?->classroom;
-        abort_if(!$classroom || $classroom->teacher_id !== Auth::id(), 403);
 
         $filename = 'hasil-kuis-' . \Illuminate\Support\Str::slug($post->title ?? 'kuis') . '-' . now()->format('Ymd-His') . '.csv';
 
@@ -267,9 +267,9 @@ class ClassroomPostController extends Controller
     /** Menampilkan halaman preview hasil pengerjaan kuis siswa untuk pengajar */
     public function previewQuizSubmissions(\App\Models\ClassroomQuiz $quiz)
     {
+        \Illuminate\Support\Facades\Gate::authorize('manageResults', $quiz);
         $post      = $quiz->post;
         $classroom = $post?->classroom;
-        abort_if(!$classroom || $classroom->teacher_id !== Auth::id(), 403);
 
         // Ambil daftar soal pilihan ganda kuis
         $questions = \App\Models\QuizQuestion::query()

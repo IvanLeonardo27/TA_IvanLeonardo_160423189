@@ -5,15 +5,20 @@ namespace App\Http\Controllers\Teacher;
 use App\Http\Controllers\Controller;
 use App\Models\Classroom;
 use App\Models\ClassroomMember;
+use App\Models\ClassroomPost;
+use App\Models\ClassroomSubmission;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class ClassroomController extends Controller
 {
     /** Daftar kelas milik pengajar */
     public function index()
     {
+        Gate::authorize('teacher');
+
         $classrooms = Classroom::where('teacher_id', Auth::id())
             ->withCount('students')
             ->latest()
@@ -25,12 +30,15 @@ class ClassroomController extends Controller
     /** Form buat kelas baru */
     public function create()
     {
+        Gate::authorize('create', Classroom::class);
         return view('teacher.classroom.create');
     }
 
     /** Simpan kelas baru */
     public function store(Request $request)
     {
+        Gate::authorize('create', Classroom::class);
+
         $validated = $request->validate([
             'name'         => 'required|string|max:120',
             'subject'      => 'nullable|string|max:80',
@@ -60,7 +68,7 @@ class ClassroomController extends Controller
     /** Detail/manajemen kelas */
     public function show(Classroom $classroom)
     {
-        abort_if($classroom->teacher_id !== Auth::id(), 403);
+        Gate::authorize('view', $classroom);
 
         $posts = $classroom->posts()
             ->with(['author', 'attachments', 'comments.user', 'assignment.submissions', 'quiz'])
@@ -75,14 +83,14 @@ class ClassroomController extends Controller
     /** Form edit kelas */
     public function edit(Classroom $classroom)
     {
-        abort_if($classroom->teacher_id !== Auth::id(), 403);
+        Gate::authorize('update', $classroom);
         return view('teacher.classroom.edit', compact('classroom'));
     }
 
     /** Update kelas */
     public function update(Request $request, Classroom $classroom)
     {
-        abort_if($classroom->teacher_id !== Auth::id(), 403);
+        Gate::authorize('update', $classroom);
 
         $validated = $request->validate([
             'name'         => 'required|string|max:120',
@@ -101,7 +109,7 @@ class ClassroomController extends Controller
     /** Hapus kelas */
     public function destroy(Classroom $classroom)
     {
-        abort_if($classroom->teacher_id !== Auth::id(), 403);
+        Gate::authorize('delete', $classroom);
         $classroom->delete();
 
         return redirect()->route('teacher.classroom.index')
@@ -111,7 +119,7 @@ class ClassroomController extends Controller
     /** Hapus anggota dari kelas (Catat out_at) */
     public function removeMember(Classroom $classroom, User $user)
     {
-        abort_if($classroom->teacher_id !== Auth::id(), 403);
+        Gate::authorize('manageMembers', $classroom);
 
         $member = ClassroomMember::where('classroom_id', $classroom->id)
             ->where('user_id', $user->id)
@@ -126,8 +134,10 @@ class ClassroomController extends Controller
     }
 
     /** Nilai submission siswa */
-    public function gradeSubmission(Request $request, \App\Models\ClassroomSubmission $submission)
+    public function gradeSubmission(Request $request, ClassroomSubmission $submission)
     {
+        Gate::authorize('grade', $submission->assignment);
+
         $validated = $request->validate([
             'score'            => 'required|integer|min:0|max:' . ($submission->assignment->max_score ?? 100),
             'teacher_feedback' => 'nullable|string',
@@ -139,9 +149,9 @@ class ClassroomController extends Controller
     }
 
     /** Halaman khusus membaca/pratinjau materi presentasi PDF untuk guru */
-    public function showMaterial(Classroom $classroom, \App\Models\ClassroomPost $post)
+    public function showMaterial(Classroom $classroom, ClassroomPost $post)
     {
-        abort_if($classroom->teacher_id !== Auth::id(), 403);
+        Gate::authorize('view', $classroom);
         abort_if($post->classroom_id !== $classroom->id, 404);
         abort_if($post->type !== 'material', 404);
 

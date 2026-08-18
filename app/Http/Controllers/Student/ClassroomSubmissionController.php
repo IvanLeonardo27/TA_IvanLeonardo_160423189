@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\ClassroomAssignment;
-use App\Models\ClassroomMember;
 use App\Models\ClassroomSubmission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
 class ClassroomSubmissionController extends Controller
@@ -15,15 +15,9 @@ class ClassroomSubmissionController extends Controller
     /** Halaman detail tugas + form upload */
     public function show(ClassroomAssignment $assignment)
     {
+        Gate::authorize('view', $assignment);
+
         $classroom = $assignment->post->classroom;
-
-        abort_unless(
-            ClassroomMember::where('classroom_id', $classroom->id)
-                ->where('user_id', Auth::id())
-                ->exists(),
-            403
-        );
-
         $submission = ClassroomSubmission::where('assignment_id', $assignment->id)
             ->where('student_id', Auth::id())
             ->first();
@@ -34,14 +28,9 @@ class ClassroomSubmissionController extends Controller
     /** Siswa menyerahkan/upload file tugas */
     public function store(Request $request, ClassroomAssignment $assignment)
     {
-        $classroom = $assignment->post->classroom;
+        Gate::authorize('submit', $assignment);
 
-        abort_unless(
-            ClassroomMember::where('classroom_id', $classroom->id)
-                ->where('user_id', Auth::id())
-                ->exists(),
-            403
-        );
+        $classroom = $assignment->post->classroom;
 
         $request->validate([
             'file' => 'required|file|max:20480',
@@ -79,6 +68,8 @@ class ClassroomSubmissionController extends Controller
     /** Siswa menarik kembali submission */
     public function destroy(ClassroomAssignment $assignment)
     {
+        Gate::authorize('submit', $assignment);
+
         $submission = ClassroomSubmission::where('assignment_id', $assignment->id)
             ->where('student_id', Auth::id())
             ->firstOrFail();

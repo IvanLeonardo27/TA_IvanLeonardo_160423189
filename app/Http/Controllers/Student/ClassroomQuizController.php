@@ -3,22 +3,30 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\ClassroomQuiz;
+use App\Models\QuizAttempt;
+use App\Models\QuizQuestion;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class ClassroomQuizController extends Controller
 {
     /** Menampilkan lembar pengerjaan kuis kelas dengan soal aktual dari database */
-    public function show(\App\Models\ClassroomQuiz $quiz)
+    public function show(ClassroomQuiz $quiz)
     {
+        Gate::authorize('view', $quiz);
+
         $post      = $quiz->post;
         $classroom = $post?->classroom;
         $quizSet   = $quiz->quizSet;
 
         // Cek jika batas pengisian adalah 1x saja dan siswa sudah pernah mengisi
         if ((int)$quiz->max_attempts === 1) {
-            $existingAttempt = \App\Models\QuizAttempt::query()
+            $existingAttempt = QuizAttempt::query()
                 ->where('quiz_set_id', $quiz->quiz_set_id)
-                ->where('user_id', auth()->id())
+                ->where('user_id', Auth::id())
                 ->first();
 
             if ($existingAttempt) {
@@ -28,7 +36,7 @@ class ClassroomQuizController extends Controller
         }
 
         // Ambil daftar soal pilihan ganda yang dibuat pengajar di kuis ini
-        $questions = \App\Models\QuizQuestion::query()
+        $questions = QuizQuestion::query()
             ->where('quiz_set_id', $quiz->quiz_set_id)
             ->where('is_active', true)
             ->get();
@@ -37,10 +45,12 @@ class ClassroomQuizController extends Controller
     }
 
     /** Memproses jawaban kuis siswa & menghitung nilai otomatis */
-    public function submit(Request $request, \App\Models\ClassroomQuiz $quiz)
+    public function submit(Request $request, ClassroomQuiz $quiz)
     {
+        Gate::authorize('attempt', $quiz);
+
         $quizSet   = $quiz->quizSet;
-        $questions = \App\Models\QuizQuestion::query()
+        $questions = QuizQuestion::query()
             ->where('quiz_set_id', $quiz->quiz_set_id)
             ->where('is_active', true)
             ->get();
@@ -58,15 +68,15 @@ class ClassroomQuizController extends Controller
 
         $calculatedScore = $totalQuestions > 0 ? round(($correctCount / $totalQuestions) * ($quiz->max_score ?? 100)) : 0;
 
-        $startedAt = $request->filled('started_at') ? \Carbon\Carbon::parse($request->input('started_at')) : now()->subMinutes(1);
+        $startedAt = $request->filled('started_at') ? Carbon::parse($request->input('started_at')) : now()->subMinutes(1);
         $takenAt   = now();
         $timeSpentSecs = max(1, $takenAt->diffInSeconds($startedAt));
 
         // Simpan hasil percobaaan kuis ke database
-        $attempt = \App\Models\QuizAttempt::create([
+        $attempt = QuizAttempt::create([
             'quiz_set_id'        => $quiz->quiz_set_id,
-            'user_id'            => auth()->id(),
-            'player_name'        => auth()->user()?->name ?? 'Siswa',
+            'user_id'            => Auth::id(),
+            'player_name'        => Auth::user()?->name ?? 'Siswa',
             'score'              => $calculatedScore,
             'started_at'         => $startedAt,
             'time_spent_seconds' => $timeSpentSecs,
@@ -80,17 +90,24 @@ class ClassroomQuizController extends Controller
     }
 
     /** Menampilkan halaman preview hasil kuis yang sudah pernah dikerjakan */
-    public function result(\App\Models\ClassroomQuiz $quiz, ?\App\Models\QuizAttempt $attempt = null)
+    public function result(ClassroomQuiz $quiz, ?QuizAttempt $attempt = null)
     {
+        Gate::authorize('view', $quiz);
+
         $post      = $quiz->post;
         $classroom = $post?->classroom;
 
         if (!$attempt) {
-            $attempt = \App\Models\QuizAttempt::query()
+            $attempt = QuizAttempt::query()
                 ->where('quiz_set_id', $quiz->quiz_set_id)
-                ->where('user_id', auth()->id())
+                ->where('user_id', Auth::id())
                 ->latest()
                 ->firstOrFail();
+        } else {
+            // Pastikan attempt ini milik user yang bersangkutan (atau pengajar kelas)
+            if ($attempt->user_id !== Auth::id() && $classroom->teacher_id !== Auth::id() && !Auth::user()->isAdmin()) {
+                abort(403);
+            }
         }
 
         return view('student.classroom.quiz_result', compact('quiz', 'post', 'classroom', 'attempt'));

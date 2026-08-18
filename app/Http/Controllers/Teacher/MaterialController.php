@@ -12,18 +12,21 @@ class MaterialController extends Controller
 {
     public function index()
     {
+        \Illuminate\Support\Facades\Gate::authorize('teacher');
         $materials = Material::with('category')->where('teacher_id', auth()->id())->latest()->paginate(10);
         return view('teacher.materials.index', compact('materials'));
     }
 
     public function create()
     {
+        \Illuminate\Support\Facades\Gate::authorize('teacher');
         $categories = MaterialCategory::all();
         return view('teacher.materials.create', compact('categories'));
     }
 
     public function store(Request $request)
     {
+        \Illuminate\Support\Facades\Gate::authorize('teacher');
         $request->validate([
             'title' => 'required|string|max:255',
             'category_id' => 'required|exists:material_categories,id',

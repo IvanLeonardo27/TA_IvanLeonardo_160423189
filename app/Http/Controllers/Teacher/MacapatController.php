@@ -15,6 +15,7 @@ class MacapatController extends Controller
      */
     public function index()
     {
+        \Illuminate\Support\Facades\Gate::authorize('teacher');
         $categories = MacapatCategory::withCount('details')->latest()->paginate(10);
         return view('teacher.macapat.index', compact('categories'));
     }
@@ -24,6 +25,7 @@ class MacapatController extends Controller
      */
     public function create()
     {
+        \Illuminate\Support\Facades\Gate::authorize('teacher');
         return view('teacher.macapat.create');
     }
 

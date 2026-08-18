@@ -3,23 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\ClassroomComment;
-use App\Models\ClassroomMember;
 use App\Models\ClassroomPost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class ClassroomCommentController extends Controller
 {
     /** Simpan komentar baru di sebuah post */
     public function store(Request $request, ClassroomPost $post)
     {
-        $classroom = $post->classroom;
-
-        // Cek apakah user adalah anggota atau pengajar kelas
-        $isMember  = ClassroomMember::where('classroom_id', $classroom->id)->where('user_id', Auth::id())->exists();
-        $isTeacher = $classroom->teacher_id === Auth::id();
-
-        abort_unless($isMember || $isTeacher, 403);
+        Gate::authorize('create', [ClassroomComment::class, $post]);
 
         $request->validate(['comment' => 'required|string|max:1000']);
 
@@ -35,10 +29,7 @@ class ClassroomCommentController extends Controller
     /** Hapus komentar (hanya milik sendiri atau pengajar) */
     public function destroy(ClassroomComment $comment)
     {
-        $isOwner   = $comment->user_id === Auth::id();
-        $isTeacher = $comment->post->classroom->teacher_id === Auth::id();
-
-        abort_unless($isOwner || $isTeacher, 403);
+        Gate::authorize('delete', $comment);
 
         $comment->delete();
 

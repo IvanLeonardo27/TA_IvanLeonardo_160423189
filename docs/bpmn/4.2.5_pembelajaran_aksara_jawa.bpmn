@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Aksara" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="Collaboration_Aksara">
+    <bpmn:participant id="Participant_Aksara" name="LMS Pembelajaran Bahasa Jawa BasaKula" processRef="Process_Aksara" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Aksara" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Aksara">
+      <bpmn:lane id="Lane_T_Aksara" name="Pengajar">
+        <bpmn:flowNodeRef>Start_AksaraTeacher</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ManageAksara</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_AksaraTeacher</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_S_Aksara" name="Pelajar">
+        <bpmn:flowNodeRef>Start_AksaraStudent</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_BrowseAksara</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FilterSearch</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_OpenAksaraDetail</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_StudyAksara</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_AksaraStudent</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Sys_Aksara" name="Sistem (Laravel &#38; MySQL)">
+        <bpmn:flowNodeRef>Task_FetchAksaraList</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FetchAksaraDetail</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_UpdateAksaraDB</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <!-- Pengajar Nodes -->
+    <bpmn:startEvent id="Start_AksaraTeacher" name="Buka Panel Kelola Aksara">
+      <bpmn:outgoing>Flow_AJ_T1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_ManageAksara" name="Input Tambah / Edit / Hapus Aksara &#38; 3 Format Contoh Kalimat">
+      <bpmn:incoming>Flow_AJ_T1</bpmn:incoming>
+      <bpmn:outgoing>Flow_AJ_T2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_AksaraTeacher" name="Data Aksara Jawa Diperbarui">
+      <bpmn:incoming>Flow_AJ_T3</bpmn:incoming>
+    </bpmn:endEvent>
+    <!-- Pelajar Nodes -->
+    <bpmn:startEvent id="Start_AksaraStudent" name="Buka Menu Aksara Jawa">
+      <bpmn:outgoing>Flow_AJ_S1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_BrowseAksara" name="Melihat 9 Kategori Kartu Visual Aksara Jawa">
+      <bpmn:incoming>Flow_AJ_S2</bpmn:incoming>
+      <bpmn:outgoing>Flow_AJ_S3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_FilterSearch" name="Memilih Filter Kategori atau Mengetik Kata Kunci Pencarian">
+      <bpmn:incoming>Flow_AJ_S3</bpmn:incoming>
+      <bpmn:outgoing>Flow_AJ_S4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_OpenAksaraDetail" name="Klik Kartu Aksara untuk Membuka Halaman Detail">
+      <bpmn:incoming>Flow_AJ_S4</bpmn:incoming>
+      <bpmn:outgoing>Flow_AJ_S5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_StudyAksara" name="Mempelajari Aksara Besar, Latin, Penjelasan, &#38; 3 Contoh Kalimat">
+      <bpmn:incoming>Flow_AJ_S6</bpmn:incoming>
+      <bpmn:outgoing>Flow_AJ_EndS</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_AksaraStudent" name="Pembelajaran Aksara Selesai">
+      <bpmn:incoming>Flow_AJ_EndS</bpmn:incoming>
+    </bpmn:endEvent>
+    <!-- Sistem Nodes -->
+    <bpmn:task id="Task_FetchAksaraList" name="Select dari 'javanese_script_details' &#38; Render Grid Flashcard">
+      <bpmn:incoming>Flow_AJ_S1</bpmn:incoming>
+      <bpmn:outgoing>Flow_AJ_S2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_FetchAksaraDetail" name="Select Detail &#38; Relasi Contoh Kalimat dari 'javanese_script_examples'">
+      <bpmn:incoming>Flow_AJ_S5</bpmn:incoming>
+      <bpmn:outgoing>Flow_AJ_S6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_UpdateAksaraDB" name="Insert / Update / Delete ke 'javanese_script_details' &#38; 'examples'">
+      <bpmn:incoming>Flow_AJ_T2</bpmn:incoming>
+      <bpmn:outgoing>Flow_AJ_T3</bpmn:outgoing>
+    </bpmn:task>
+    <!-- Sequence Flows -->
+    <bpmn:sequenceFlow id="Flow_AJ_T1" sourceRef="Start_AksaraTeacher" targetRef="Task_ManageAksara" />
+    <bpmn:sequenceFlow id="Flow_AJ_T2" sourceRef="Task_ManageAksara" targetRef="Task_UpdateAksaraDB" />
+    <bpmn:sequenceFlow id="Flow_AJ_T3" sourceRef="Task_UpdateAksaraDB" targetRef="End_AksaraTeacher" />
+    <bpmn:sequenceFlow id="Flow_AJ_S1" sourceRef="Start_AksaraStudent" targetRef="Task_FetchAksaraList" />
+    <bpmn:sequenceFlow id="Flow_AJ_S2" sourceRef="Task_FetchAksaraList" targetRef="Task_BrowseAksara" />
+    <bpmn:sequenceFlow id="Flow_AJ_S3" sourceRef="Task_BrowseAksara" targetRef="Task_FilterSearch" />
+    <bpmn:sequenceFlow id="Flow_AJ_S4" sourceRef="Task_FilterSearch" targetRef="Task_OpenAksaraDetail" />
+    <bpmn:sequenceFlow id="Flow_AJ_S5" sourceRef="Task_OpenAksaraDetail" targetRef="Task_FetchAksaraDetail" />
+    <bpmn:sequenceFlow id="Flow_AJ_S6" sourceRef="Task_FetchAksaraDetail" targetRef="Task_StudyAksara" />
+    <bpmn:sequenceFlow id="Flow_AJ_EndS" sourceRef="Task_StudyAksara" targetRef="End_AksaraStudent" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Aksara">
+    <bpmndi:BPMNPlane id="BPMNPlane_Aksara" bpmnElement="Collaboration_Aksara">
+      <bpmndi:BPMNShape id="Participant_Aksara_di" bpmnElement="Participant_Aksara" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1020" height="500" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_T_Aksara_di" bpmnElement="Lane_T_Aksara" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="990" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_S_Aksara_di" bpmnElement="Lane_S_Aksara" isHorizontal="true">
+        <dc:Bounds x="190" y="230" width="990" height="160" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Sys_Aksara_di" bpmnElement="Lane_Sys_Aksara" isHorizontal="true">
+        <dc:Bounds x="190" y="390" width="990" height="190" />
+      </bpmndi:BPMNShape>
+      <!-- Nodes -->
+      <bpmndi:BPMNShape id="Start_AksaraTeacher_di" bpmnElement="Start_AksaraTeacher">
+        <dc:Bounds x="232" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="210" y="175" width="80" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ManageAksara_di" bpmnElement="Task_ManageAksara">
+        <dc:Bounds x="320" y="110" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_AksaraTeacher_di" bpmnElement="End_AksaraTeacher">
+        <dc:Bounds x="542" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="520" y="175" width="80" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_AksaraStudent_di" bpmnElement="Start_AksaraStudent">
+        <dc:Bounds x="232" y="292" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="210" y="335" width="80" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BrowseAksara_di" bpmnElement="Task_BrowseAksara">
+        <dc:Bounds x="350" y="270" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_FilterSearch_di" bpmnElement="Task_FilterSearch">
+        <dc:Bounds x="510" y="270" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_OpenAksaraDetail_di" bpmnElement="Task_OpenAksaraDetail">
+        <dc:Bounds x="680" y="270" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_StudyAksara_di" bpmnElement="Task_StudyAksara">
+        <dc:Bounds x="840" y="270" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_AksaraStudent_di" bpmnElement="End_AksaraStudent">
+        <dc:Bounds x="1032" y="292" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1012" y="335" width="76" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_FetchAksaraList_di" bpmnElement="Task_FetchAksaraList">
+        <dc:Bounds x="220" y="440" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_FetchAksaraDetail_di" bpmnElement="Task_FetchAksaraDetail">
+        <dc:Bounds x="670" y="440" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UpdateAksaraDB_di" bpmnElement="Task_UpdateAksaraDB">
+        <dc:Bounds x="390" y="440" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <!-- Edges -->
+      <bpmndi:BPMNEdge id="Flow_AJ_T1_di" bpmnElement="Flow_AJ_T1"><di:waypoint x="268" y="150" /><di:waypoint x="320" y="150" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AJ_T2_di" bpmnElement="Flow_AJ_T2"><di:waypoint x="395" y="190" /><di:waypoint x="395" y="315" /><di:waypoint x="465" y="315" /><di:waypoint x="465" y="440" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AJ_T3_di" bpmnElement="Flow_AJ_T3"><di:waypoint x="540" y="480" /><di:waypoint x="560" y="480" /><di:waypoint x="560" y="168" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AJ_S1_di" bpmnElement="Flow_AJ_S1"><di:waypoint x="250" y="328" /><di:waypoint x="250" y="440" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AJ_S2_di" bpmnElement="Flow_AJ_S2"><di:waypoint x="360" y="480" /><di:waypoint x="380" y="480" /><di:waypoint x="380" y="350" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AJ_S3_di" bpmnElement="Flow_AJ_S3"><di:waypoint x="480" y="310" /><di:waypoint x="510" y="310" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AJ_S4_di" bpmnElement="Flow_AJ_S4"><di:waypoint x="650" y="310" /><di:waypoint x="680" y="310" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AJ_S5_di" bpmnElement="Flow_AJ_S5"><di:waypoint x="745" y="350" /><di:waypoint x="745" y="440" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AJ_S6_di" bpmnElement="Flow_AJ_S6"><di:waypoint x="820" y="480" /><di:waypoint x="870" y="480" /><di:waypoint x="870" y="350" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AJ_EndS_di" bpmnElement="Flow_AJ_EndS"><di:waypoint x="990" y="310" /><di:waypoint x="1032" y="310" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

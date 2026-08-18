@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Macapat" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="Collaboration_Macapat">
+    <bpmn:participant id="Participant_Macapat" name="LMS Pembelajaran Bahasa Jawa BasaKula" processRef="Process_Macapat" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Macapat" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Macapat">
+      <bpmn:lane id="Lane_T_Macapat" name="Pengajar">
+        <bpmn:flowNodeRef>Start_MacTeacher</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ManageMacapat</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_MacTeacher</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_S_Macapat" name="Pelajar">
+        <bpmn:flowNodeRef>Start_MacStudent</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SelectMacapat</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_StudyMacRules</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ClickTTS</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ListenTTS</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_MacStudent</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Sys_Macapat" name="Sistem (Laravel &#38; TTS Engine)">
+        <bpmn:flowNodeRef>Task_FetchMacRules</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SynthesizeTTS</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SaveMacDB</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <!-- Pengajar Nodes -->
+    <bpmn:startEvent id="Start_MacTeacher" name="Buka Kelola Macapat">
+      <bpmn:outgoing>Flow_M_T1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_ManageMacapat" name="Input Tambah / Edit Jenis Tembang, Kaidah, &#38; Bait Macapat">
+      <bpmn:incoming>Flow_M_T1</bpmn:incoming>
+      <bpmn:outgoing>Flow_M_T2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_MacTeacher" name="Materi Macapat Diperbarui">
+      <bpmn:incoming>Flow_M_T3</bpmn:incoming>
+    </bpmn:endEvent>
+    <!-- Pelajar Nodes -->
+    <bpmn:startEvent id="Start_MacStudent" name="Buka Menu Tembang Macapat">
+      <bpmn:outgoing>Flow_M_S1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_SelectMacapat" name="Melihat 11 Jenis Macapat &#38; Memilih Salah Satu Tembang">
+      <bpmn:incoming>Flow_M_S1</bpmn:incoming>
+      <bpmn:outgoing>Flow_M_S2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_StudyMacRules" name="Mempelajari Guru Gatra, Wilangan, Lagu, Watak &#38; Bait Tembang">
+      <bpmn:incoming>Flow_M_S3</bpmn:incoming>
+      <bpmn:outgoing>Flow_M_S4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_ClickTTS" name="Menekan Tombol Speaker Audio TTS pada Bait Tertentu">
+      <bpmn:incoming>Flow_M_S4</bpmn:incoming>
+      <bpmn:outgoing>Flow_M_S5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_ListenTTS" name="Mendengarkan Output Suara Pelafalan Bahasa Jawa">
+      <bpmn:incoming>Flow_M_S6</bpmn:incoming>
+      <bpmn:outgoing>Flow_M_EndS</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_MacStudent" name="Pembelajaran Macapat Selesai">
+      <bpmn:incoming>Flow_M_EndS</bpmn:incoming>
+    </bpmn:endEvent>
+    <!-- Sistem Nodes -->
+    <bpmn:task id="Task_FetchMacRules" name="Select Kaidah 'macapat_categories' &#38; Bait dari 'macapat_details'">
+      <bpmn:incoming>Flow_M_S2</bpmn:incoming>
+      <bpmn:outgoing>Flow_M_S3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_SynthesizeTTS" name="Proses Text-to-Speech (Web Speech API / TTS Engine) &#38; Stream Audio">
+      <bpmn:incoming>Flow_M_S5</bpmn:incoming>
+      <bpmn:outgoing>Flow_M_S6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_SaveMacDB" name="Insert / Update ke 'macapat_categories' &#38; 'macapat_details'">
+      <bpmn:incoming>Flow_M_T2</bpmn:incoming>
+      <bpmn:outgoing>Flow_M_T3</bpmn:outgoing>
+    </bpmn:task>
+    <!-- Sequence Flows -->
+    <bpmn:sequenceFlow id="Flow_M_T1" sourceRef="Start_MacTeacher" targetRef="Task_ManageMacapat" />
+    <bpmn:sequenceFlow id="Flow_M_T2" sourceRef="Task_ManageMacapat" targetRef="Task_SaveMacDB" />
+    <bpmn:sequenceFlow id="Flow_M_T3" sourceRef="Task_SaveMacDB" targetRef="End_MacTeacher" />
+    <bpmn:sequenceFlow id="Flow_M_S1" sourceRef="Start_MacStudent" targetRef="Task_SelectMacapat" />
+    <bpmn:sequenceFlow id="Flow_M_S2" sourceRef="Task_SelectMacapat" targetRef="Task_FetchMacRules" />
+    <bpmn:sequenceFlow id="Flow_M_S3" sourceRef="Task_FetchMacRules" targetRef="Task_StudyMacRules" />
+    <bpmn:sequenceFlow id="Flow_M_S4" sourceRef="Task_StudyMacRules" targetRef="Task_ClickTTS" />
+    <bpmn:sequenceFlow id="Flow_M_S5" sourceRef="Task_ClickTTS" targetRef="Task_SynthesizeTTS" />
+    <bpmn:sequenceFlow id="Flow_M_S6" sourceRef="Task_SynthesizeTTS" targetRef="Task_ListenTTS" />
+    <bpmn:sequenceFlow id="Flow_M_EndS" sourceRef="Task_ListenTTS" targetRef="End_MacStudent" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Macapat">
+    <bpmndi:BPMNPlane id="BPMNPlane_Macapat" bpmnElement="Collaboration_Macapat">
+      <bpmndi:BPMNShape id="Participant_Macapat_di" bpmnElement="Participant_Macapat" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1050" height="500" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_T_Macapat_di" bpmnElement="Lane_T_Macapat" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="1020" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_S_Macapat_di" bpmnElement="Lane_S_Macapat" isHorizontal="true">
+        <dc:Bounds x="190" y="230" width="1020" height="160" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Sys_Macapat_di" bpmnElement="Lane_Sys_Macapat" isHorizontal="true">
+        <dc:Bounds x="190" y="390" width="1020" height="190" />
+      </bpmndi:BPMNShape>
+      <!-- Nodes -->
+      <bpmndi:BPMNShape id="Start_MacTeacher_di" bpmnElement="Start_MacTeacher">
+        <dc:Bounds x="232" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="210" y="175" width="80" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ManageMacapat_di" bpmnElement="Task_ManageMacapat">
+        <dc:Bounds x="320" y="110" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_MacTeacher_di" bpmnElement="End_MacTeacher">
+        <dc:Bounds x="552" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="530" y="175" width="80" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_MacStudent_di" bpmnElement="Start_MacStudent">
+        <dc:Bounds x="232" y="292" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="210" y="335" width="80" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SelectMacapat_di" bpmnElement="Task_SelectMacapat">
+        <dc:Bounds x="320" y="270" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_StudyMacRules_di" bpmnElement="Task_StudyMacRules">
+        <dc:Bounds x="510" y="270" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ClickTTS_di" bpmnElement="Task_ClickTTS">
+        <dc:Bounds x="700" y="270" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ListenTTS_di" bpmnElement="Task_ListenTTS">
+        <dc:Bounds x="890" y="270" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_MacStudent_di" bpmnElement="End_MacStudent">
+        <dc:Bounds x="1072" y="292" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1052" y="335" width="76" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_FetchMacRules_di" bpmnElement="Task_FetchMacRules">
+        <dc:Bounds x="410" y="440" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SynthesizeTTS_di" bpmnElement="Task_SynthesizeTTS">
+        <dc:Bounds x="780" y="440" width="160" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SaveMacDB_di" bpmnElement="Task_SaveMacDB">
+        <dc:Bounds x="320" y="440" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <!-- Edges -->
+      <bpmndi:BPMNEdge id="Flow_M_T1_di" bpmnElement="Flow_M_T1"><di:waypoint x="268" y="150" /><di:waypoint x="320" y="150" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_M_T2_di" bpmnElement="Flow_M_T2"><di:waypoint x="395" y="190" /><di:waypoint x="395" y="440" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_M_T3_di" bpmnElement="Flow_M_T3"><di:waypoint x="470" y="480" /><di:waypoint x="570" y="480" /><di:waypoint x="570" y="168" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_M_S1_di" bpmnElement="Flow_M_S1"><di:waypoint x="268" y="310" /><di:waypoint x="320" y="310" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_M_S2_di" bpmnElement="Flow_M_S2"><di:waypoint x="390" y="350" /><di:waypoint x="390" y="480" /><di:waypoint x="410" y="480" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_M_S3_di" bpmnElement="Flow_M_S3"><di:waypoint x="560" y="480" /><di:waypoint x="585" y="480" /><di:waypoint x="585" y="350" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_M_S4_di" bpmnElement="Flow_M_S4"><di:waypoint x="660" y="310" /><di:waypoint x="700" y="310" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_M_S5_di" bpmnElement="Flow_M_S5"><di:waypoint x="770" y="350" /><di:waypoint x="770" y="480" /><di:waypoint x="780" y="480" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_M_S6_di" bpmnElement="Flow_M_S6"><di:waypoint x="940" y="480" /><di:waypoint x="960" y="480" /><di:waypoint x="960" y="350" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_M_EndS_di" bpmnElement="Flow_M_EndS"><di:waypoint x="1030" y="310" /><di:waypoint x="1072" y="310" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Classroom" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="Collaboration_Classroom">
+    <bpmn:participant id="Participant_Classroom" name="LMS Pembelajaran Bahasa Jawa BasaKula" processRef="Process_Classroom" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Classroom" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Classroom">
+      <bpmn:lane id="Lane_Pengajar" name="Pengajar">
+        <bpmn:flowNodeRef>Start_TeacherClass</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InputClassData</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ShareCode</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_TeacherClass</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Pelajar" name="Pelajar">
+        <bpmn:flowNodeRef>Start_StudentJoin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InputJoinCode</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ViewJoinedClass</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_StudentJoin</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Sistem_Class" name="Sistem (Laravel &#38; MySQL)">
+        <bpmn:flowNodeRef>Task_GenerateClassCode</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ValidateCode</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_CodeValid</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InsertMember</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <!-- Pengajar Nodes -->
+    <bpmn:startEvent id="Start_TeacherClass" name="Buka Menu Buat Kelas">
+      <bpmn:outgoing>Flow_T1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_InputClassData" name="Mengisi Nama Kelas, Mata Pelajaran, &#38; Deskripsi">
+      <bpmn:incoming>Flow_T1</bpmn:incoming>
+      <bpmn:outgoing>Flow_T2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_ShareCode" name="Membagikan Kode Kelas kepada Pelajar">
+      <bpmn:incoming>Flow_T3</bpmn:incoming>
+      <bpmn:outgoing>Flow_T4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_TeacherClass" name="Ruang Kelas Baru Siap Digunakan">
+      <bpmn:incoming>Flow_T4</bpmn:incoming>
+    </bpmn:endEvent>
+    <!-- Pelajar Nodes -->
+    <bpmn:startEvent id="Start_StudentJoin" name="Buka Menu Gabung Kelas">
+      <bpmn:outgoing>Flow_S1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_InputJoinCode" name="Menginputkan Kode Kelas">
+      <bpmn:incoming>Flow_S1</bpmn:incoming>
+      <bpmn:incoming>Flow_CodeInvalid</bpmn:incoming>
+      <bpmn:outgoing>Flow_S2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_ViewJoinedClass" name="Melihat &#38; Mengakses Beranda Ruang Kelas">
+      <bpmn:incoming>Flow_S3</bpmn:incoming>
+      <bpmn:outgoing>Flow_S4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_StudentJoin" name="Pelajar Berhasil Masuk Kelas">
+      <bpmn:incoming>Flow_S4</bpmn:incoming>
+    </bpmn:endEvent>
+    <!-- Sistem Nodes -->
+    <bpmn:task id="Task_GenerateClassCode" name="Generate Unique Code, Insert ke 'classrooms', &#38; Set Pemilik Kelas">
+      <bpmn:incoming>Flow_T2</bpmn:incoming>
+      <bpmn:outgoing>Flow_T3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_ValidateCode" name="Memeriksa Kode Kelas pada Basis Data">
+      <bpmn:incoming>Flow_S2</bpmn:incoming>
+      <bpmn:outgoing>Flow_S_Check</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_CodeValid" name="Kode Valid &#38; Belum Bergabung?">
+      <bpmn:incoming>Flow_S_Check</bpmn:incoming>
+      <bpmn:outgoing>Flow_CodeValid</bpmn:outgoing>
+      <bpmn:outgoing>Flow_CodeInvalid</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_InsertMember" name="Insert Anggota ke 'classroom_members' &#38; Load Data Kelas">
+      <bpmn:incoming>Flow_CodeValid</bpmn:incoming>
+      <bpmn:outgoing>Flow_S3</bpmn:outgoing>
+    </bpmn:task>
+    <!-- Sequence Flows -->
+    <bpmn:sequenceFlow id="Flow_T1" sourceRef="Start_TeacherClass" targetRef="Task_InputClassData" />
+    <bpmn:sequenceFlow id="Flow_T2" sourceRef="Task_InputClassData" targetRef="Task_GenerateClassCode" />
+    <bpmn:sequenceFlow id="Flow_T3" sourceRef="Task_GenerateClassCode" targetRef="Task_ShareCode" />
+    <bpmn:sequenceFlow id="Flow_T4" sourceRef="Task_ShareCode" targetRef="End_TeacherClass" />
+    <bpmn:sequenceFlow id="Flow_S1" sourceRef="Start_StudentJoin" targetRef="Task_InputJoinCode" />
+    <bpmn:sequenceFlow id="Flow_S2" sourceRef="Task_InputJoinCode" targetRef="Task_ValidateCode" />
+    <bpmn:sequenceFlow id="Flow_S_Check" sourceRef="Task_ValidateCode" targetRef="Gateway_CodeValid" />
+    <bpmn:sequenceFlow id="Flow_CodeInvalid" name="Tidak / Gagal" sourceRef="Gateway_CodeValid" targetRef="Task_InputJoinCode" />
+    <bpmn:sequenceFlow id="Flow_CodeValid" name="Ya / Berhasil" sourceRef="Gateway_CodeValid" targetRef="Task_InsertMember" />
+    <bpmn:sequenceFlow id="Flow_S3" sourceRef="Task_InsertMember" targetRef="Task_ViewJoinedClass" />
+    <bpmn:sequenceFlow id="Flow_S4" sourceRef="Task_ViewJoinedClass" targetRef="End_StudentJoin" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Classroom">
+    <bpmndi:BPMNPlane id="BPMNPlane_Classroom" bpmnElement="Collaboration_Classroom">
+      <bpmndi:BPMNShape id="Participant_Classroom_di" bpmnElement="Participant_Classroom" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="950" height="520" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Pengajar_di" bpmnElement="Lane_Pengajar" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="920" height="160" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Pelajar_di" bpmnElement="Lane_Pelajar" isHorizontal="true">
+        <dc:Bounds x="190" y="240" width="920" height="160" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Sistem_Class_di" bpmnElement="Lane_Sistem_Class" isHorizontal="true">
+        <dc:Bounds x="190" y="400" width="920" height="200" />
+      </bpmndi:BPMNShape>
+      <!-- Shapes -->
+      <bpmndi:BPMNShape id="Start_TeacherClass_di" bpmnElement="Start_TeacherClass">
+        <dc:Bounds x="232" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="210" y="185" width="80" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_InputClassData_di" bpmnElement="Task_InputClassData">
+        <dc:Bounds x="320" y="120" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ShareCode_di" bpmnElement="Task_ShareCode">
+        <dc:Bounds x="640" y="120" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_TeacherClass_di" bpmnElement="End_TeacherClass">
+        <dc:Bounds x="832" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="810" y="185" width="80" height="40" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_StudentJoin_di" bpmnElement="Start_StudentJoin">
+        <dc:Bounds x="232" y="302" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="210" y="345" width="80" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_InputJoinCode_di" bpmnElement="Task_InputJoinCode">
+        <dc:Bounds x="320" y="280" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ViewJoinedClass_di" bpmnElement="Task_ViewJoinedClass">
+        <dc:Bounds x="870" y="280" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_StudentJoin_di" bpmnElement="End_StudentJoin">
+        <dc:Bounds x="1042" y="302" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1022" y="345" width="76" height="27" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_GenerateClassCode_di" bpmnElement="Task_GenerateClassCode">
+        <dc:Bounds x="460" y="440" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ValidateCode_di" bpmnElement="Task_ValidateCode">
+        <dc:Bounds x="320" y="440" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_CodeValid_di" bpmnElement="Gateway_CodeValid" isMarkerVisible="true">
+        <dc:Bounds x="645" y="455" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="635" y="512" width="71" height="40" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_InsertMember_di" bpmnElement="Task_InsertMember">
+        <dc:Bounds x="740" y="440" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <!-- Edges -->
+      <bpmndi:BPMNEdge id="Flow_T1_di" bpmnElement="Flow_T1"><di:waypoint x="268" y="160" /><di:waypoint x="320" y="160" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_T2_di" bpmnElement="Flow_T2"><di:waypoint x="450" y="160" /><di:waypoint x="535" y="160" /><di:waypoint x="535" y="440" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_T3_di" bpmnElement="Flow_T3"><di:waypoint x="610" y="480" /><di:waypoint x="705" y="480" /><di:waypoint x="705" y="200" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_T4_di" bpmnElement="Flow_T4"><di:waypoint x="770" y="160" /><di:waypoint x="832" y="160" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S1_di" bpmnElement="Flow_S1"><di:waypoint x="268" y="320" /><di:waypoint x="320" y="320" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S2_di" bpmnElement="Flow_S2"><di:waypoint x="385" y="360" /><di:waypoint x="385" y="440" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S_Check_di" bpmnElement="Flow_S_Check"><di:waypoint x="450" y="480" /><di:waypoint x="645" y="480" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CodeInvalid_di" bpmnElement="Flow_CodeInvalid"><di:waypoint x="670" y="455" /><di:waypoint x="670" y="330" /><di:waypoint x="450" y="330" /><bpmndi:BPMNLabel><dc:Bounds x="677" y="380" width="65" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CodeValid_di" bpmnElement="Flow_CodeValid"><di:waypoint x="695" y="480" /><di:waypoint x="740" y="480" /><bpmndi:BPMNLabel><dc:Bounds x="689" y="462" width="63" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S3_di" bpmnElement="Flow_S3"><di:waypoint x="890" y="480" /><di:waypoint x="935" y="480" /><di:waypoint x="935" y="360" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S4_di" bpmnElement="Flow_S4"><di:waypoint x="1000" y="320" /><di:waypoint x="1042" y="320" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

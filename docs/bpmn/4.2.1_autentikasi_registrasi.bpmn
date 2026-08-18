@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:collaboration id="Collaboration_Auth">
+    <bpmn:participant id="Participant_LMS" name="LMS Pembelajaran Bahasa Jawa BasaKula" processRef="Process_Auth" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Auth" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_PelajarPengajar" name="Pengajar / Pelajar">
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InputData</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_LihatDashboard</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_1</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Sistem" name="Sistem (Laravel &#38; MySQL)">
+        <bpmn:flowNodeRef>Task_ValidasiData</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Validasi</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_HashDanSimpan</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Role</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DirectTeacher</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DirectStudent</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_1" name="Buka Halaman Registrasi / Login">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_InputData" name="Mengisi Data Diri (Nama, Email, Password, Role)">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:incoming>Flow_GagalValidasi</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_ValidasiData" name="Memvalidasi Format Data dan Keunikan Email">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_Validasi" name="Apakah Data Valid?">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_Valid</bpmn:outgoing>
+      <bpmn:outgoing>Flow_GagalValidasi</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_HashDanSimpan" name="Hashing Password, Simpan User ke DB (insert users), &#38; Buat Sesi">
+      <bpmn:incoming>Flow_Valid</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_Role" name="Role Pengguna?">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_Teacher</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Student</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_DirectTeacher" name="Arahkan ke Dashboard Pengajar (Kelola Kelas)">
+      <bpmn:incoming>Flow_Teacher</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToDashboard1</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_DirectStudent" name="Arahkan ke Dashboard Pelajar (Ruang Kelas Saya)">
+      <bpmn:incoming>Flow_Student</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToDashboard2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_LihatDashboard" name="Melihat Halaman Dashboard Sesuai Hak Akses">
+      <bpmn:incoming>Flow_ToDashboard1</bpmn:incoming>
+      <bpmn:incoming>Flow_ToDashboard2</bpmn:incoming>
+      <bpmn:outgoing>Flow_End</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_1" name="Pengguna Berhasil Masuk">
+      <bpmn:incoming>Flow_End</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_InputData" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_InputData" targetRef="Task_ValidasiData" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_ValidasiData" targetRef="Gateway_Validasi" />
+    <bpmn:sequenceFlow id="Flow_GagalValidasi" name="Tidak" sourceRef="Gateway_Validasi" targetRef="Task_InputData" />
+    <bpmn:sequenceFlow id="Flow_Valid" name="Ya" sourceRef="Gateway_Validasi" targetRef="Task_HashDanSimpan" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_HashDanSimpan" targetRef="Gateway_Role" />
+    <bpmn:sequenceFlow id="Flow_Teacher" name="Pengajar" sourceRef="Gateway_Role" targetRef="Task_DirectTeacher" />
+    <bpmn:sequenceFlow id="Flow_Student" name="Pelajar" sourceRef="Gateway_Role" targetRef="Task_DirectStudent" />
+    <bpmn:sequenceFlow id="Flow_ToDashboard1" sourceRef="Task_DirectTeacher" targetRef="Task_LihatDashboard" />
+    <bpmn:sequenceFlow id="Flow_ToDashboard2" sourceRef="Task_DirectStudent" targetRef="Task_LihatDashboard" />
+    <bpmn:sequenceFlow id="Flow_End" sourceRef="Task_LihatDashboard" targetRef="EndEvent_1" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_Auth">
+      <bpmndi:BPMNShape id="Participant_LMS_di" bpmnElement="Participant_LMS" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1050" height="420" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_PelajarPengajar_di" bpmnElement="Lane_PelajarPengajar" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="1020" height="180" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Sistem_di" bpmnElement="Lane_Sistem" isHorizontal="true">
+        <dc:Bounds x="190" y="260" width="1020" height="240" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="232" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="214" y="185" width="73" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_InputData_di" bpmnElement="Task_InputData">
+        <dc:Bounds x="320" y="120" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ValidasiData_di" bpmnElement="Task_ValidasiData">
+        <dc:Bounds x="320" y="320" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Validasi_di" bpmnElement="Gateway_Validasi" isMarkerVisible="true">
+        <dc:Bounds x="495" y="335" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="488" y="392" width="65" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_HashDanSimpan_di" bpmnElement="Task_HashDanSimpan">
+        <dc:Bounds x="590" y="320" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Role_di" bpmnElement="Gateway_Role" isMarkerVisible="true">
+        <dc:Bounds x="775" y="335" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="760" y="392" width="81" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_DirectTeacher_di" bpmnElement="Task_DirectTeacher">
+        <dc:Bounds x="870" y="280" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_DirectStudent_di" bpmnElement="Task_DirectStudent">
+        <dc:Bounds x="870" y="370" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_LihatDashboard_di" bpmnElement="Task_LihatDashboard">
+        <dc:Bounds x="1030" y="120" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1">
+        <dc:Bounds x="1152" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1127" y="185" width="87" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="268" y="160" />
+        <di:waypoint x="320" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="385" y="200" />
+        <di:waypoint x="385" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="450" y="360" />
+        <di:waypoint x="495" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Valid_di" bpmnElement="Flow_Valid">
+        <di:waypoint x="545" y="360" />
+        <di:waypoint x="590" y="360" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="561" y="342" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_GagalValidasi_di" bpmnElement="Flow_GagalValidasi">
+        <di:waypoint x="520" y="335" />
+        <di:waypoint x="520" y="170" />
+        <di:waypoint x="450" y="170" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="527" y="243" width="28" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="730" y="360" />
+        <di:waypoint x="775" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Teacher_di" bpmnElement="Flow_Teacher">
+        <di:waypoint x="800" y="335" />
+        <di:waypoint x="800" y="315" />
+        <di:waypoint x="870" y="315" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="808" y="303" width="45" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Student_di" bpmnElement="Flow_Student">
+        <di:waypoint x="800" y="385" />
+        <di:waypoint x="800" y="405" />
+        <di:waypoint x="870" y="405" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="813" y="408" width="35" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToDashboard1_di" bpmnElement="Flow_ToDashboard1">
+        <di:waypoint x="1000" y="315" />
+        <di:waypoint x="1040" y="315" />
+        <di:waypoint x="1040" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToDashboard2_di" bpmnElement="Flow_ToDashboard2">
+        <di:waypoint x="1000" y="405" />
+        <di:waypoint x="1080" y="405" />
+        <di:waypoint x="1080" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_End_di" bpmnElement="Flow_End">
+        <di:waypoint x="1110" y="160" />
+        <di:waypoint x="1152" y="160" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

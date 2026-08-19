@@ -26,63 +26,29 @@
         </div>
         @endif
 
-        @if($material->type === 'unggah_ungguh' && $material->unggahUngguhBasas->count() > 0)
-            <h5 class="fw-bold text-main border-bottom pb-2 mb-4">Detail Unggah-Ungguh Basa</h5>
-            @foreach($material->unggahUngguhBasas as $uub)
-            <div class="bg-light rounded-4 p-4 mb-4 border">
-                @if($uub->context_scenario)
-                <div class="mb-3">
-                    <span class="badge bg-secondary mb-2">Konteks / Skenario</span>
-                    <p class="mb-0 fw-semibold">{{ $uub->context_scenario }}</p>
-                </div>
-                @endif
-                <div class="row g-4">
-                    <div class="col-md-4">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body">
-                                <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-comments me-2"></i> Ngoko</h6>
-                                <p class="mb-0 text-muted">{{ $uub->ngoko_text }}</p>
-                            </div>
+        @if($material->attachments->count() > 0)
+        <div>
+            <h5 class="fw-bold text-main border-bottom pb-2 mb-4">Lampiran & Berkas</h5>
+            <div class="row g-3">
+                @foreach($material->attachments as $att)
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center p-3 border rounded-4 bg-light">
+                        <div class="me-3 fs-3 text-primary">
+                            <i class="fa-solid fa-file-lines"></i>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body">
-                                <h6 class="fw-bold text-success mb-3"><i class="fa-solid fa-comments me-2"></i> Krama</h6>
-                                <p class="mb-0 text-muted">{{ $uub->krama_text }}</p>
-                            </div>
+                        <div class="flex-grow-1 overflow-hidden">
+                            <div class="fw-bold text-truncate">{{ $att->file_name }}</div>
+                            <small class="text-muted">{{ number_format($att->file_size / 1024, 1) }} KB</small>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body">
-                                <h6 class="fw-bold text-info mb-3"><i class="fa-solid fa-language me-2"></i> Terjemahan</h6>
-                                <p class="mb-0 text-muted">{{ $uub->indonesian_text }}</p>
-                            </div>
-                        </div>
+                        <a href="{{ asset('storage/' . $att->file_path) }}" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                            <i class="fa-solid fa-download me-1"></i> Unduh
+                        </a>
                     </div>
                 </div>
+                @endforeach
             </div>
-            @endforeach
+        </div>
         @endif
-
-        @if($material->type === 'sastra_jawa' && $material->sastraJawas->count() > 0)
-            <h5 class="fw-bold text-main border-bottom pb-2 mb-4">Detail Sastra Jawa</h5>
-            @foreach($material->sastraJawas as $sastra)
-            <div class="bg-light rounded-4 p-4 mb-4 border text-center">
-                <h4 class="fw-bold text-primary mb-2">{{ $material->title }}</h4>
-                <p class="text-muted small mb-4">
-                    Karya: <strong>{{ $sastra->author ?? 'Anonim' }}</strong> | Genre: <span class="badge bg-secondary">{{ $sastra->genre }}</span>
-                </p>
-                <div class="d-inline-block text-start p-4 bg-white rounded-4 shadow-sm" style="min-width: 50%; max-width: 100%;">
-                    <p class="mb-0 text-dark" style="white-space: pre-line; line-height: 2; font-size: 1.1rem; font-family: 'Georgia', serif;">
-                        {{ $sastra->content }}
-                    </p>
-                </div>
-            </div>
-            @endforeach
-        @endif
-
     </div>
 </div>
 @endsection

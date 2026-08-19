@@ -27,7 +27,6 @@
                     <label class="form-label">Tipe Materi</label>
                     <select name="type" id="materialType" class="form-select" required onchange="toggleFields()">
                         <option value="general">Umum</option>
-                        <option value="unggah_ungguh">Unggah-Ungguh Basa</option>
                         <option value="sastra_jawa">Sastra Jawa</option>
                         <option value="aksara_jawa">Aksara Jawa</option>
                     </select>
@@ -37,27 +36,6 @@
             <div class="mb-3">
                 <label class="form-label">Deskripsi</label>
                 <textarea name="description" class="form-control" rows="3"></textarea>
-            </div>
-
-            <!-- Fields Unggah Ungguh -->
-            <div id="fields_unggah_ungguh" class="d-none border p-3 rounded mb-3 bg-light">
-                <h6 class="fw-bold text-primary">Detail Unggah-Ungguh Basa</h6>
-                <div class="mb-2">
-                    <label class="form-label">Konteks / Skenario</label>
-                    <input type="text" name="context_scenario" class="form-control">
-                </div>
-                <div class="mb-2">
-                    <label class="form-label">Teks Ngoko</label>
-                    <textarea name="ngoko_text" class="form-control"></textarea>
-                </div>
-                <div class="mb-2">
-                    <label class="form-label">Teks Krama</label>
-                    <textarea name="krama_text" class="form-control"></textarea>
-                </div>
-                <div class="mb-2">
-                    <label class="form-label">Terjemahan Indonesia</label>
-                    <textarea name="indonesian_text" class="form-control"></textarea>
-                </div>
             </div>
 
             <!-- Fields Sastra Jawa -->
@@ -88,12 +66,9 @@
 <script>
 function toggleFields() {
     const type = document.getElementById('materialType').value;
-    document.getElementById('fields_unggah_ungguh').classList.add('d-none');
     document.getElementById('fields_sastra_jawa').classList.add('d-none');
     
-    if (type === 'unggah_ungguh') {
-        document.getElementById('fields_unggah_ungguh').classList.remove('d-none');
-    } else if (type === 'sastra_jawa') {
+    if (type === 'sastra_jawa') {
         document.getElementById('fields_sastra_jawa').classList.remove('d-none');
     }
 }

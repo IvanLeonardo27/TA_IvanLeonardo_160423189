@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class QuizSet extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
+
     protected $fillable = [
         'title',
         'slug',
@@ -21,18 +22,25 @@ class QuizSet extends Model
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
-        'is_default' => 'boolean',
-        'randomize_questions' => 'boolean',
+        'is_active'               => 'boolean',
+        'is_default'              => 'boolean',
+        'randomize_questions'     => 'boolean',
+        'time_limit_seconds'      => 'integer',
+        'max_attempts_per_player' => 'integer',
     ];
 
     public function questions(): HasMany
     {
-        return $this->hasMany(QuizQuestion::class);
+        return $this->hasMany(QuizQuestion::class, 'quiz_set_id');
     }
 
     public function attempts(): HasMany
     {
-        return $this->hasMany(QuizAttempt::class);
+        return $this->hasMany(QuizAttempt::class, 'quiz_set_id');
+    }
+
+    public function classroomQuizzes(): HasMany
+    {
+        return $this->hasMany(ClassroomQuiz::class, 'quiz_set_id');
     }
 }

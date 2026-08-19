@@ -6,14 +6,13 @@
 <div class="row mb-4 align-items-center">
     <div class="col-md-8">
         <h3 class="fw-bold text-main mb-1">Materi Pembelajaran <i class="fa-solid fa-book text-primary ms-2"></i></h3>
-        <p class="text-muted">Jelajahi materi, Sastra Jawa, Unggah-Ungguh Basa, dan lainnya.</p>
+        <p class="text-muted">Jelajahi materi pembelajaran, Sastra Jawa, Aksara Jawa, dan lainnya.</p>
     </div>
     <div class="col-md-4 text-md-end mt-3 mt-md-0">
         <form action="{{ route('student.materials.index') }}" method="GET" class="d-flex">
             <select name="type" class="form-select rounded-pill shadow-sm me-2" onchange="this.form.submit()">
                 <option value="">Semua Tipe</option>
                 <option value="general" {{ request('type') == 'general' ? 'selected' : '' }}>Umum</option>
-                <option value="unggah_ungguh" {{ request('type') == 'unggah_ungguh' ? 'selected' : '' }}>Unggah-Ungguh Basa</option>
                 <option value="sastra_jawa" {{ request('type') == 'sastra_jawa' ? 'selected' : '' }}>Sastra Jawa</option>
                 <option value="aksara_jawa" {{ request('type') == 'aksara_jawa' ? 'selected' : '' }}>Aksara Jawa</option>
             </select>

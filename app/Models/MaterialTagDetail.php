@@ -6,20 +6,26 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class UnggahUngguhBasa extends Model
+class MaterialTagDetail extends Model
 {
     use HasFactory;
 
+    protected $table = 'material_tag_details';
+
+    public $timestamps = false;
+
     protected $fillable = [
         'material_id',
-        'context_scenario',
-        'ngoko_text',
-        'krama_text',
-        'indonesian_text',
+        'tag_id',
     ];
 
     public function material(): BelongsTo
     {
-        return $this->belongsTo(Material::class);
+        return $this->belongsTo(Material::class, 'material_id');
+    }
+
+    public function tag(): BelongsTo
+    {
+        return $this->belongsTo(MaterialTag::class, 'tag_id');
     }
 }

@@ -9,7 +9,51 @@
     <ul class="nav flex-column mb-auto">
         
         @auth
-            @if(auth()->user()->isTeacher())
+            @if(auth()->user()->isAdmin())
+                {{-- Menu Khusus Super Admin --}}
+                <li class="nav-item mb-1">
+                    <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-shield-halved text-primary"></i> Dashboard Admin
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a href="{{ route('admin.users.teachers.index') }}" class="nav-link {{ request()->routeIs('admin.users.teachers*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-chalkboard-user text-primary"></i> Kelola Pengajar
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a href="{{ route('admin.users.students.index') }}" class="nav-link {{ request()->routeIs('admin.users.students*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-user-graduate text-info"></i> Kelola Pelajar
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a href="{{ route('admin.activities.index') }}" class="nav-link {{ request()->routeIs('admin.activities*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-clock-rotate-left text-warning"></i> Log Aktivitas
+                    </a>
+                </li>
+                <hr class="my-2 text-muted">
+                <li class="nav-item mb-1">
+                    <a href="{{ route('teacher.javanese-script.index') }}" class="nav-link {{ request()->is('*teacher/javanese-script*') || request()->is('*aksara-jawa*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-font"></i> Aksara Jawa
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a href="{{ route('teacher.macapat.index') }}" class="nav-link {{ request()->is('*macapat*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-music"></i> Tembang Macapat
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a href="/ui/kosakata" class="nav-link {{ request()->is('*kosakata*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-book-journal-whills"></i> Kamus Kosakata
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a href="/ui/translator" class="nav-link {{ request()->is('*translator*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-language"></i> Translator Jawa
+                    </a>
+                </li>
+
+            @elseif(auth()->user()->isTeacher())
                 {{-- Menu Khusus Pengajar --}}
                 <li class="nav-item mb-1">
                     <a href="{{ route('teacher.classroom.index') }}" class="nav-link {{ request()->routeIs('teacher.classroom.index') || request()->routeIs('teacher.classroom.show') ? 'active' : '' }}">
@@ -29,7 +73,7 @@
                 <hr class="my-2 text-muted">
                 <li class="nav-item mb-1">
                     <a href="{{ route('teacher.javanese-script.index') }}" class="nav-link {{ request()->is('*teacher/javanese-script*') || request()->is('*aksara-jawa*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-font"></i> Kelola Aksara Jawa
+                        <i class="fa-solid fa-font"></i> Aksara Jawa
                     </a>
                 </li>
                 <li class="nav-item mb-1">
@@ -39,7 +83,7 @@
                 </li>
                 <li class="nav-item mb-1">
                     <a href="/ui/kosakata" class="nav-link {{ request()->is('*kosakata*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-book-journal-whills"></i> Kelola & Tambah Kosakata
+                        <i class="fa-solid fa-book-journal-whills"></i> Kamus Kosakata
                     </a>
                 </li>
                 <li class="nav-item mb-1">
@@ -115,7 +159,15 @@
             <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=C9A66B&color=fff" alt="" width="32" height="32" class="rounded-circle me-2">
             <div class="lh-1 text-truncate">
                 <strong class="d-block text-truncate" style="max-width:120px;">{{ auth()->user()->name }}</strong>
-                <small class="text-muted" style="font-size:0.65rem;">{{ auth()->user()->isTeacher() ? 'Pengajar' : 'Pelajar' }}</small>
+                <small class="text-muted" style="font-size:0.65rem;">
+                    @if(auth()->user()->isAdmin())
+                        Administrator
+                    @elseif(auth()->user()->isTeacher())
+                        Pengajar ({{ auth()->user()->user_code ?? 'Guru' }})
+                    @else
+                        Pelajar ({{ auth()->user()->user_code ?? 'Siswa' }})
+                    @endif
+                </small>
             </div>
         </a>
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
@@ -132,10 +184,9 @@
         </ul>
         @else
         <div class="px-2">
-            <div class="d-flex gap-2">
-                <a href="{{ route('login') }}" class="btn btn-outline-primary btn-sm rounded-pill w-50">Masuk</a>
-                <a href="{{ route('register') }}" class="btn btn-primary btn-sm rounded-pill w-50">Daftar</a>
-            </div>
+            <a href="{{ route('login') }}" class="btn btn-primary btn-sm rounded-pill w-100 fw-bold">
+                <i class="fa-solid fa-right-to-bracket me-1"></i> Masuk Akun
+            </a>
         </div>
         @endauth
     </div>

@@ -21,7 +21,7 @@
         </a>
 
         @auth
-            @if(auth()->user()->isTeacher())
+            @if(auth()->user()->isAdmin())
             <div class="d-flex gap-2">
                 <a href="{{ route('teacher.javanese-script.edit', $script->id) }}" class="btn btn-warning text-dark rounded-pill px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2">
                     <i class="fa-solid fa-pen-to-square"></i>

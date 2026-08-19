@@ -29,6 +29,20 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
+
+        // Cek status akun pengguna
+        if ($user && $user->status === 'banned') {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->route('login')->with('error', 'Akun Anda telah dinonaktifkan oleh Administrator.');
+        }
+
+        // Pengalihan berdasarkan role
+        if ($user && $user->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
+
         if ($user && $user->isTeacher()) {
             return redirect()->route('teacher.classroom.index');
         }

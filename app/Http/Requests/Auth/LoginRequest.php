@@ -28,13 +28,15 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'login'    => ['nullable', 'string'],
+            'email'    => ['nullable', 'string'],
             'password' => ['required', 'string'],
         ];
     }
 
     /**
      * Attempt to authenticate the request's credentials.
+     * Mendukung login menggunakan Email ATAU Kode Pengguna (user_code)
      *
      * @throws ValidationException
      */
@@ -42,12 +44,43 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+        $loginInput = trim($this->input('login') ?? $this->input('email') ?? '');
+        $password   = $this->input('password');
+        $remember   = $this->boolean('remember');
 
+        if (empty($loginInput)) {
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => 'Email atau Kode Pengguna wajib diisi.',
             ]);
+        }
+
+        // Tentukan apakah input berupa email atau kode pengguna
+        $fieldType = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'user_code';
+
+        $credentials = [
+            $fieldType => $loginInput,
+            'password' => $password,
+        ];
+
+        // Jika bukan format email, coba juga cari format case-insensitive
+        if (! Auth::attempt($credentials, $remember)) {
+            // Coba fallback ke email jika sebelumnya user_code gagal, atau sebaliknya
+            $fallbackField = ($fieldType === 'email') ? 'user_code' : 'email';
+            $fallbackCreds = [$fallbackField => $loginInput, 'password' => $password];
+
+            if (! Auth::attempt($fallbackCreds, $remember)) {
+                RateLimiter::hit($this->throttleKey());
+
+                throw ValidationException::withMessages([
+                    'email' => trans('auth.failed'),
+                ]);
+            }
+        }
+
+        // Catat waktu login terakhir
+        $user = Auth::user();
+        if ($user) {
+            $user->update(['last_login' => now()]);
         }
 
         RateLimiter::clear($this->throttleKey());
@@ -81,6 +114,7 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        $loginInput = $this->input('login') ?? $this->input('email') ?? '';
+        return Str::transliterate(Str::lower($loginInput).'|'.$this->ip());
     }
 }

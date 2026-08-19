@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
@@ -23,6 +24,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'user_code',
         'password',
         'role_id',
         'photo',
@@ -91,5 +93,41 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role && $this->role->name === 'admin';
+    }
+
+    /**
+     * Generate Kode Pengguna Unik Otomatis
+     * - Pelajar (Student): 27705 + YY + sequence (e.g. 277052601)
+     * - Pengajar (Teacher): 277 + YY + sequence (e.g. 2772601)
+     */
+    public static function generateUserCode(string $roleName, ?string $year = null): string
+    {
+        $yy = $year ?? date('y');
+        $prefix = ($roleName === 'student') ? ('27705' . $yy) : ('277' . $yy);
+
+        // Cari kode tertinggi dengan prefix tersebut
+        $latestUser = self::where('user_code', 'LIKE', "{$prefix}%")
+            ->orderBy('user_code', 'desc')
+            ->first();
+
+        if ($latestUser && !empty($latestUser->user_code)) {
+            $lastSeq = (int) substr($latestUser->user_code, strlen($prefix));
+            $nextSeq = $lastSeq + 1;
+        } else {
+            // Hitung total pengguna dengan role tersebut di tahun ini sebagai baseline
+            $role = Role::where('name', $roleName)->first();
+            $count = $role ? self::where('role_id', $role->id)->count() : 0;
+            $nextSeq = max(1, $count + 1);
+        }
+
+        do {
+            $code = $prefix . sprintf('%02d', $nextSeq);
+            $exists = self::where('user_code', $code)->exists();
+            if ($exists) {
+                $nextSeq++;
+            }
+        } while ($exists);
+
+        return $code;
     }
 }

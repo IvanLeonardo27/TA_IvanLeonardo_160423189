@@ -7,11 +7,13 @@
     <a href="{{ route('teacher.macapat.index') }}" class="text-decoration-none text-muted fw-semibold">
         <i class="fa-solid fa-arrow-left me-2"></i> Kembali ke Daftar Macapat
     </a>
+    @if(auth()->check() && auth()->user()->isAdmin())
     <div>
         <a href="{{ route('teacher.macapat.edit', $category) }}" class="btn btn-warning btn-sm text-white rounded-pill px-3">
             <i class="fa-solid fa-pen me-1"></i> Edit Kategori
         </a>
     </div>
+    @endif
 </div>
 
 @if(session('success'))
@@ -64,8 +66,8 @@
 
 <!-- Daftar Bait & Form Tambah -->
 <div class="row g-4">
-    <!-- Kolom Kiri: Daftar Bait / Cakepan -->
-    <div class="col-lg-7">
+    <!-- Kolom: Daftar Bait / Cakepan -->
+    <div class="{{ auth()->check() && auth()->user()->isAdmin() ? 'col-lg-7' : 'col-lg-12' }}">
         <div class="card card-modern border-0 shadow-sm rounded-4 h-100">
             <div class="card-body p-4">
                 <h5 class="fw-bold mb-4 text-main d-flex justify-content-between align-items-center">
@@ -77,6 +79,7 @@
                 <div class="p-4 bg-light rounded-4 border mb-3 position-relative">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <span class="badge bg-secondary">Bait ke-{{ $index + 1 }}</span>
+                        @if(auth()->check() && auth()->user()->isAdmin())
                         <form action="{{ route('teacher.macapat.details.destroy', $detail) }}" method="POST" onsubmit="return confirm('Hapus bait ini?');">
                             @csrf
                             @method('DELETE')
@@ -84,6 +87,7 @@
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </form>
+                        @endif
                     </div>
 
                     <!-- Teks Bait Macapat -->
@@ -116,14 +120,14 @@
                 <div class="text-center py-5 text-muted">
                     <i class="fa-solid fa-lines-leaning fs-1 mb-3 opacity-50"></i>
                     <p class="mb-0">Belum ada bait/cakepan untuk tembang ini.</p>
-                    <small>Gunakan form di samping untuk menambahkan bait pertama.</small>
                 </div>
                 @endforelse
             </div>
         </div>
     </div>
 
-    <!-- Kolom Kanan: Form Tambah Bait Baru -->
+    @if(auth()->check() && auth()->user()->isAdmin())
+    <!-- Kolom Kanan: Form Tambah Bait Baru (Khusus Admin) -->
     <div class="col-lg-5">
         <div class="card card-modern border-0 shadow-sm rounded-4">
             <div class="card-body p-4">
@@ -156,5 +160,6 @@
             </div>
         </div>
     </div>
+    @endif
 </div>
 @endsection

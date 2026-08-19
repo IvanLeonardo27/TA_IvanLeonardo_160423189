@@ -18,6 +18,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function() {
     if (auth()->check()) {
         $user = auth()->user();
+        if ($user->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
         if ($user->isTeacher()) {
             return redirect()->route('teacher.classroom.index');
         }
@@ -167,17 +170,38 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/admin', [AdminPageController::class, 'index'])->name('admin.home');
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard.index');
 
-    Route::prefix('admin')->name('admin.')->group(function () {
-        Route::post('/kosakata', [AdminPageController::class, 'storeVocab'])->name('vocab.store');
-        Route::put('/kosakata/{vocabWord}', [AdminPageController::class, 'updateVocab'])->name('vocab.update');
-        Route::delete('/kosakata/{vocabWord}', [AdminPageController::class, 'destroyVocab'])->name('vocab.destroy');
+    // Manajemen Akun Pengajar (Teachers)
+    Route::get('/users/teachers', [\App\Http\Controllers\Admin\UserController::class, 'indexTeachers'])->name('users.teachers.index');
+    Route::get('/users/teachers/create', [\App\Http\Controllers\Admin\UserController::class, 'createTeacher'])->name('users.teachers.create');
+    Route::post('/users/teachers', [\App\Http\Controllers\Admin\UserController::class, 'storeTeacher'])->name('users.teachers.store');
+    Route::get('/users/teachers/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'editTeacher'])->name('users.teachers.edit');
+    Route::put('/users/teachers/{user}', [\App\Http\Controllers\Admin\UserController::class, 'updateTeacher'])->name('users.teachers.update');
+    Route::delete('/users/teachers/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroyTeacher'])->name('users.teachers.destroy');
 
-        Route::get('/kosakata/export', [AdminVocabCsvController::class, 'export'])->name('vocab.export');
-        Route::post('/kosakata/import', [AdminVocabCsvController::class, 'import'])->name('vocab.import');
-    });
+    // Manajemen Akun Pelajar (Students)
+    Route::get('/users/students', [\App\Http\Controllers\Admin\UserController::class, 'indexStudents'])->name('users.students.index');
+    Route::get('/users/students/create', [\App\Http\Controllers\Admin\UserController::class, 'createStudent'])->name('users.students.create');
+    Route::post('/users/students', [\App\Http\Controllers\Admin\UserController::class, 'storeStudent'])->name('users.students.store');
+    Route::get('/users/students/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'editStudent'])->name('users.students.edit');
+    Route::put('/users/students/{user}', [\App\Http\Controllers\Admin\UserController::class, 'updateStudent'])->name('users.students.update');
+    Route::delete('/users/students/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroyStudent'])->name('users.students.destroy');
+
+    // Toggle Status Akun (Aktif / Nonaktif)
+    Route::patch('/users/{user}/toggle-status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle_status');
+
+    // Log Aktivitas Interaksi Pembelajaran
+    Route::get('/activities', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('activities.index');
+
+    // Kosakata Management Legacy
+    Route::post('/kosakata', [AdminPageController::class, 'storeVocab'])->name('vocab.store');
+    Route::put('/kosakata/{vocabWord}', [AdminPageController::class, 'updateVocab'])->name('vocab.update');
+    Route::delete('/kosakata/{vocabWord}', [AdminPageController::class, 'destroyVocab'])->name('vocab.destroy');
+    Route::get('/kosakata/export', [AdminVocabCsvController::class, 'export'])->name('vocab.export');
+    Route::post('/kosakata/import', [AdminVocabCsvController::class, 'import'])->name('vocab.import');
 });
 
 // Download attachment dengan nama asli file

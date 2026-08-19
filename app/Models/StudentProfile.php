@@ -18,7 +18,6 @@ class StudentProfile extends Model
         'school_name',
         'grade_level',
         'phone_number',
-        'address',
     ];
 
     public function user(): BelongsTo

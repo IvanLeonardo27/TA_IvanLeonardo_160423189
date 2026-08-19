@@ -65,7 +65,7 @@
                 <i class="fa-solid fa-graduation-cap fs-4"></i>
             </div>
             <h3 class="fw-bold text-dark mb-1" style="font-size: 1.75rem;">Masuk Akun</h3>
-            <p class="text-muted small mb-0">Mlebet akun nggunakake email lan tembung sandi panjenengan.</p>
+            <p class="text-muted small mb-0">Mlebet akun nggunakake email utawa kode pangguna panjenengan.</p>
         </div>
 
         @if($errors->any())
@@ -82,23 +82,40 @@
         </div>
         @endif
 
+        @if(session('info'))
+        <div class="alert alert-info rounded-4 border-0 mb-4 p-3 d-flex align-items-center gap-2 small shadow-sm">
+            <i class="fa-solid fa-circle-info text-info fs-5"></i>
+            <div>{{ session('info') }}</div>
+        </div>
+        @endif
+
+        @if(session('error'))
+        <div class="alert alert-danger rounded-4 border-0 mb-4 p-3 d-flex align-items-center gap-2 small shadow-sm">
+            <i class="fa-solid fa-triangle-exclamation text-danger fs-5"></i>
+            <div>{{ session('error') }}</div>
+        </div>
+        @endif
+
         <form action="{{ route('login') }}" method="POST">
             @csrf
             
-            <!-- Input Email -->
+            <!-- Input Email / User Code -->
             <div class="mb-3">
-                <label for="email" class="form-label fw-semibold text-dark small mb-1">Alamat Email</label>
+                <label for="email" class="form-label fw-semibold text-dark small mb-1">
+                    Email atau Kode Pengguna
+                </label>
                 <div class="custom-input-group">
-                    <i class="fa-regular fa-envelope input-icon-left"></i>
-                    <input type="email" 
+                    <i class="fa-solid fa-id-card-clip input-icon-left"></i>
+                    <input type="text" 
                            name="email" 
                            class="form-control @error('email') is-invalid @enderror" 
                            id="email" 
                            value="{{ old('email') }}" 
-                           placeholder="nama@sekolah.com" 
+                           placeholder="nama@email.com atau Kode (27705... / 277...)" 
                            required 
                            autofocus>
                 </div>
+                <small class="text-muted" style="font-size: 0.75rem;">Gunakan email terdaftar atau kode unik yang diberikan Admin.</small>
                 @error('email')
                 <div class="text-danger small mt-1">{{ $message }}</div>
                 @enderror
@@ -147,13 +164,11 @@
                 <i class="fa-solid fa-arrow-right-to-bracket small"></i>
             </button>
 
-            <!-- Register Link -->
-            <div class="text-center pt-2 border-top">
+            <!-- Admin Notice Info -->
+            <div class="text-center pt-3 border-top">
                 <p class="text-muted small mb-0">
-                    Dereng gadhah akun? 
-                    <a href="{{ route('register') }}" class="fw-bold text-decoration-none" style="color: #16402e;">
-                        Daftar Akun Anyar
-                    </a>
+                    <i class="fa-solid fa-shield-halved text-primary me-1"></i>
+                    Pendaftaran akun Pengajar & Pelajar dikelola terpusat oleh <strong>Administrator</strong>.
                 </p>
             </div>
         </form>

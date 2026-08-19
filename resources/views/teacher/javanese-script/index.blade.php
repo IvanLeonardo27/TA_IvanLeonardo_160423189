@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Kelola Aksara Jawa - Panel Pengajar')
+@section('title', 'Aksara Jawa - BasaKula')
 
 @section('content')
 <div class="container-fluid px-0 pb-5">
@@ -9,22 +9,24 @@
         <div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb bg-transparent p-0 mb-1">
-                    <li class="breadcrumb-item"><a href="{{ route('teacher.classroom.index') }}" class="text-decoration-none text-muted">Panel Pengajar</a></li>
-                    <li class="breadcrumb-item active text-primary fw-semibold" aria-current="page">Kelola Aksara Jawa</li>
+                    <li class="breadcrumb-item"><a href="{{ route('teacher.classroom.index') }}" class="text-decoration-none text-muted">Panel Pembelajaran</a></li>
+                    <li class="breadcrumb-item active text-primary fw-semibold" aria-current="page">Materi Aksara Jawa</li>
                 </ol>
             </nav>
-            <h2 class="fw-bold text-main mb-1">Kelola Aksara Jawa</h2>
-            <p class="text-muted mb-0">Tambah, ubah, atau hapus data aksara Jawa dan contoh kalimatnya untuk bahan ajar siswa.</p>
+            <h2 class="fw-bold text-main mb-1">Materi Aksara Jawa</h2>
+            <p class="text-muted mb-0">Eksplorasi kumpulan data aksara Jawa, sandhangan, pasangan, angka, dan contoh kalimatnya.</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('javanese-script.index') }}" target="_blank" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2 bg-white">
+            <a href="{{ route('javanese-script.index') }}" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2 bg-white">
                 <i class="fa-solid fa-eye"></i>
-                <span>Lihat Tampilan Siswa</span>
+                <span>Tampilan Interaktif</span>
             </a>
+            @if(auth()->check() && auth()->user()->isAdmin())
             <a href="{{ route('teacher.javanese-script.create') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2">
                 <i class="fa-solid fa-plus"></i>
                 <span>Tambah Aksara Baru</span>
             </a>
+            @endif
         </div>
     </div>
 
@@ -101,36 +103,32 @@
         ];
     @endphp
 
-    <!-- Grid Data Aksara untuk Pengajar -->
-    <div class="row g-3 g-md-4 mb-4">
+    <!-- Grid Kartu Aksara Jawa -->
+    <div class="row g-4 mb-4">
         @forelse($scripts as $item)
         @php
-            $key = strtolower(trim($item->name));
-            $glyph = $javaneseGlyphs[$key] ?? $item->name;
+            $key = strtolower(trim($item->latin));
+            $glyph = $javaneseGlyphs[$key] ?? ($javaneseGlyphs[strtolower(trim($item->name))] ?? 'ꦲ');
             $example = $item->examples->first();
         @endphp
-        <div class="col-md-6 col-lg-4 col-xl-3">
+        <div class="col-sm-6 col-md-4 col-lg-3">
             <div class="card card-modern h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative">
                 <div class="card-body p-3 d-flex flex-column justify-content-between">
                     <div>
-                        <!-- Header Card: Kategori & Aksi -->
+                        <!-- Kategori Badge -->
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="badge bg-light text-muted border rounded-pill px-2 py-1 small" style="font-size: 0.75rem;">
+                            <span class="badge bg-light text-dark border px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
                                 {{ $item->category->name ?? 'Aksara' }}
                             </span>
+                            @if(auth()->check() && auth()->user()->isAdmin())
                             <div class="dropdown">
-                                <button class="btn btn-sm btn-light rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                                <button class="btn btn-sm btn-light rounded-circle p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 28px; height: 28px;">
+                                    <i class="fa-solid fa-ellipsis-vertical text-muted"></i>
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
                                     <li>
                                         <a class="dropdown-item" href="{{ route('teacher.javanese-script.edit', $item->id) }}">
                                             <i class="fa-solid fa-pen-to-square text-warning me-2"></i> Edit Data
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('javanese-script.show', $item->id) }}" target="_blank">
-                                            <i class="fa-solid fa-eye text-primary me-2"></i> Lihat Pratinjau
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
@@ -145,6 +143,7 @@
                                     </li>
                                 </ul>
                             </div>
+                            @endif
                         </div>
 
                         <!-- Flashcard Mini Display -->
@@ -169,18 +168,26 @@
                         @endif
                     </div>
 
-                    <!-- Tombol Aksi Cepat Bawah -->
-                    <div class="d-flex gap-2 mt-3 pt-2 border-top">
-                        <a href="{{ route('teacher.javanese-script.edit', $item->id) }}" class="btn btn-outline-warning btn-sm rounded-pill w-50 fw-semibold">
-                            <i class="fa-solid fa-pen-to-square me-1"></i> Edit
+                    <!-- Tombol Aksi Bawah -->
+                    <div class="mt-3 pt-2 border-top">
+                        @if(auth()->check() && auth()->user()->isAdmin())
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('teacher.javanese-script.edit', $item->id) }}" class="btn btn-outline-warning btn-sm rounded-pill w-50 fw-semibold">
+                                <i class="fa-solid fa-pen-to-square me-1"></i> Edit
+                            </a>
+                            <form method="POST" action="{{ route('teacher.javanese-script.destroy', $item->id) }}" class="w-50" onsubmit="return confirm('Hapus aksara {{ $item->name }}?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill w-100 fw-semibold">
+                                    <i class="fa-solid fa-trash me-1"></i> Hapus
+                                </button>
+                            </form>
+                        </div>
+                        @else
+                        <a href="{{ route('javanese-script.show', $item->id) }}" class="btn btn-outline-primary btn-sm rounded-pill w-100 fw-semibold py-1.5">
+                            <i class="fa-solid fa-book-open me-1.5"></i> Pelajari Aksara
                         </a>
-                        <form method="POST" action="{{ route('teacher.javanese-script.destroy', $item->id) }}" class="w-50" onsubmit="return confirm('Hapus aksara {{ $item->name }}?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill w-100 fw-semibold">
-                                <i class="fa-solid fa-trash me-1"></i> Hapus
-                            </button>
-                        </form>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -189,7 +196,7 @@
         <div class="col-12 text-center py-5">
             <i class="fa-solid fa-folder-open fs-1 text-muted opacity-50 mb-3"></i>
             <h5 class="fw-bold text-muted">Tidak ada data Aksara Jawa ditemukan.</h5>
-            <p class="text-muted small">Silakan sesuaikan kata kunci pencarian atau tambah data baru.</p>
+            <p class="text-muted small">Silakan sesuaikan kata kunci pencarian.</p>
         </div>
         @endforelse
     </div>

@@ -8,16 +8,16 @@ use App\Models\JavaneseScriptDetail;
 use App\Models\JavaneseScriptExample;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
 class JavaneseScriptController extends Controller
 {
     /**
-     * Tampilkan daftar kelola Aksara Jawa untuk Pengajar.
+     * Tampilkan daftar materi Aksara Jawa.
      */
     public function index(Request $request)
     {
-        \Illuminate\Support\Facades\Gate::authorize('teacher');
         $categories = JavaneseScriptCategory::all();
         $query = JavaneseScriptDetail::with(['category', 'examples']);
 
@@ -40,20 +40,22 @@ class JavaneseScriptController extends Controller
     }
 
     /**
-     * Form tambah Aksara Jawa baru.
+     * Form tambah Aksara Jawa baru (Hanya Admin).
      */
     public function create()
     {
-        \Illuminate\Support\Facades\Gate::authorize('teacher');
+        Gate::authorize('admin');
         $categories = JavaneseScriptCategory::all();
         return view('teacher.javanese-script.create', compact('categories'));
     }
 
     /**
-     * Simpan data Aksara Jawa baru beserta contoh kalimatnya.
+     * Simpan data Aksara Jawa baru beserta contoh kalimatnya (Hanya Admin).
      */
     public function store(Request $request)
     {
+        Gate::authorize('admin');
+
         $request->validate([
             'category_id' => 'required|exists:javanese_script_categories,id',
             'name' => 'required|string|max:255',
@@ -101,10 +103,12 @@ class JavaneseScriptController extends Controller
     }
 
     /**
-     * Form edit data Aksara Jawa & contoh kalimatnya.
+     * Form edit data Aksara Jawa & contoh kalimatnya (Hanya Admin).
      */
     public function edit($id)
     {
+        Gate::authorize('admin');
+
         $script = JavaneseScriptDetail::with(['category', 'examples'])->findOrFail($id);
         $categories = JavaneseScriptCategory::all();
         $example = $script->examples->first();
@@ -113,10 +117,12 @@ class JavaneseScriptController extends Controller
     }
 
     /**
-     * Update data Aksara Jawa & contoh kalimat.
+     * Update data Aksara Jawa & contoh kalimat (Hanya Admin).
      */
     public function update(Request $request, $id)
     {
+        Gate::authorize('admin');
+
         $script = JavaneseScriptDetail::findOrFail($id);
 
         $request->validate([
@@ -171,10 +177,12 @@ class JavaneseScriptController extends Controller
     }
 
     /**
-     * Hapus data Aksara Jawa.
+     * Hapus data Aksara Jawa (Hanya Admin).
      */
     public function destroy($id)
     {
+        Gate::authorize('admin');
+
         $script = JavaneseScriptDetail::findOrFail($id);
 
         try {

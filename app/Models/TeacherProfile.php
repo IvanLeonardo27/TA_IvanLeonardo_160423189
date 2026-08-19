@@ -18,7 +18,6 @@ class TeacherProfile extends Model
         'institution_name',
         'subject_specialization',
         'phone_number',
-        'bio',
     ];
 
     public function user(): BelongsTo

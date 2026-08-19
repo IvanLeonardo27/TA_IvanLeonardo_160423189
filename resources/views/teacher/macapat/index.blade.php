@@ -1,17 +1,19 @@
 @extends('layouts.app')
 
-@section('title', 'Manajemen Tembang Macapat')
+@section('title', 'Tembang Macapat - BasaKula')
 
 @section('content')
 <div class="row mb-4 align-items-center">
     <div class="col-md-8">
-        <h3 class="fw-bold text-main mb-1">Manajemen Tembang Macapat <i class="fa-solid fa-music text-primary ms-2"></i></h3>
-        <p class="text-muted">Kelola 11 Tembang Macapat beserta paugeran (Guru Gatra, Wilangan, Lagu) dan cakepan liriknya.</p>
+        <h3 class="fw-bold text-main mb-1">Tembang Macapat <i class="fa-solid fa-music text-primary ms-2"></i></h3>
+        <p class="text-muted">Eksplorasi 11 Tembang Macapat beserta paugeran (Guru Gatra, Wilangan, Lagu) dan cakepan liriknya.</p>
     </div>
     <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        @if(auth()->check() && auth()->user()->isAdmin())
         <a href="{{ route('teacher.macapat.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm">
             <i class="fa-solid fa-plus me-2"></i> Tambah Kategori Macapat
         </a>
+        @endif
     </div>
 </div>
 
@@ -47,9 +49,10 @@
                         <td><code>{{ $item->guru_lagu }}</code></td>
                         <td><span class="badge bg-soft-blue text-primary">{{ $item->details_count }} Bait</span></td>
                         <td class="text-end">
-                            <a href="{{ route('teacher.macapat.show', $item) }}" class="btn btn-sm btn-info text-white rounded-pill px-3 me-1">
-                                <i class="fa-solid fa-eye me-1"></i> Detail & Bait
+                            <a href="{{ route('teacher.macapat.show', $item) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1">
+                                <i class="fa-solid fa-book-open me-1"></i> Detail & Bait
                             </a>
+                            @if(auth()->check() && auth()->user()->isAdmin())
                             <a href="{{ route('teacher.macapat.edit', $item) }}" class="btn btn-sm btn-warning text-white rounded-pill px-3 me-1">
                                 <i class="fa-solid fa-pen"></i>
                             </a>
@@ -60,6 +63,7 @@
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </form>
+                            @endif
                         </td>
                     </tr>
                     @empty

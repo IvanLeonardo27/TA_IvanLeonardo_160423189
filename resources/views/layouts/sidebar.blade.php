@@ -43,6 +43,11 @@
                     </a>
                 </li>
                 <li class="nav-item mb-1">
+                    <a href="{{ route('wayang.index') }}" class="nav-link {{ request()->is('*wayang*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-masks-theater"></i> Pewayangan
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
                     <a href="/ui/kosakata" class="nav-link {{ request()->is('*kosakata*') ? 'active' : '' }}">
                         <i class="fa-solid fa-book-journal-whills"></i> Kamus Kosakata
                     </a>
@@ -79,6 +84,11 @@
                 <li class="nav-item mb-1">
                     <a href="{{ route('teacher.macapat.index') }}" class="nav-link {{ request()->is('*macapat*') ? 'active' : '' }}">
                         <i class="fa-solid fa-music"></i> Tembang Macapat
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a href="{{ route('wayang.index') }}" class="nav-link {{ request()->is('*wayang*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-masks-theater"></i> Pewayangan
                     </a>
                 </li>
                 <li class="nav-item mb-1">
@@ -121,6 +131,11 @@
                 <li class="nav-item mb-1">
                     <a href="{{ route('macapat.index') }}" class="nav-link {{ request()->is('*macapat*') ? 'active' : '' }}">
                         <i class="fa-solid fa-music"></i> Tembang Macapat
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a href="{{ route('wayang.index') }}" class="nav-link {{ request()->is('*wayang*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-masks-theater"></i> Pewayangan
                     </a>
                 </li>
                 <li class="nav-item mb-1">

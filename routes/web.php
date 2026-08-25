@@ -27,7 +27,7 @@ Route::get('/', function() {
         return redirect()->route('student.classroom.index');
     }
     return redirect()->route('login');
-});
+})->name('home');
 
 // --- Rute Test UI Baru ---
 Route::get('/ui/login', function() { return view('auth.login'); });
@@ -153,6 +153,10 @@ Route::get('/macapat/{id}', [\App\Http\Controllers\MacapatController::class, 'sh
 // Halaman Pembelajaran Aksara Jawa (Utama & Detail)
 Route::get('/aksara-jawa', [\App\Http\Controllers\JavaneseScriptController::class, 'index'])->name('javanese-script.index');
 Route::get('/aksara-jawa/{id}', [\App\Http\Controllers\JavaneseScriptController::class, 'show'])->name('javanese-script.show');
+
+// Halaman Pembelajaran Pewayangan (Katalog & Detail Tokoh)
+Route::get('/wayang', [\App\Http\Controllers\WayangController::class, 'index'])->name('wayang.index');
+Route::get('/wayang/{character}', [\App\Http\Controllers\WayangController::class, 'show'])->name('wayang.show');
 
 Route::post('/translate', CustomerTranslateController::class)->name('customer.translate');
 Route::post('/quiz/attempt', CustomerQuizAttemptController::class)->name('customer.quiz.attempt');

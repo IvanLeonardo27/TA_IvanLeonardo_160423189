@@ -182,16 +182,21 @@
 
                         {{-- Info Tugas --}}
                         @if($post->type === 'assignment' && $post->assignment)
-                        <div class="rounded-3 p-3 mb-3 d-flex gap-3 align-items-center" style="background:#FEF2F2; border-left:4px solid #EF4444;">
+                        <div class="rounded-4 p-3.5 mb-3 d-flex flex-wrap justify-content-between align-items-center gap-3" style="background:#FEF2F2; border-left:5px solid #EF4444;">
                             <div>
-                                <div class="fw-bold text-danger small">Tenggat Waktu</div>
-                                <div class="fw-semibold text-main">
+                                <div class="fw-bold text-danger small"><i class="fa-regular fa-clock me-1"></i> Tenggat Waktu</div>
+                                <div class="fw-bold text-dark" style="font-size:0.95rem;">
                                     {{ $post->assignment->due_date ? $post->assignment->due_date->format('d M Y, H:i') : 'Tidak ada tenggat' }}
                                 </div>
                             </div>
-                            <div class="ms-auto text-end">
-                                <div class="fw-bold text-primary small">Terkumpul</div>
-                                <div class="fw-bold text-main fs-5">{{ $post->assignment->submissions->count() }} / {{ $students->count() }}</div>
+                            <div class="d-flex align-items-center gap-3 flex-wrap ms-auto">
+                                <div class="text-end">
+                                    <div class="fw-bold text-primary small">Terkumpul</div>
+                                    <div class="fw-bold text-dark fs-5">{{ $post->assignment->submissions->count() }} / {{ $students->count() }}</div>
+                                </div>
+                                <button type="button" class="btn btn-danger rounded-pill px-3.5 py-2 btn-sm fw-bold btn-bouncy shadow-sm" data-bs-toggle="modal" data-bs-target="#submissionModal{{ $post->assignment->id }}">
+                                    <i class="fa-solid fa-folder-open me-1.5"></i> Periksa Pengumpulan ({{ $post->assignment->submissions->count() }})
+                                </button>
                             </div>
                         </div>
                         @endif
@@ -333,19 +338,26 @@
 
         @php $assignments = $posts->where('type', 'assignment'); @endphp
         @forelse($assignments as $post)
-        <div class="card border-0 shadow-sm mb-3 d-flex flex-row align-items-center p-4 gap-4" style="border-radius:16px; border-left:5px solid #EF4444 !important;">
+        <div class="card border-0 shadow-sm mb-3 d-flex flex-row align-items-center p-4 gap-3 gap-md-4 flex-wrap" style="border-radius:16px; border-left:5px solid #EF4444 !important;">
             <div class="rounded-circle bg-danger bg-opacity-10 text-danger d-flex align-items-center justify-content-center" style="width:50px;height:50px;flex-shrink:0;">
-                <i class="fa-solid fa-clipboard-list"></i>
+                <i class="fa-solid fa-clipboard-list fs-5"></i>
             </div>
             <div class="flex-grow-1">
-                <h6 class="fw-bold text-main mb-1">{{ $post->title ?? 'Tugas' }}</h6>
+                <h6 class="fw-bold text-dark mb-1">{{ $post->title ?? ($post->body ? Str::limit(strip_tags($post->body), 55) : 'Tugas Pembelajaran') }}</h6>
                 <small class="text-muted">
-                    Tenggat: {{ $post->assignment?->due_date?->format('d M Y, H:i') ?? 'Tidak ada' }}
+                    <i class="fa-regular fa-clock me-1 text-danger"></i> Tenggat: {{ $post->assignment?->due_date?->format('d M Y, H:i') ?? 'Tidak ada' }}
                 </small>
             </div>
-            <div class="text-end">
-                <h5 class="fw-bold text-primary mb-0">{{ $post->assignment?->submissions->count() ?? 0 }} / {{ $students->count() }}</h5>
-                <small class="text-muted">Terkumpul</small>
+            <div class="d-flex align-items-center gap-3 ms-auto">
+                <div class="text-end">
+                    <h5 class="fw-bold text-primary mb-0">{{ $post->assignment?->submissions->count() ?? 0 }} / {{ $students->count() }}</h5>
+                    <small class="text-muted">Terkumpul</small>
+                </div>
+                @if($post->assignment)
+                <button type="button" class="btn btn-outline-danger rounded-pill px-3.5 py-2 btn-sm fw-bold btn-bouncy" data-bs-toggle="modal" data-bs-target="#submissionModal{{ $post->assignment->id }}">
+                    <i class="fa-solid fa-folder-open me-1.5"></i> Periksa Tugas
+                </button>
+                @endif
             </div>
         </div>
         @empty
@@ -401,6 +413,154 @@
         </div>
     </div>
 </div>
+
+{{-- ======================== MODAL PERIKSA & PENILAIAN TUGAS SISWA ======================== --}}
+@foreach($posts->where('type', 'assignment') as $post)
+@if($post->assignment)
+<div class="modal fade" id="submissionModal{{ $post->assignment->id }}" tabindex="-1" aria-labelledby="submissionModalLabel{{ $post->assignment->id }}" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-light border-bottom p-4">
+                <div>
+                    <span class="badge bg-danger rounded-pill px-3 py-1 mb-1">
+                        <i class="fa-solid fa-clipboard-list me-1"></i> Pengumpulan Tugas
+                    </span>
+                    <h5 class="modal-title fw-bold text-dark mb-1" id="submissionModalLabel{{ $post->assignment->id }}">
+                        {{ $post->title ?? ($post->body ? Str::limit(strip_tags($post->body), 60) : 'Detail Tugas') }}
+                    </h5>
+                    <small class="text-muted">
+                        <i class="fa-regular fa-clock me-1 text-danger"></i> Tenggat: {{ $post->assignment->due_date ? $post->assignment->due_date->translatedFormat('d F Y, H:i') : 'Tidak ada tenggat' }} 
+                        &bull; Nilai Maksimal: <strong>{{ $post->assignment->max_score }}</strong>
+                        &bull; Terkumpul: <strong class="text-primary">{{ $post->assignment->submissions->count() }} dari {{ $students->count() }} Siswa</strong>
+                    </small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body p-4 bg-light bg-opacity-25">
+                @if($post->assignment->submissions->isEmpty())
+                <div class="text-center py-5 text-muted">
+                    <i class="fa-solid fa-folder-open fs-1 text-secondary opacity-50 mb-3 d-block"></i>
+                    <h6 class="fw-bold text-dark">Belum ada siswa yang mengumpulkan tugas ini.</h6>
+                    <p class="small text-muted mb-0">File tugas yang diunggah siswa akan langsung muncul di sini secara otomatis.</p>
+                </div>
+                @else
+                <div class="table-responsive bg-white rounded-4 border shadow-sm">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light text-dark fw-bold border-bottom" style="font-size: 0.88rem;">
+                            <tr>
+                                <th class="ps-4 py-3">Siswa</th>
+                                <th class="py-3">Waktu Pengumpulan</th>
+                                <th class="py-3">Berkas / File Tugas</th>
+                                <th class="py-3">Status & Nilai</th>
+                                <th class="text-end pe-4 py-3">Beri / Ubah Nilai</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($post->assignment->submissions as $sub)
+                            <tr>
+                                <td class="ps-4 py-3.5">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary fw-bold d-flex align-items-center justify-content-center" style="width:40px;height:40px;font-size:0.95rem;">
+                                            {{ strtoupper(substr($sub->student->name ?? 'S', 0, 1)) }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size:0.95rem;">{{ $sub->student->name ?? 'Siswa' }}</div>
+                                            <small class="text-muted font-monospace">{{ $sub->student->user_code ?? $sub->student->email }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3.5">
+                                    <div class="fw-semibold text-dark" style="font-size: 0.88rem;">
+                                        {{ $sub->submitted_at ? $sub->submitted_at->translatedFormat('d M Y, H:i') : '-' }}
+                                    </div>
+                                    @if($post->assignment->due_date && $sub->submitted_at && $sub->submitted_at->greaterThan($post->assignment->due_date))
+                                        <span class="badge bg-warning text-dark rounded-pill" style="font-size: 0.7rem;">Terlambat</span>
+                                    @else
+                                        <span class="badge bg-success-subtle text-success rounded-pill" style="font-size: 0.7rem;">Tepat Waktu</span>
+                                    @endif
+                                </td>
+                                <td class="py-3.5">
+                                    @if($sub->file_path)
+                                    <div class="d-flex flex-column gap-1">
+                                        <a href="{{ asset('storage/' . $sub->file_path) }}" target="_blank" 
+                                           class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 shadow-xs" 
+                                           style="width: fit-content;" title="Klik untuk mengunduh atau membuka file siswa di tab baru">
+                                            <i class="fa-solid fa-file-arrow-down fs-6"></i>
+                                            <span>{{ $sub->original_name ?? 'Unduh Berkas' }}</span>
+                                        </a>
+                                        @if($sub->note)
+                                        <small class="text-muted fst-italic mt-1" style="font-size: 0.8rem;">
+                                            <i class="fa-regular fa-comment-dots me-1"></i>"{{ $sub->note }}"
+                                        </small>
+                                        @endif
+                                    </div>
+                                    @else
+                                    <span class="text-muted small"><i class="fa-solid fa-ban me-1"></i> Tidak ada file</span>
+                                    @endif
+                                </td>
+                                <td class="py-3.5">
+                                    @if($sub->status === 'graded')
+                                        <div class="d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded-pill bg-success-subtle text-success fw-bold" style="font-size:0.82rem;">
+                                            <i class="fa-solid fa-circle-check"></i>
+                                            <span>Nilai: {{ $sub->score }} / {{ $post->assignment->max_score }}</span>
+                                        </div>
+                                        @if($sub->teacher_feedback)
+                                        <div class="text-muted small mt-1" style="font-size:0.78rem;">
+                                            <strong>Feedback:</strong> {{ $sub->teacher_feedback }}
+                                        </div>
+                                        @endif
+                                    @else
+                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2.5 py-1 fw-bold" style="font-size:0.75rem;">
+                                            ⏳ Menunggu Dinilai
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="text-end pe-4 py-3.5">
+                                    <button class="btn btn-sm btn-dark rounded-pill px-3 py-1.5 fw-semibold shadow-xs" 
+                                            type="button" data-bs-toggle="collapse" data-bs-target="#gradeForm{{ $sub->id }}" aria-expanded="false">
+                                        <i class="fa-solid fa-pen-to-square me-1"></i> {{ $sub->status === 'graded' ? 'Ubah Nilai' : 'Beri Nilai' }}
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="collapse bg-light" id="gradeForm{{ $sub->id }}">
+                                <td colspan="5" class="p-3.5 border-top">
+                                    <form action="{{ route('teacher.classroom.submission.grade', $sub) }}" method="POST" class="row g-2 align-items-center">
+                                        @csrf
+                                        <div class="col-md-3">
+                                            <div class="input-group input-group-sm">
+                                                <span class="input-group-text bg-white fw-bold">Skor (Maks {{ $post->assignment->max_score }})</span>
+                                                <input type="number" name="score" class="form-control" min="0" max="{{ $post->assignment->max_score }}" 
+                                                       value="{{ old('score', $sub->score) }}" placeholder="Contoh: 90" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="text" name="teacher_feedback" class="form-control form-control-sm" 
+                                                   value="{{ old('teacher_feedback', $sub->teacher_feedback) }}" 
+                                                   placeholder="Catatan / Feedback untuk siswa (Opsional)...">
+                                        </div>
+                                        <div class="col-md-3 text-end">
+                                            <button type="submit" class="btn btn-sm btn-success rounded-pill px-3.5 py-1.5 fw-bold shadow-xs">
+                                                <i class="fa-solid fa-floppy-disk me-1"></i> Simpan Nilai
+                                            </button>
+                                        </div>
+                                    </form>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @endif
+            </div>
+            <div class="modal-footer bg-white border-top p-3">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+@endforeach
 @endsection
 
 @push('scripts')

@@ -17,15 +17,23 @@ class ProfileUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => [
+            'name'                   => ['required', 'string', 'max:120'],
+            'email'                  => [
                 'required',
                 'string',
                 'lowercase',
                 'email',
-                'max:255',
+                'max:150',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            // Field profil opsional (Pengajar / Pelajar)
+            'nip'                    => ['nullable', 'string', 'max:50'],
+            'nisn'                   => ['nullable', 'string', 'max:50'],
+            'institution_name'       => ['nullable', 'string', 'max:150'],
+            'school_name'            => ['nullable', 'string', 'max:150'],
+            'subject_specialization' => ['nullable', 'string', 'max:100'],
+            'grade_level'            => ['nullable', 'string', 'max:50'],
+            'phone_number'           => ['nullable', 'string', 'max:30'],
         ];
     }
 }

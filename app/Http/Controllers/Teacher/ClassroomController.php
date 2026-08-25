@@ -71,7 +71,7 @@ class ClassroomController extends Controller
         Gate::authorize('view', $classroom);
 
         $posts = $classroom->posts()
-            ->with(['author', 'attachments', 'comments.user', 'assignment.submissions', 'quiz'])
+            ->with(['author', 'attachments', 'comments.user', 'assignment.submissions.student', 'quiz'])
             ->paginate(10);
 
         $students = $classroom->students()->get();

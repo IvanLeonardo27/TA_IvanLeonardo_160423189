@@ -208,7 +208,7 @@
                         <div class="row g-3 g-md-4">
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Tenggat Waktu</label>
-                                <input type="datetime-local" name="due_date" class="form-control rounded-4 border-0 bg-light" value="{{ old('due_date') }}">
+                                <input type="datetime-local" name="assignment_due_date" id="assignmentDueDate" class="form-control rounded-4 border-0 bg-light" value="{{ old('assignment_due_date', old('due_date')) }}">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Nilai Maksimal</label>
@@ -230,7 +230,7 @@
                         <div class="row g-3 g-md-4 mb-4">
                             <div class="col-md-3">
                                 <label class="form-label fw-semibold small">Tenggat Waktu Kuis</label>
-                                <input type="datetime-local" name="due_date" class="form-control rounded-4 border-0 bg-light" value="{{ old('due_date') }}">
+                                <input type="datetime-local" name="quiz_due_date" id="quizDueDate" class="form-control rounded-4 border-0 bg-light" value="{{ old('quiz_due_date', old('due_date')) }}">
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label fw-semibold small">Durasi (Menit)</label>
@@ -316,15 +316,24 @@
     const materialSection           = document.getElementById('materialSection');
     const standardAttachmentSection = document.getElementById('standardAttachmentSection');
 
+    function syncFieldStates(type) {
+        assignFields.classList.toggle('d-none', type !== 'assignment');
+        quizFields.classList.toggle('d-none', type !== 'quiz');
+        materialSection.classList.toggle('d-none', type !== 'material');
+        standardAttachmentSection.classList.toggle('d-none', type === 'material');
+
+        // Toggle disabled attribute so hidden inputs are not submitted
+        assignFields.querySelectorAll('input, select, textarea').forEach(el => el.disabled = (type !== 'assignment'));
+        quizFields.querySelectorAll('input, select, textarea').forEach(el => el.disabled = (type !== 'quiz'));
+        materialSection.querySelectorAll('input, select, textarea').forEach(el => el.disabled = (type !== 'material'));
+    }
+
     typeButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             const type  = btn.dataset.type;
             typeInput.value = type;
 
-            assignFields.classList.toggle('d-none', type !== 'assignment');
-            quizFields.classList.toggle('d-none', type !== 'quiz');
-            materialSection.classList.toggle('d-none', type !== 'material');
-            standardAttachmentSection.classList.toggle('d-none', type === 'material');
+            syncFieldStates(type);
 
             typeButtons.forEach(b => {
                 b.className = b.className.replace(/btn-primary|border-primary|text-white/g, '').trim();
@@ -334,6 +343,9 @@
             btn.classList.add('btn-primary', 'border-primary', 'text-white');
         });
     });
+
+    // Initial sync
+    syncFieldStates(typeInput.value || 'announcement');
 
     // Format Mode Switcher (PPT Upload vs Ketik Slide Manual)
     const modePptBtn             = document.getElementById('modePptBtn');

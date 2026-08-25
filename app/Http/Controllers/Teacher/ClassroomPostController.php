@@ -32,12 +32,14 @@ class ClassroomPostController extends Controller
             'is_pinned'        => 'boolean',
             'files.*'          => 'nullable|file|max:20480', // 20MB per file
             // Assignment / Quiz fields
-            'due_date'         => 'nullable|date|after:now',
-            'duration_minutes' => 'nullable|integer|min:1|max:300',
-            'max_score'        => 'nullable|integer|min:0|max:1000',
-            'show_score'       => 'nullable|boolean',
-            'max_attempts'     => 'nullable|integer|in:0,1',
-            'instructions'     => 'nullable|string',
+            'due_date'            => 'nullable|date',
+            'assignment_due_date' => 'nullable|date',
+            'quiz_due_date'       => 'nullable|date',
+            'duration_minutes'    => 'nullable|integer|min:1|max:300',
+            'max_score'           => 'nullable|integer|min:0|max:1000',
+            'show_score'          => 'nullable|boolean',
+            'max_attempts'        => 'nullable|integer|in:0,1',
+            'instructions'        => 'nullable|string',
         ]);
 
         $postBody = $validated['body'] ?? null;
@@ -127,9 +129,12 @@ class ClassroomPostController extends Controller
 
         // Jika tipe tugas, simpan detail assignment
         if ($validated['type'] === 'assignment') {
+            $assignmentDueDate = $validated['assignment_due_date'] 
+                              ?? ($validated['due_date'] ?? $request->input('assignment_due_date', $request->input('due_date')));
+
             ClassroomAssignment::create([
                 'post_id'      => $post->id,
-                'due_date'     => $validated['due_date'] ?? null,
+                'due_date'     => $assignmentDueDate ?: null,
                 'max_score'    => $validated['max_score'] ?? 100,
                 'instructions' => $validated['instructions'] ?? null,
             ]);
@@ -188,10 +193,13 @@ class ClassroomPostController extends Controller
 
             // 3. Tautkan post dengan quiz_set_id yang baru dibuat
             $baseInstructions = $request->input('material_instructions') ?: 'Kerjakan pertanyaan checkpoint berikut untuk menguji pemahaman materi yang baru saja dipelajari.';
+            $quizDueDate = $validated['quiz_due_date'] 
+                        ?? ($validated['due_date'] ?? $request->input('quiz_due_date', $request->input('due_date')));
+
             \App\Models\ClassroomQuiz::create([
                 'post_id'          => $post->id,
                 'quiz_set_id'      => $quizSet->id,
-                'due_date'         => $validated['type'] === 'material' ? null : ($validated['due_date'] ?? null),
+                'due_date'         => $validated['type'] === 'material' ? null : ($quizDueDate ?: null),
                 'duration_minutes' => $durationMinutes,
                 'max_score'        => $validated['max_score'] ?? 100,
                 'show_score'       => true,

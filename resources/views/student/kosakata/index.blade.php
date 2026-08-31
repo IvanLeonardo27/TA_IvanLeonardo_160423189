@@ -24,7 +24,7 @@
                             </span>
                             <input type="text" name="search" class="form-control border-0 ps-1 py-2"
                                    placeholder="Cari kata (Indonesia / Ngoko / Krama)..."
-                                   value="{{ request('search') }}" id="searchInput" style="box-shadow: none;">
+                                   value="{{ request('search') }}" id="searchInput" style="box-shadow: none;" autocomplete="off">
                         </div>
                     </div>
                     
@@ -322,10 +322,16 @@ function toggleBookmarkCard(type, id, btn) {
     });
 }
 </script>
-<style>
-.btn-bookmark-card:hover {
-    transform: scale(1.15);
-    background-color: #F8FAFC !important;
-}
-</style>
+<script src="{{ asset('js/basakula-search-dropdown.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (window.BasaKulaSearchDropdown) {
+        new BasaKulaSearchDropdown({
+            input: '#searchInput',
+            storageKey: 'basakula_history_vocab',
+            suggestions: ['Sugeng', 'Matur Nuwun', 'Ngapura', 'Dheweke', 'Mangan / Dahar', 'Turu / Sare', 'Mlaku', 'Keluarga', 'Angka Sembilan']
+        });
+    }
+});
+</script>
 @endpush

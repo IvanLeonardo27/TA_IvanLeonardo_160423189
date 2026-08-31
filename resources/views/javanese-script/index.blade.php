@@ -40,7 +40,7 @@
     <!-- Search Bar -->
     <div class="row justify-content-center mb-4">
         <div class="col-md-7 col-lg-6 col-xl-5">
-            <div class="input-group input-group-lg search-box rounded-pill shadow-sm overflow-hidden bg-white border">
+            <div class="input-group input-group-lg search-box rounded-pill shadow-sm bg-white border">
                 <span class="input-group-text bg-transparent border-0 ps-4 text-primary">
                     <i class="fa-solid fa-magnifying-glass fs-5"></i>
                 </span>
@@ -48,7 +48,8 @@
                        id="aksaraSearchInput" 
                        class="form-control border-0 py-3 ps-2 pe-4 bg-transparent" 
                        placeholder="Cari aksara (nama atau latin)..." 
-                       aria-label="Cari aksara">
+                       aria-label="Cari aksara"
+                       autocomplete="off">
                 <button type="button" id="clearAksaraSearchBtn" class="btn bg-transparent border-0 pe-4 text-muted d-none" title="Bersihkan">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -362,4 +363,23 @@ function toggleBookmarkCard(type, id, btn) {
     background-color: #F8FAFC !important;
 }
 </style>
+<script src="{{ asset('js/basakula-search-dropdown.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (window.BasaKulaSearchDropdown) {
+        new BasaKulaSearchDropdown({
+            input: '#aksaraSearchInput',
+            storageKey: 'basakula_history_aksara',
+            suggestions: ['Nglegena', 'Pasangan', 'Sandhangan Swara', 'Sandhangan Panyigeg', 'Aksara Murda', 'Aksara Swara', 'Aksara Rekan', 'Aksara Angka'],
+            onSelect: function (val) {
+                const searchInput = document.getElementById('aksaraSearchInput');
+                if (searchInput) {
+                    searchInput.value = val;
+                    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }
+        });
+    }
+});
+</script>
 @endsection

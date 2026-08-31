@@ -27,13 +27,14 @@
                         @if($allegiance)
                             <input type="hidden" name="allegiance" value="{{ $allegiance }}">
                         @endif
-                        <div class="input-group input-group-lg shadow-sm rounded-pill overflow-hidden bg-white p-1 flex-grow-1">
+                        <div class="input-group input-group-lg shadow-sm rounded-pill bg-white p-1 flex-grow-1">
                             <span class="input-group-text bg-transparent border-0 ps-3 text-muted">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </span>
-                            <input type="text" name="search" class="form-control border-0 bg-transparent py-2.5 text-dark fw-semibold" 
+                            <input type="text" name="search" id="wayangSearchInput" class="form-control border-0 bg-transparent py-2.5 text-dark fw-semibold" 
                                    placeholder="Cari tokoh wayang (contoh: Arjuna, Bima, Gatotkaca)..." 
-                                   value="{{ $search }}" style="font-size: 0.95rem;">
+                                   value="{{ $search }}" style="font-size: 0.95rem;"
+                                   autocomplete="off">
                             <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold btn-bouncy" style="background:#C9A66B; border:none; color:#16402E;">
                                 Cari
                             </button>
@@ -338,6 +339,18 @@ function toggleBookmarkCard(type, id, btn) {
         console.error('Bookmark error:', err);
     });
 }
+</script>
+<script src="{{ asset('js/basakula-search-dropdown.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (window.BasaKulaSearchDropdown) {
+        new BasaKulaSearchDropdown({
+            input: '#wayangSearchInput',
+            storageKey: 'basakula_history_wayang',
+            suggestions: ['Arjuna', 'Gatotkaca', 'Semar', 'Bima / Werkudara', 'Yudhistira', 'Nakula', 'Sadewa', 'Kresna', 'Duryudana', 'Anoman']
+        });
+    }
+});
 </script>
 @endpush
 @endsection

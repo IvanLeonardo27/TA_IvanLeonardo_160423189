@@ -18,7 +18,7 @@
     <!-- Search Bar Section -->
     <div class="row justify-content-center mb-5">
         <div class="col-md-7 col-lg-6 col-xl-5">
-            <div class="input-group input-group-lg search-box rounded-pill shadow-sm overflow-hidden bg-white border">
+            <div class="input-group input-group-lg search-box rounded-pill shadow-sm bg-white border">
                 <span class="input-group-text bg-transparent border-0 ps-4 text-primary">
                     <i class="fa-solid fa-magnifying-glass fs-5"></i>
                 </span>
@@ -26,7 +26,8 @@
                        id="macapatSearchInput" 
                        class="form-control border-0 py-3 ps-2 pe-4 bg-transparent" 
                        placeholder="Cari tembang macapat..." 
-                       aria-label="Cari tembang macapat">
+                       aria-label="Cari tembang macapat"
+                       autocomplete="off">
                 <button type="button" id="clearSearchBtn" class="btn bg-transparent border-0 pe-4 text-muted d-none" title="Bersihkan pencarian">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -240,4 +241,23 @@ function toggleBookmarkCard(type, id, btn) {
     background-color: #F8FAFC !important;
 }
 </style>
+<script src="{{ asset('js/basakula-search-dropdown.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (window.BasaKulaSearchDropdown) {
+        new BasaKulaSearchDropdown({
+            input: '#macapatSearchInput',
+            storageKey: 'basakula_history_macapat',
+            suggestions: ['Pocung', 'Kinanthi', 'Pangkur', 'Sinom', 'Asmaradana', 'Dhandhanggula', 'Durma', 'Mijil', 'Maskumambang', 'Gambuh', 'Megatruh'],
+            onSelect: function (val) {
+                const searchInput = document.getElementById('macapatSearchInput');
+                if (searchInput) {
+                    searchInput.value = val;
+                    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }
+        });
+    }
+});
+</script>
 @endsection

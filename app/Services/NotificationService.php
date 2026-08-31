@@ -192,7 +192,7 @@ class NotificationService
 
             // 2. Nilai tugas yang telah dinilai guru
             $gradedSubmissions = ClassroomSubmission::where('student_id', $user->id)
-                ->where('status', 'graded')
+                ->whereNotNull('graded_at')
                 ->with(['assignment.post.classroom'])
                 ->latest('id')
                 ->take(3)

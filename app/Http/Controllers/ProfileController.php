@@ -55,7 +55,7 @@ class ProfileController extends Controller
             $stats = [
                 'total_classrooms'   => $joinedClassrooms->count(),
                 'total_submissions'  => ClassroomSubmission::where('student_id', $user->id)->count(),
-                'graded_submissions' => ClassroomSubmission::where('student_id', $user->id)->where('status', 'graded')->count(),
+                'graded_submissions' => ClassroomSubmission::where('student_id', $user->id)->whereNotNull('graded_at')->count(),
                 'total_attempts'     => QuizAttempt::where('user_id', $user->id)->count(),
             ];
         }

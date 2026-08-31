@@ -31,19 +31,4 @@ class Vocabulary extends Model
     {
         return $this->belongsTo(VocabularyCategory::class, 'category_id');
     }
-
-    public function views(): HasMany
-    {
-        return $this->hasMany(VocabularyView::class, 'vocabulary_id');
-    }
-
-    public function bookmarks(): HasMany
-    {
-        return $this->hasMany(VocabularyBookmark::class, 'vocabulary_id');
-    }
-
-    public function progress(): HasMany
-    {
-        return $this->hasMany(VocabularyProgress::class, 'vocabulary_id');
-    }
 }

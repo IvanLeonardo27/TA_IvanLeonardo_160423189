@@ -13,12 +13,29 @@
         </ol>
     </nav>
 
-    <!-- Tombol Kembali & Aksi Pengajar -->
+    <!-- Tombol Kembali & Aksi Pengajar / Bookmark -->
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <a href="{{ route('javanese-script.index') }}" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2 bg-white">
-            <i class="fa-solid fa-arrow-left"></i>
-            <span>Kembali ke Katalog Aksara</span>
-        </a>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ route('javanese-script.index') }}" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2 bg-white">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Kembali ke Katalog Aksara</span>
+            </a>
+
+            @auth
+            @php
+                $isBookmarked = \App\Models\Bookmark::where('user_id', auth()->id())
+                    ->where('bookmarkable_type', \App\Models\JavaneseScriptDetail::class)
+                    ->where('bookmarkable_id', $script->id)
+                    ->exists();
+            @endphp
+            <button type="button" 
+                    onclick="toggleBookmark('aksara', {{ $script->id }}, this)" 
+                    class="btn {{ $isBookmarked ? 'btn-warning text-dark' : 'btn-outline-secondary bg-white' }} rounded-pill px-4 py-2 btn-sm fw-semibold shadow-xs">
+                <i class="{{ $isBookmarked ? 'fa-solid' : 'fa-regular' }} fa-bookmark me-1.5 text-warning"></i>
+                <span class="btn-text">{{ $isBookmarked ? 'Tersimpan' : 'Simpan Bookmark' }}</span>
+            </button>
+            @endauth
+        </div>
 
         @auth
             @if(auth()->user()->isAdmin())
@@ -280,3 +297,44 @@
 }
 </style>
 @endsection
+
+@push('scripts')
+<script>
+function toggleBookmark(type, id, btn) {
+    const icon = btn.querySelector('i');
+    const label = btn.querySelector('.btn-text');
+
+    btn.disabled = true;
+
+    fetch('{{ route("student.bookmarks.toggle") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ type: type, id: id })
+    })
+    .then(res => res.json())
+    .then(data => {
+        btn.disabled = false;
+        if (data.status === 'success') {
+            if (data.bookmarked) {
+                btn.className = 'btn btn-warning text-dark rounded-pill px-4 py-2 btn-sm fw-semibold shadow-xs';
+                icon.className = 'fa-solid fa-bookmark me-1.5 text-dark';
+                if (label) label.textContent = 'Tersimpan';
+            } else {
+                btn.className = 'btn btn-outline-secondary bg-white rounded-pill px-4 py-2 btn-sm fw-semibold shadow-xs';
+                icon.className = 'fa-regular fa-bookmark me-1.5 text-warning';
+                if (label) label.textContent = 'Simpan Bookmark';
+            }
+        } else if (data.message) {
+            alert(data.message);
+        }
+    })
+    .catch(err => {
+        btn.disabled = false;
+        console.error('Bookmark error:', err);
+    });
+}
+</script>
+@endpush

@@ -13,10 +13,40 @@ class ClassroomPost extends Model
 {
     use SoftDeletes;
     protected $fillable = [
-        'classroom_id', 'author_id', 'type', 'title', 'body', 'is_pinned',
+        'classroom_id', 'author_id', 'type', 'title', 'body', 'is_pinned', 'week_number', 'is_published',
     ];
 
-    protected $casts = ['is_pinned' => 'boolean'];
+    protected $casts = [
+        'is_pinned' => 'boolean',
+        'week_number' => 'integer',
+        'is_published' => 'boolean',
+    ];
+
+    public function scopePublished($query)
+    {
+        return $query->where('is_published', true);
+    }
+
+    /**
+     * Menghitung Week Keberapa untuk Post ini:
+     * 1. Jika diketik/dipilih langsung oleh pengajar -> gunakan week_number.
+     * 2. Jika tidak dipilih -> dihitung otomatis berbasis rentang 7 hari sejak kelas dibuat.
+     */
+    public function getCalculatedWeekNumberAttribute(): int
+    {
+        if ($this->week_number !== null) {
+            return (int) $this->week_number;
+        }
+
+        if (!$this->classroom || !$this->classroom->created_at) {
+            return 1;
+        }
+
+        $daysDiff = $this->created_at->diffInDays($this->classroom->created_at);
+        $week = (int) floor($daysDiff / 7) + 1;
+
+        return max(1, $week);
+    }
 
     public function classroom(): BelongsTo
     {

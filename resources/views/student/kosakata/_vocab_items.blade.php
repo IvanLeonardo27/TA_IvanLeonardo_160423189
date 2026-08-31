@@ -1,7 +1,27 @@
+@php
+    $userVocabBookmarkIds = auth()->check() 
+        ? \App\Models\Bookmark::where('user_id', auth()->id())
+            ->where('bookmarkable_type', \App\Models\Vocabulary::class)
+            ->pluck('bookmarkable_id')
+            ->toArray() 
+        : [];
+@endphp
+
 @forelse($vocabularies as $vocab)
+@php $isBookmarked = in_array($vocab->id, $userVocabBookmarkIds); @endphp
 <div class="col-12 vocab-card-item">
-    <div class="card card-modern p-4 border-0 shadow-sm rounded-4">
-        <div class="row align-items-center">
+    <div class="card card-modern p-4 border-0 shadow-sm rounded-4 position-relative">
+        @auth
+        <button type="button" 
+                onclick="toggleBookmarkCard('vocab', {{ $vocab->id }}, this)" 
+                class="btn btn-sm p-0 border position-absolute top-0 end-0 m-3 z-3 d-flex align-items-center justify-content-center rounded-circle shadow-xs bg-white btn-bookmark-card" 
+                style="width: 32px; height: 32px; transition: all 0.2s ease;" 
+                title="{{ $isBookmarked ? 'Batal Simpan' : 'Simpan Bookmark' }}">
+            <i class="{{ $isBookmarked ? 'fa-solid text-warning' : 'fa-regular text-secondary opacity-60' }} fa-bookmark" style="font-size: 0.88rem;"></i>
+        </button>
+        @endauth
+
+        <div class="row align-items-center pe-md-4">
             {{-- Kata Utama (A-Z) --}}
             <div class="col-md-4 mb-3 mb-md-0">
                 <div class="d-flex align-items-center gap-2 mb-1">

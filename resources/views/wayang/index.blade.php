@@ -117,6 +117,15 @@
         </div>
     </div>
     @else
+    @php
+        $userWayangBookmarkIds = auth()->check() 
+            ? \App\Models\Bookmark::where('user_id', auth()->id())
+                ->where('bookmarkable_type', \App\Models\WayangCharacter::class)
+                ->pluck('bookmarkable_id')
+                ->toArray() 
+            : [];
+    @endphp
+
     <div class="row g-4 mb-4">
         @foreach($characters as $char)
         @php
@@ -131,6 +140,7 @@
                 7 => 'bg-info-subtle text-info-emphasis border-info',
                 default => 'bg-secondary-subtle text-secondary border-secondary',
             };
+            $isBookmarked = in_array($char->id, $userWayangBookmarkIds);
         @endphp
         <div class="col-md-6 col-lg-4 col-xl-3">
             <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden wayang-card" 
@@ -141,9 +151,16 @@
                     <span class="badge rounded-pill px-2.5 py-1 position-absolute top-0 start-0 m-3 border {{ $badgeColor }}" style="font-size: 0.72rem;">
                         {{ $char->category->name }}
                     </span>
-                    <span class="badge bg-white text-muted border rounded-pill px-2 py-0.5 position-absolute top-0 end-0 m-3 font-monospace" style="font-size: 0.68rem;">
-                        #{{ $char->id }}
-                    </span>
+
+                    @auth
+                    <button type="button" 
+                            onclick="event.preventDefault(); event.stopPropagation(); toggleBookmarkCard('wayang', {{ $char->id }}, this)" 
+                            class="btn btn-sm p-0 border position-absolute top-0 end-0 m-2.5 z-3 d-flex align-items-center justify-content-center rounded-circle shadow-xs bg-white btn-bookmark-card" 
+                            style="width: 32px; height: 32px; transition: all 0.2s ease;" 
+                            title="{{ $isBookmarked ? 'Batal Simpan' : 'Simpan Bookmark' }}">
+                        <i class="{{ $isBookmarked ? 'fa-solid text-warning' : 'fa-regular text-secondary opacity-60' }} fa-bookmark" style="font-size: 0.88rem;"></i>
+                    </button>
+                    @endauth
 
                     {{-- Image Silhouette / Avatar --}}
                     <div class="my-3 d-inline-block position-relative">
@@ -281,5 +298,46 @@
     background: #cbd5e1;
     border-radius: 10px;
 }
+.btn-bookmark-card:hover {
+    transform: scale(1.15);
+    background-color: #F8FAFC !important;
+}
 </style>
+
+@push('scripts')
+<script>
+function toggleBookmarkCard(type, id, btn) {
+    const icon = btn.querySelector('i');
+    btn.disabled = true;
+
+    fetch('{{ route("student.bookmarks.toggle") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ type: type, id: id })
+    })
+    .then(res => res.json())
+    .then(data => {
+        btn.disabled = false;
+        if (data.status === 'success') {
+            if (data.bookmarked) {
+                icon.className = 'fa-solid fa-bookmark text-warning';
+                btn.title = 'Batal Simpan';
+            } else {
+                icon.className = 'fa-regular fa-bookmark text-secondary opacity-60';
+                btn.title = 'Simpan Bookmark';
+            }
+        } else if (data.message) {
+            alert(data.message);
+        }
+    })
+    .catch(err => {
+        btn.disabled = false;
+        console.error('Bookmark error:', err);
+    });
+}
+</script>
+@endpush
 @endsection

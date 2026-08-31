@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_Wayang_Learning" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.25.1">
+  <bpmn:collaboration id="Collaboration_Wayang">
+    <bpmn:participant id="Participant_Wayang" name="4.2.8 Proses Pembelajaran Mandiri Pewayangan Jawa - BasaKula" processRef="Process_Wayang" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Wayang" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_Wayang">
+      <bpmn:lane id="Lane_Teacher" name="Pengajar / Admin">
+        <bpmn:flowNodeRef>StartEvent_Teacher</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Teacher</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_OpenPanel</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SubmitWayang</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InputWayang</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Student" name="Pelajar">
+        <bpmn:flowNodeRef>StartEvent_Student</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Student</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_ExploreRelated</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_BrowseCatalog</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FilterWayang</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SelectCard</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_StudyContent</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_System" name="Sistem BasaKula (Web &#38; Database)">
+        <bpmn:flowNodeRef>Task_FetchCatalog</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ExecFilter</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FetchDetail</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MutateDB</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_Teacher" name="Mulai">
+      <bpmn:outgoing>Flow_T1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:startEvent id="StartEvent_Student" name="Mulai">
+      <bpmn:outgoing>Flow_S1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_T1" sourceRef="StartEvent_Teacher" targetRef="Task_OpenPanel" />
+    <bpmn:sequenceFlow id="Flow_T2" sourceRef="Task_OpenPanel" targetRef="Task_InputWayang" />
+    <bpmn:sequenceFlow id="Flow_T3" sourceRef="Task_InputWayang" targetRef="Task_SubmitWayang" />
+    <bpmn:sequenceFlow id="Flow_T4" sourceRef="Task_SubmitWayang" targetRef="Task_MutateDB" />
+    <bpmn:sequenceFlow id="Flow_T5" sourceRef="Task_MutateDB" targetRef="EndEvent_Teacher" />
+    <bpmn:sequenceFlow id="Flow_S1" sourceRef="StartEvent_Student" targetRef="Task_BrowseCatalog" />
+    <bpmn:sequenceFlow id="Flow_S2" sourceRef="Task_BrowseCatalog" targetRef="Task_FetchCatalog" />
+    <bpmn:sequenceFlow id="Flow_S3" sourceRef="Task_FetchCatalog" targetRef="Task_FilterWayang" />
+    <bpmn:sequenceFlow id="Flow_S4" sourceRef="Task_FilterWayang" targetRef="Task_ExecFilter" />
+    <bpmn:sequenceFlow id="Flow_S5" sourceRef="Task_ExecFilter" targetRef="Task_SelectCard" />
+    <bpmn:sequenceFlow id="Flow_S6" sourceRef="Task_SelectCard" targetRef="Task_FetchDetail" />
+    <bpmn:sequenceFlow id="Flow_S7" sourceRef="Task_FetchDetail" targetRef="Task_StudyContent" />
+    <bpmn:sequenceFlow id="Flow_S8" sourceRef="Task_StudyContent" targetRef="Gateway_ExploreRelated" />
+    <bpmn:sequenceFlow id="Flow_S9" name="Ya" sourceRef="Gateway_ExploreRelated" targetRef="Task_SelectCard" />
+    <bpmn:sequenceFlow id="Flow_S10" name="Tidak" sourceRef="Gateway_ExploreRelated" targetRef="EndEvent_Student" />
+    <bpmn:endEvent id="EndEvent_Student" name="Selesai Mempelajari">
+      <bpmn:incoming>Flow_S10</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="EndEvent_Teacher" name="Selesai: Data Pewayangan Diperbarui">
+      <bpmn:incoming>Flow_T5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="Gateway_ExploreRelated" name="Ingin Eksplorasi Tokoh Terkait?">
+      <bpmn:incoming>Flow_S8</bpmn:incoming>
+      <bpmn:outgoing>Flow_S9</bpmn:outgoing>
+      <bpmn:outgoing>Flow_S10</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_OpenPanel" name="Membuka Panel Kelola Data Pewayangan">
+      <bpmn:incoming>Flow_T1</bpmn:incoming>
+      <bpmn:outgoing>Flow_T2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_SubmitWayang" name="Simpan Data Tokoh Pewayangan">
+      <bpmn:incoming>Flow_T3</bpmn:incoming>
+      <bpmn:outgoing>Flow_T4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_BrowseCatalog" name="Membuka Katalog &#38; Ensiklopedia Pewayangan">
+      <bpmn:incoming>Flow_S1</bpmn:incoming>
+      <bpmn:outgoing>Flow_S2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_FilterWayang" name="Filter Kategori / Filter Keberpihakan / Pencarian Realtime">
+      <bpmn:incoming>Flow_S3</bpmn:incoming>
+      <bpmn:outgoing>Flow_S4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_SelectCard" name="Klik Kartu Tokoh atau Tombol Intip Preview">
+      <bpmn:incoming>Flow_S5</bpmn:incoming>
+      <bpmn:incoming>Flow_S9</bpmn:incoming>
+      <bpmn:outgoing>Flow_S6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_StudyContent" name="Mempelajari Detail Tokoh: Alias, Peran, Watak, Senjata, Kisah &#38; Silsilah">
+      <bpmn:incoming>Flow_S7</bpmn:incoming>
+      <bpmn:outgoing>Flow_S8</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_FetchCatalog" name="Select Data  &#39;wayang_categories&#39; &#38;  &#39;wayang_characters&#39;">
+      <bpmn:incoming>Flow_S2</bpmn:incoming>
+      <bpmn:outgoing>Flow_S3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_ExecFilter" name="Eksekusi Query Filter &#38; Paginasi Data Tokoh">
+      <bpmn:incoming>Flow_S4</bpmn:incoming>
+      <bpmn:outgoing>Flow_S5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_FetchDetail" name="Select Detail Tokoh &#38; Load Tokoh Terkait Kategori Serupa">
+      <bpmn:incoming>Flow_S6</bpmn:incoming>
+      <bpmn:outgoing>Flow_S7</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_MutateDB" name="Simpan Berkas Gambar ke Storage &#38; Insert/Update ke Database">
+      <bpmn:incoming>Flow_T4</bpmn:incoming>
+      <bpmn:outgoing>Flow_T5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_InputWayang" name="Input Data &#38; Foto Tokoh">
+      <bpmn:incoming>Flow_T2</bpmn:incoming>
+      <bpmn:outgoing>Flow_T3</bpmn:outgoing>
+    </bpmn:task>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Wayang">
+    <bpmndi:BPMNPlane id="BPMNPlane_Wayang" bpmnElement="Collaboration_Wayang">
+      <bpmndi:BPMNShape id="Participant_Wayang_di" bpmnElement="Participant_Wayang" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1660" height="690" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_System_di" bpmnElement="Lane_System" isHorizontal="true">
+        <dc:Bounds x="190" y="540" width="1630" height="230" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Student_di" bpmnElement="Lane_Student" isHorizontal="true">
+        <dc:Bounds x="190" y="280" width="1630" height="260" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Teacher_di" bpmnElement="Lane_Teacher" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="1630" height="200" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_Teacher_di" bpmnElement="StartEvent_Teacher" bioc:stroke="#166534" bioc:fill="#dcfce7">
+        <dc:Bounds x="252" y="152" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="257" y="195" width="27" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_Student_di" bpmnElement="StartEvent_Student" bioc:stroke="#166534" bioc:fill="#dcfce7">
+        <dc:Bounds x="252" y="382" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="257" y="425" width="27" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Student_di" bpmnElement="EndEvent_Student" bioc:stroke="#991b1b" bioc:fill="#fee2e2">
+        <dc:Bounds x="1492" y="382" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1480" y="425" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Teacher_di" bpmnElement="EndEvent_Teacher" bioc:stroke="#991b1b" bioc:fill="#fee2e2">
+        <dc:Bounds x="1632" y="162" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1617" y="112" width="66" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ExploreRelated_di" bpmnElement="Gateway_ExploreRelated" isMarkerVisible="true" bioc:stroke="#b45309" bioc:fill="#fef3c7">
+        <dc:Bounds x="1355" y="375" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1342" y="432" width="78" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0qaabem_di" bpmnElement="Task_OpenPanel">
+        <dc:Bounds x="340" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_03xag30_di" bpmnElement="Task_InputWayang">
+        <dc:Bounds x="500" y="130" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0dm616o_di" bpmnElement="Task_SubmitWayang">
+        <dc:Bounds x="680" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0seobif_di" bpmnElement="Task_BrowseCatalog">
+        <dc:Bounds x="330" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ekg4hk_di" bpmnElement="Task_FilterWayang">
+        <dc:Bounds x="500" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1kmndnv_di" bpmnElement="Task_SelectCard">
+        <dc:Bounds x="775" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1y9seu3_di" bpmnElement="Task_StudyContent">
+        <dc:Bounds x="1095" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0w159kd_di" bpmnElement="Task_FetchCatalog">
+        <dc:Bounds x="400" y="610" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1giomzo_di" bpmnElement="Task_ExecFilter">
+        <dc:Bounds x="580" y="610" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0bqbire_di" bpmnElement="Task_FetchDetail">
+        <dc:Bounds x="800" y="600" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1g9tnzq_di" bpmnElement="Task_MutateDB">
+        <dc:Bounds x="1250" y="600" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_T1_di" bpmnElement="Flow_T1">
+        <di:waypoint x="288" y="170" />
+        <di:waypoint x="340" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_T2_di" bpmnElement="Flow_T2">
+        <di:waypoint x="440" y="170" />
+        <di:waypoint x="500" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_T3_di" bpmnElement="Flow_T3">
+        <di:waypoint x="600" y="170" />
+        <di:waypoint x="680" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_T4_di" bpmnElement="Flow_T4">
+        <di:waypoint x="745" y="210" />
+        <di:waypoint x="745" y="720" />
+        <di:waypoint x="1280" y="720" />
+        <di:waypoint x="1280" y="680" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_T5_di" bpmnElement="Flow_T5">
+        <di:waypoint x="1350" y="640" />
+        <di:waypoint x="1650" y="640" />
+        <di:waypoint x="1650" y="198" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S1_di" bpmnElement="Flow_S1">
+        <di:waypoint x="288" y="400" />
+        <di:waypoint x="330" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S2_di" bpmnElement="Flow_S2">
+        <di:waypoint x="360" y="440" />
+        <di:waypoint x="360" y="650" />
+        <di:waypoint x="400" y="650" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S3_di" bpmnElement="Flow_S3">
+        <di:waypoint x="470" y="610" />
+        <di:waypoint x="470" y="400" />
+        <di:waypoint x="500" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S4_di" bpmnElement="Flow_S4">
+        <di:waypoint x="560" y="440" />
+        <di:waypoint x="560" y="650" />
+        <di:waypoint x="580" y="650" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S5_di" bpmnElement="Flow_S5">
+        <di:waypoint x="680" y="620" />
+        <di:waypoint x="680" y="400" />
+        <di:waypoint x="775" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S6_di" bpmnElement="Flow_S6">
+        <di:waypoint x="840" y="440" />
+        <di:waypoint x="840" y="600" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S7_di" bpmnElement="Flow_S7">
+        <di:waypoint x="900" y="640" />
+        <di:waypoint x="1010" y="640" />
+        <di:waypoint x="1010" y="400" />
+        <di:waypoint x="1095" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S8_di" bpmnElement="Flow_S8">
+        <di:waypoint x="1195" y="400" />
+        <di:waypoint x="1355" y="400" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S9_di" bpmnElement="Flow_S9">
+        <di:waypoint x="1380" y="375" />
+        <di:waypoint x="1380" y="320" />
+        <di:waypoint x="840" y="320" />
+        <di:waypoint x="840" y="360" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1103" y="302" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_S10_di" bpmnElement="Flow_S10">
+        <di:waypoint x="1405" y="400" />
+        <di:waypoint x="1492" y="400" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1441" y="382" width="27" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -27,4 +27,9 @@ class MacapatDetail extends Model
     {
         return $this->belongsTo(MacapatCategory::class, 'macapat_category_id');
     }
+
+    public function bookmarks(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(Bookmark::class, 'bookmarkable');
+    }
 }

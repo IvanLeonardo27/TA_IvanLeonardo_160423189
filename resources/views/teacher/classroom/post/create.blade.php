@@ -45,6 +45,35 @@
                                placeholder="Judul postingan..." value="{{ old('title') }}">
                     </div>
 
+                    {{-- Target Minggu / Week --}}
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Target Minggu / Week <span class="text-muted fw-normal">(Lokasi Penempatan)</span></label>
+                        <select name="week_number" class="form-select rounded-4 border-0 bg-light form-select-lg">
+                            <option value="">-- Otomatis (Dihitung 7 Hari Sejak Kelas Dibuat) --</option>
+                            <option value="0" {{ old('week_number') === '0' ? 'selected' : '' }}>📌 General (Pengumuman Umum)</option>
+                            @for($w = 1; $w <= 16; $w++)
+                                <option value="{{ $w }}" {{ old('week_number') == $w ? 'selected' : '' }}>
+                                    📅 Week {{ $w }} - {{ $classroom->getWeekTitle($w) }}
+                                </option>
+                            @endfor
+                        </select>
+                        <div class="form-text text-muted small">
+                            Pengajar dapat memilih secara khusus postingan ini akan ditempatkan di <strong>Week</strong> berapa, atau biarkan <strong>Otomatis</strong> agar tersusun sesuai tanggal upload.
+                        </div>
+                    </div>
+
+                    {{-- Status Visibilitas Siswa --}}
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Visibilitas Siswa <span class="text-muted fw-normal">(Status Akses)</span></label>
+                        <select name="is_published" class="form-select rounded-4 border-0 bg-light form-select-lg">
+                            <option value="1" {{ old('is_published', '1') == '1' ? 'selected' : '' }}>Tampilkan Langsung ke Siswa</option>
+                            <option value="0" {{ old('is_published') === '0' ? 'selected' : '' }}>Sembunyikan dari Siswa (Draft)</option>
+                        </select>
+                        <div class="form-text text-muted small">
+                            Jika disembunyikan (<em>Hidden from students</em>), postingan ini hanya dapat dilihat oleh Pengajar dan belum dapat diakses oleh Siswa.
+                        </div>
+                    </div>
+
                     {{-- Deskripsi Umum / Pengantar --}}
                     <div class="mb-4" id="standardBodyField">
                         <label class="form-label fw-semibold">Isi / Deskripsi Materi</label>

@@ -159,4 +159,37 @@ class ClassroomController extends Controller
 
         return view('teacher.classroom.material.show', compact('classroom', 'post'));
     }
+
+    /** Update judul header minggu/section */
+    public function updateWeekTitle(Request $request, Classroom $classroom)
+    {
+        Gate::authorize('update', $classroom);
+
+        $request->validate([
+            'week_number' => 'required|integer|min:0|max:52',
+            'title'       => 'nullable|string|max:150',
+        ]);
+
+        $weekNumber = (int) $request->week_number;
+        $title = trim($request->title);
+
+        $weekTitles = $classroom->week_titles ?? [];
+        if (empty($title)) {
+            unset($weekTitles[$weekNumber]);
+        } else {
+            $weekTitles[$weekNumber] = $title;
+        }
+
+        $classroom->update(['week_titles' => $weekTitles]);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'status' => 'success',
+                'week_number' => $weekNumber,
+                'title' => $classroom->getWeekTitle($weekNumber),
+            ]);
+        }
+
+        return back()->with('success', 'Judul minggu berhasil diperbarui!');
+    }
 }

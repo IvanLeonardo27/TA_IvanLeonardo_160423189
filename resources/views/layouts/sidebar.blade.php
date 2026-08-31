@@ -101,11 +101,6 @@
                         <i class="fa-solid fa-language"></i> Translator Jawa
                     </a>
                 </li>
-                <li class="nav-item mb-1">
-                    <a href="/ui/quiz" class="nav-link {{ request()->is('*quiz*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-pen-to-square"></i> Evaluasi / Quiz
-                    </a>
-                </li>
             @else
                 {{-- Menu Khusus Pelajar --}}
                 <li class="nav-item mb-1">
@@ -149,8 +144,8 @@
                     </a>
                 </li>
                 <li class="nav-item mb-1">
-                    <a href="/ui/quiz" class="nav-link {{ request()->is('*quiz*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-pen-to-square"></i> Evaluasi / Quiz
+                    <a href="{{ route('student.bookmarks.index') }}" class="nav-link {{ request()->routeIs('student.bookmarks.*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-bookmark text-warning"></i> Bookmark Saya
                     </a>
                 </li>
             @endif

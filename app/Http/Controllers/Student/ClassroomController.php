@@ -64,6 +64,7 @@ class ClassroomController extends Controller
         Gate::authorize('view', $classroom);
 
         $posts = $classroom->posts()
+            ->published()
             ->with([
                 'author',
                 'attachments',

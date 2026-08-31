@@ -40,4 +40,15 @@ class ClassroomQuiz extends Model
     {
         return $this->belongsTo(QuizSet::class, 'quiz_set_id');
     }
+
+    /** Attempt milik student tertentu */
+    public function myAttempt(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(QuizAttempt::class, 'quiz_id')
+                    ->where(function($q) {
+                        $q->where('student_id', auth()->id())
+                          ->orWhere('user_id', auth()->id());
+                    })
+                    ->latest();
+    }
 }

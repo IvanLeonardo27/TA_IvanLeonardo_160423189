@@ -31,4 +31,9 @@ class WayangCharacter extends Model
     {
         return $this->belongsTo(WayangCategory::class, 'category_id');
     }
+
+    public function bookmarks(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(Bookmark::class, 'bookmarkable');
+    }
 }

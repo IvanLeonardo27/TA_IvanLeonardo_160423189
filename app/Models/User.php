@@ -60,6 +60,11 @@ class User extends Authenticatable
         return $this->hasOne(TeacherProfile::class, 'user_id');
     }
 
+    public function bookmarks(): HasMany
+    {
+        return $this->hasMany(Bookmark::class, 'user_id');
+    }
+
     public function classrooms(): HasMany
     {
         return $this->hasMany(Classroom::class, 'teacher_id');
@@ -82,16 +87,22 @@ class User extends Authenticatable
 
     public function isTeacher(): bool
     {
+        if (isset($this->attributes['role']) && $this->attributes['role'] === 'teacher') return true;
+        if (isset($this->attributes['role_id']) && $this->attributes['role_id'] == 2) return true;
         return $this->role && $this->role->name === 'teacher';
     }
 
     public function isStudent(): bool
     {
+        if (isset($this->attributes['role']) && $this->attributes['role'] === 'student') return true;
+        if (isset($this->attributes['role_id']) && $this->attributes['role_id'] == 3) return true;
         return $this->role && $this->role->name === 'student';
     }
 
     public function isAdmin(): bool
     {
+        if (isset($this->attributes['role']) && $this->attributes['role'] === 'admin') return true;
+        if (isset($this->attributes['role_id']) && $this->attributes['role_id'] == 1) return true;
         return $this->role && $this->role->name === 'admin';
     }
 

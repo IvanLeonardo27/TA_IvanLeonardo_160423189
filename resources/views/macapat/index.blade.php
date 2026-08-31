@@ -34,11 +34,31 @@
         </div>
     </div>
 
+    @php
+        $userMacapatBookmarkIds = auth()->check() 
+            ? \App\Models\Bookmark::where('user_id', auth()->id())
+                ->where('bookmarkable_type', \App\Models\MacapatDetail::class)
+                ->pluck('bookmarkable_id')
+                ->toArray() 
+            : [];
+    @endphp
+
     <!-- Grid Daftar 10 Tembang Macapat -->
     <div class="row g-4" id="macapatGrid">
         @forelse($categories as $item)
+        @php $isBookmarked = in_array($item->id, $userMacapatBookmarkIds); @endphp
         <div class="col-12 col-md-6 col-lg-4 col-xl-3 macapat-card-col" data-name="{{ strtolower($item->name) }}">
-            <div class="card card-modern h-100 border-0 shadow-sm rounded-4 overflow-hidden d-flex flex-column hover-elevate">
+            <div class="card card-modern h-100 border-0 shadow-sm rounded-4 overflow-hidden d-flex flex-column hover-elevate position-relative">
+                @auth
+                <button type="button" 
+                        onclick="event.preventDefault(); event.stopPropagation(); toggleBookmarkCard('macapat', {{ $item->id }}, this)" 
+                        class="btn btn-sm p-0 border position-absolute top-0 end-0 m-2.5 z-3 d-flex align-items-center justify-content-center rounded-circle shadow-xs bg-white btn-bookmark-card" 
+                        style="width: 32px; height: 32px; transition: all 0.2s ease;" 
+                        title="{{ $isBookmarked ? 'Batal Simpan' : 'Simpan Bookmark' }}">
+                    <i class="{{ $isBookmarked ? 'fa-solid text-warning' : 'fa-regular text-secondary opacity-60' }} fa-bookmark" style="font-size: 0.88rem;"></i>
+                </button>
+                @endauth
+
                 <!-- Card Header Accent -->
                 <div class="card-top-stripe"></div>
 
@@ -180,5 +200,44 @@ document.addEventListener('DOMContentLoaded', function () {
         searchInput.focus();
     });
 });
+
+function toggleBookmarkCard(type, id, btn) {
+    const icon = btn.querySelector('i');
+    btn.disabled = true;
+
+    fetch('{{ route("student.bookmarks.toggle") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ type: type, id: id })
+    })
+    .then(res => res.json())
+    .then(data => {
+        btn.disabled = false;
+        if (data.status === 'success') {
+            if (data.bookmarked) {
+                icon.className = 'fa-solid fa-bookmark text-warning';
+                btn.title = 'Batal Simpan';
+            } else {
+                icon.className = 'fa-regular fa-bookmark text-secondary opacity-60';
+                btn.title = 'Simpan Bookmark';
+            }
+        } else if (data.message) {
+            alert(data.message);
+        }
+    })
+    .catch(err => {
+        btn.disabled = false;
+        console.error('Bookmark error:', err);
+    });
+}
 </script>
+<style>
+.btn-bookmark-card:hover {
+    transform: scale(1.15);
+    background-color: #F8FAFC !important;
+}
+</style>
 @endsection

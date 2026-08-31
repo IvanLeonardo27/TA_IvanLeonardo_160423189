@@ -80,13 +80,13 @@
             <div class="p-4 flex-grow-1">
                 <textarea class="form-control border-0 p-0 shadow-none text-main fw-normal" 
                           id="sourceText" rows="7" 
-                          placeholder="Ketik atau tempel teks yang ingin diterjemahkan di sini..." 
-                          style="font-size: 1.15rem; resize: none; background: transparent;" maxlength="1000"></textarea>
+                          placeholder="Ketik atau tempel kalimat yang ingin diterjemahkan di sini (minimal 10 kata)..." 
+                          style="font-size: 1.15rem; resize: none; background: transparent;"></textarea>
             </div>
             
             {{-- Control Toolbar Input --}}
             <div class="d-flex justify-content-between align-items-center p-3 px-4 border-top border-light bg-light rounded-bottom-start-4">
-                <span class="small fw-semibold text-muted" id="charCount">0 / 1000 karakter</span>
+                <span class="small fw-semibold text-muted" id="charCount">0 / 10 kata (minimal)</span>
                 <div class="d-flex align-items-center gap-2">
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-semibold" id="clearBtn">
                         <i class="fa-solid fa-eraser me-1"></i> Hapus
@@ -235,27 +235,39 @@
             });
         });
 
-        // Count Karakter & Auto Debounce Translate
         sourceText.addEventListener('input', function() {
-            const len = this.value.length;
-            charCount.textContent = `${len} / 1000 karakter`;
+            const val = this.value.trim();
+            const words = val ? val.split(/\s+/).filter(w => w.length > 0) : [];
+            const wordCount = words.length;
 
-            if (len === 0) {
+            if (wordCount === 0) {
+                charCount.className = 'small fw-semibold text-muted';
+                charCount.textContent = '0 / 10 kata (minimal)';
                 resultText.value = '';
+                translateBtn.disabled = false;
                 return;
             }
 
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                performTranslation();
-            }, 500);
+            if (wordCount < 10) {
+                charCount.className = 'small fw-bold text-danger';
+                charCount.textContent = `${wordCount} / 10 kata (Kurang dari minimal 10 kata!)`;
+                resultText.value = `Teks yang diterjemahkan minimal 10 kata.\nTeks Anda saat ini baru berjumlah ${wordCount} kata. Mohon tambahkan kata lagi.`;
+                translateBtn.disabled = true;
+                return;
+            }
+
+            charCount.className = 'small fw-bold text-success';
+            charCount.textContent = `${wordCount} kata (Memenuhi Syarat Minimal 10 Kata)`;
+            translateBtn.disabled = false;
         });
 
         // Clear Button
         clearBtn.addEventListener('click', function() {
             sourceText.value = '';
             resultText.value = '';
-            charCount.textContent = '0 / 1000 karakter';
+            charCount.className = 'small fw-semibold text-muted';
+            charCount.textContent = '0 / 10 kata (minimal)';
+            translateBtn.disabled = false;
             sourceText.focus();
         });
 
@@ -276,7 +288,9 @@
             const tempVal = sourceText.value;
             sourceText.value = resultText.value;
             resultText.value = tempVal;
-            charCount.textContent = `${sourceText.value.length} / 1000 karakter`;
+            
+            const words = sourceText.value.trim() ? sourceText.value.trim().split(/\s+/).filter(w => w.length > 0) : [];
+            charCount.textContent = `${words.length} / 10 kata (minimal)`;
 
             if (sourceText.value.trim() !== '') {
                 performTranslation();

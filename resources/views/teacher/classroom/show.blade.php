@@ -33,10 +33,6 @@
 
         {{-- Tombol aksi --}}
         <div class="position-absolute top-0 end-0 p-4 d-flex gap-2" style="z-index: 3;">
-            <a href="{{ route('teacher.classroom.post.create', $classroom) }}"
-               class="btn btn-sm fw-bold rounded-pill shadow btn-bouncy px-3 py-2 bg-white text-primary border-0">
-                <i class="fa-solid fa-plus me-1"></i> Tambah Post
-            </a>
             <div class="dropdown">
                 <button class="btn btn-sm rounded-circle shadow bg-white text-primary border-0" style="width:38px;height:38px;padding:0;" data-bs-toggle="dropdown">
                     <i class="fa-solid fa-ellipsis-vertical"></i>
@@ -72,9 +68,16 @@
 
 {{-- NAVIGASI TAB MODERN --}}
 <ul class="nav gap-2 mb-4 animate__animated animate__fadeInUp" id="classroomTab" role="tablist">
-    @foreach([['stream','Stream','comment-dots'],['classwork','Tugas Kelas','book-open'],['people','Anggota','users']] as [$key, $label, $icon])
     <li class="nav-item">
-        <button class="btn rounded-pill px-4 py-2 fw-semibold {{ $loop->first ? 'btn-primary shadow' : 'btn-light text-muted' }}"
+        <button class="btn rounded-pill px-4 py-2 fw-semibold btn-primary shadow"
+                id="tab-weeks" data-bs-toggle="pill" data-bs-target="#pane-weeks"
+                type="button" role="tab">
+            <i class="fa-solid fa-layer-group me-2"></i>Kurikulum & Minggu (Week)
+        </button>
+    </li>
+    @foreach([['stream','Stream Feed','comment-dots'],['classwork','Tugas Kelas','book-open'],['people','Anggota','users']] as [$key, $label, $icon])
+    <li class="nav-item">
+        <button class="btn rounded-pill px-4 py-2 fw-semibold btn-light text-muted"
                 id="tab-{{ $key }}" data-bs-toggle="pill" data-bs-target="#pane-{{ $key }}"
                 type="button" role="tab">
             <i class="fa-solid fa-{{ $icon }} me-2"></i>{{ $label }}
@@ -84,9 +87,62 @@
 </ul>
 
 <div class="tab-content animate__animated animate__fadeInUp">
+    {{-- ======================== WEEKS TAB ======================== --}}
+    <div class="tab-pane fade show active" id="pane-weeks" role="tabpanel">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                @include('classroom.partials._week_accordion', ['classroom' => $classroom, 'posts' => $posts])
+            </div>
+            <div class="col-lg-4">
+                {{-- Quick Progress / Information Card --}}
+                <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold text-dark mb-3 d-flex align-items-center justify-content-between">
+                            <span><i class="fa-solid fa-chart-line text-primary me-2"></i>Ringkasan Kelas</span>
+                            <span class="badge bg-success text-white rounded-pill px-2.5 py-1">Aktif</span>
+                        </h6>
+
+                        <div class="row g-2 text-center pt-2">
+                            <div class="col-4">
+                                <div class="p-2 bg-light rounded-3">
+                                    <i class="fa-solid fa-file-pdf text-danger mb-1 d-block"></i>
+                                    <small class="fw-bold text-dark d-block" style="font-size: 0.75rem;">Materi</small>
+                                    <small class="text-muted" style="font-size: 0.7rem;">{{ $classroom->posts->where('type', 'material')->count() }} Item</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-2 bg-light rounded-3">
+                                    <i class="fa-solid fa-clipboard-list text-primary mb-1 d-block"></i>
+                                    <small class="fw-bold text-dark d-block" style="font-size: 0.75rem;">Tugas</small>
+                                    <small class="text-muted" style="font-size: 0.7rem;">{{ $classroom->posts->where('type', 'assignment')->count() }} Item</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-2 bg-light rounded-3">
+                                    <i class="fa-solid fa-pen-to-square text-success mb-1 d-block"></i>
+                                    <small class="fw-bold text-dark d-block" style="font-size: 0.75rem;">Quiz</small>
+                                    <small class="text-muted" style="font-size: 0.7rem;">{{ $classroom->posts->where('type', 'quiz')->count() }} Item</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Action Card --}}
+                <div class="card border-0 shadow-sm rounded-4 bg-white p-3">
+                    <a href="{{ route('teacher.classroom.post.create', $classroom) }}" class="btn btn-primary rounded-pill py-2.5 fw-semibold w-100 mb-2 shadow-xs">
+                        <i class="fa-solid fa-plus me-1.5"></i> Upload Post / Materi Baru
+                    </a>
+                    <a href="{{ route('teacher.classroom.edit', $classroom) }}" class="btn btn-outline-secondary rounded-pill py-2 fw-semibold w-100 btn-sm">
+                        <i class="fa-solid fa-gear me-1.5"></i> Pengaturan Kelas
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     {{-- ======================== STREAM TAB ======================== --}}
-    <div class="tab-pane fade show active" id="pane-stream" role="tabpanel">
+    <div class="tab-pane fade" id="pane-stream" role="tabpanel">
         <div class="row g-4">
             {{-- Feed --}}
             <div class="col-lg-8">
@@ -697,3 +753,31 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endpush
+
+{{-- Modal Edit Judul Week Header (Di-render di Root Level agar tidak terjebak Z-Index backdrop) --}}
+<div class="modal fade" id="editWeekTitleModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="fw-bold modal-title" style="color: #16402E;">Edit Judul Header Minggu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('teacher.classroom.week.title.update', $classroom) }}" method="POST">
+                @csrf
+                <div class="modal-body py-3">
+                    <input type="hidden" name="week_number" id="modalWeekNumberInput" value="1">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Judul Topik / Header Minggu</label>
+                        <input type="text" name="title" id="modalWeekTitleInput" class="form-control rounded-3" placeholder="Contoh: Pengenalan Basa Jawa" required>
+                    </div>
+                    <small class="text-muted">Judul ini akan langsung menggantikan nama header minggu di ruang kelas siswa (misal: <em>Week 1 - Pengenalan Basa Jawa</em>).</small>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn text-white rounded-pill px-4 fw-semibold" style="background: #16402E;"><i class="fa-solid fa-save me-1"></i> Simpan Judul</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

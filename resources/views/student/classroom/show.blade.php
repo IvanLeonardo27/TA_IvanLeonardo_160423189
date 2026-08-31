@@ -53,21 +53,90 @@
 <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white p-2">
     <ul class="nav nav-pills nav-justified gap-2" id="classroomTab" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active rounded-3 fw-bold py-2.5 btn-tab-custom" id="feed-tab" data-bs-toggle="tab" data-bs-target="#feed-pane" type="button" role="tab">
-                <i class="fa-solid fa-comments me-2"></i> Diskusi & Tugas Kelas
+            <button class="nav-link active rounded-3 fw-bold py-2.5 btn-tab-custom" id="weeks-tab" data-bs-toggle="tab" data-bs-target="#weeks-pane" type="button" role="tab">
+                <i class="fa-solid fa-layer-group me-2"></i> Kurikulum & Materi Mingguan (Week)
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-3 fw-bold py-2.5 btn-tab-custom" id="materi-tab" data-bs-toggle="tab" data-bs-target="#materi-pane" type="button" role="tab">
-                <i class="fa-solid fa-book-open-reader me-2"></i> Modul Materi Pembelajaran
+            <button class="nav-link rounded-3 fw-bold py-2.5 btn-tab-custom" id="feed-tab" data-bs-toggle="tab" data-bs-target="#feed-pane" type="button" role="tab">
+                <i class="fa-solid fa-comments me-2"></i> Feed Diskusi Terbaru
             </button>
         </li>
     </ul>
 </div>
 
 <div class="tab-content" id="classroomTabContent">
-    {{-- TAB 1: FEED UTAMA --}}
-    <div class="tab-pane fade show active" id="feed-pane" role="tabpanel">
+    {{-- TAB 1: KURIKULUM BERBASIS MINGGU (MOODLE / ULS STYLE) --}}
+    <div class="tab-pane fade show active" id="weeks-pane" role="tabpanel">
+        <div class="row g-4">
+            <div class="col-lg-8 animate__animated animate__fadeInLeft">
+                @include('classroom.partials._week_accordion', ['classroom' => $classroom, 'posts' => $posts])
+            </div>
+
+            <div class="col-lg-4 animate__animated animate__fadeInRight">
+                {{-- Progress & Quick Info Card --}}
+                <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold text-dark mb-3 d-flex align-items-center justify-content-between">
+                            <span><i class="fa-solid fa-chart-line text-primary me-2"></i>Kemajuan Pembelajaran</span>
+                            <span class="badge bg-primary-subtle text-primary rounded-pill px-2.5 py-1">Aktif</span>
+                        </h6>
+
+                        @php $studentProgress = $classroom->getStudentProgressPercent(); @endphp
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <small class="text-muted fw-semibold">Progres Pembelajaran</small>
+                                <small class="fw-bold text-primary">{{ $studentProgress }}%</small>
+                            </div>
+                            <div class="progress rounded-pill" style="height: 8px;">
+                                <div class="progress-bar bg-primary rounded-pill" style="width: {{ $studentProgress }}%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 text-center pt-2">
+                            <div class="col-4">
+                                <div class="p-2 bg-light rounded-3">
+                                    <i class="fa-solid fa-file-pdf text-danger mb-1 d-block"></i>
+                                    <small class="fw-bold text-dark d-block" style="font-size: 0.75rem;">Materi</small>
+                                    <small class="text-muted" style="font-size: 0.7rem;">{{ $classroom->posts->where('type', 'material')->count() }} Item</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-2 bg-light rounded-3">
+                                    <i class="fa-solid fa-clipboard-list text-primary mb-1 d-block"></i>
+                                    <small class="fw-bold text-dark d-block" style="font-size: 0.75rem;">Tugas</small>
+                                    <small class="text-muted" style="font-size: 0.7rem;">{{ $classroom->posts->where('type', 'assignment')->count() }} Item</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-2 bg-light rounded-3">
+                                    <i class="fa-solid fa-pen-to-square text-success mb-1 d-block"></i>
+                                    <small class="fw-bold text-dark d-block" style="font-size: 0.75rem;">Quiz</small>
+                                    <small class="text-muted" style="font-size: 0.7rem;">{{ $classroom->posts->where('type', 'quiz')->count() }} Item</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Informal Teacher Card --}}
+                <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+                    <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-user-gear text-primary me-2"></i>Pengajar Kelas</h6>
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode($teacher->name) }}&size=48&background=16402E&color=fff" 
+                             class="rounded-circle shadow-xs" width="44" height="44" alt="{{ $teacher->name }}">
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0">{{ $teacher->name }}</h6>
+                            <small class="text-muted">Guru Pengampu</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- TAB 2: FEED DISKUSI --}}
+    <div class="tab-pane fade" id="feed-pane" role="tabpanel">
         <div class="row g-4">
             <div class="col-lg-8 animate__animated animate__fadeInLeft">
 

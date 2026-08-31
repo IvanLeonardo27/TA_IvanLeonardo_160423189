@@ -288,5 +288,44 @@
             });
         }
     });
+
+function toggleBookmarkCard(type, id, btn) {
+    const icon = btn.querySelector('i');
+    btn.disabled = true;
+
+    fetch('{{ route("student.bookmarks.toggle") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ type: type, id: id })
+    })
+    .then(res => res.json())
+    .then(data => {
+        btn.disabled = false;
+        if (data.status === 'success') {
+            if (data.bookmarked) {
+                icon.className = 'fa-solid fa-bookmark text-warning';
+                btn.title = 'Batal Simpan';
+            } else {
+                icon.className = 'fa-regular fa-bookmark text-secondary opacity-60';
+                btn.title = 'Simpan Bookmark';
+            }
+        } else if (data.message) {
+            alert(data.message);
+        }
+    })
+    .catch(err => {
+        btn.disabled = false;
+        console.error('Bookmark error:', err);
+    });
+}
 </script>
+<style>
+.btn-bookmark-card:hover {
+    transform: scale(1.15);
+    background-color: #F8FAFC !important;
+}
+</style>
 @endpush

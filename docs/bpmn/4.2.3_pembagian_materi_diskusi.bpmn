@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_PostDiscuss" targetNamespace="http://bpmn.io/schema/bpmn">
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_PostDiscuss" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.25.1">
   <bpmn:collaboration id="Collaboration_PostDiscuss">
     <bpmn:participant id="Participant_PostDiscuss" name="LMS Pembelajaran Bahasa Jawa BasaKula" processRef="Process_PostDiscuss" />
   </bpmn:collaboration>
@@ -9,13 +9,13 @@
         <bpmn:flowNodeRef>Start_Post</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_WritePost</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_ReplyComment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_PostS</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>End_PostT</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_S_Post" name="Pelajar">
         <bpmn:flowNodeRef>Task_ReadPost</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_Discuss</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_WriteComment</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>End_PostS</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_Sys_Post" name="Sistem (Laravel &#38; MySQL)">
         <bpmn:flowNodeRef>Task_SavePost</bpmn:flowNodeRef>
@@ -28,10 +28,6 @@
     <bpmn:task id="Task_WritePost" name="Menulis Teks Materi &#38; Upload Berkas Lampiran">
       <bpmn:incoming>Flow_P1</bpmn:incoming>
       <bpmn:outgoing>Flow_P2</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:task id="Task_SavePost" name="Upload File ke Storage &#38; Insert ke Tabel 'classroom_posts'">
-      <bpmn:incoming>Flow_P2</bpmn:incoming>
-      <bpmn:outgoing>Flow_P3</bpmn:outgoing>
     </bpmn:task>
     <bpmn:task id="Task_ReadPost" name="Membaca Materi Pembelajaran di Feed Kelas">
       <bpmn:incoming>Flow_P3</bpmn:incoming>
@@ -46,21 +42,10 @@
       <bpmn:incoming>Flow_YesDiscuss</bpmn:incoming>
       <bpmn:outgoing>Flow_P5</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Task_SaveComment" name="Insert ke 'classroom_comments' &#38; Broadcast ke Thread Postingan">
-      <bpmn:incoming>Flow_P5</bpmn:incoming>
-      <bpmn:outgoing>Flow_P6</bpmn:outgoing>
-    </bpmn:task>
     <bpmn:task id="Task_ReplyComment" name="Menanggapi / Menjawab Pertanyaan Siswa">
       <bpmn:incoming>Flow_P6</bpmn:incoming>
       <bpmn:outgoing>Flow_P7</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:endEvent id="End_PostT" name="Diskusi Selesai">
-      <bpmn:incoming>Flow_P7</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:endEvent id="End_PostS" name="Selesai Membaca">
-      <bpmn:incoming>Flow_NoDiscuss</bpmn:incoming>
-    </bpmn:endEvent>
-    <!-- Sequence Flows -->
     <bpmn:sequenceFlow id="Flow_P1" sourceRef="Start_Post" targetRef="Task_WritePost" />
     <bpmn:sequenceFlow id="Flow_P2" sourceRef="Task_WritePost" targetRef="Task_SavePost" />
     <bpmn:sequenceFlow id="Flow_P3" sourceRef="Task_SavePost" targetRef="Task_ReadPost" />
@@ -70,66 +55,122 @@
     <bpmn:sequenceFlow id="Flow_P5" sourceRef="Task_WriteComment" targetRef="Task_SaveComment" />
     <bpmn:sequenceFlow id="Flow_P6" sourceRef="Task_SaveComment" targetRef="Task_ReplyComment" />
     <bpmn:sequenceFlow id="Flow_P7" sourceRef="Task_ReplyComment" targetRef="End_PostT" />
+    <bpmn:task id="Task_SavePost" name="Upload File ke Storage &#38; Insert ke Tabel &#39;classroom_posts&#39;">
+      <bpmn:incoming>Flow_P2</bpmn:incoming>
+      <bpmn:outgoing>Flow_P3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_SaveComment" name="Insert ke &#39;classroom_comments&#39; &#38; Broadcast ke Thread Postingan">
+      <bpmn:incoming>Flow_P5</bpmn:incoming>
+      <bpmn:outgoing>Flow_P6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_PostS" name="Selesai Membaca">
+      <bpmn:incoming>Flow_NoDiscuss</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="End_PostT" name="Diskusi Selesai">
+      <bpmn:incoming>Flow_P7</bpmn:incoming>
+    </bpmn:endEvent>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_PostDiscuss">
     <bpmndi:BPMNPlane id="BPMNPlane_PostDiscuss" bpmnElement="Collaboration_PostDiscuss">
       <bpmndi:BPMNShape id="Participant_PostDiscuss_di" bpmnElement="Participant_PostDiscuss" isHorizontal="true">
-        <dc:Bounds x="160" y="80" width="950" height="480" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_T_Post_di" bpmnElement="Lane_T_Post" isHorizontal="true">
-        <dc:Bounds x="190" y="80" width="920" height="150" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_S_Post_di" bpmnElement="Lane_S_Post" isHorizontal="true">
-        <dc:Bounds x="190" y="230" width="920" height="150" />
+        <dc:Bounds x="160" y="80" width="1110" height="560" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_Sys_Post_di" bpmnElement="Lane_Sys_Post" isHorizontal="true">
-        <dc:Bounds x="190" y="380" width="920" height="180" />
+        <dc:Bounds x="190" y="470" width="1080" height="170" />
       </bpmndi:BPMNShape>
-      <!-- Nodes -->
+      <bpmndi:BPMNShape id="Lane_S_Post_di" bpmnElement="Lane_S_Post" isHorizontal="true">
+        <dc:Bounds x="190" y="230" width="1080" height="240" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_T_Post_di" bpmnElement="Lane_T_Post" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="1080" height="150" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Start_Post_di" bpmnElement="Start_Post">
         <dc:Bounds x="232" y="132" width="36" height="36" />
-        <bpmndi:BPMNLabel><dc:Bounds x="212" y="175" width="76" height="27" /></bpmndi:BPMNLabel>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="212" y="175" width="76" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_WritePost_di" bpmnElement="Task_WritePost">
         <dc:Bounds x="320" y="110" width="130" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_SavePost_di" bpmnElement="Task_SavePost">
-        <dc:Bounds x="320" y="420" width="140" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_ReadPost_di" bpmnElement="Task_ReadPost">
         <dc:Bounds x="500" y="265" width="130" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_Discuss_di" bpmnElement="Gateway_Discuss" isMarkerVisible="true">
         <dc:Bounds x="675" y="280" width="50" height="50" />
-        <bpmndi:BPMNLabel><dc:Bounds x="662" y="337" width="76" height="27" /></bpmndi:BPMNLabel>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="662" y="337" width="76" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_WriteComment_di" bpmnElement="Task_WriteComment">
         <dc:Bounds x="770" y="265" width="130" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_SaveComment_di" bpmnElement="Task_SaveComment">
-        <dc:Bounds x="760" y="420" width="150" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_ReplyComment_di" bpmnElement="Task_ReplyComment">
         <dc:Bounds x="940" y="110" width="130" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="End_PostT_di" bpmnElement="End_PostT">
-        <dc:Bounds x="1052" y="132" width="36" height="36" />
-        <bpmndi:BPMNLabel><dc:Bounds x="1032" y="175" width="76" height="14" /></bpmndi:BPMNLabel>
+      <bpmndi:BPMNShape id="Task_SavePost_di" bpmnElement="Task_SavePost">
+        <dc:Bounds x="320" y="490" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SaveComment_di" bpmnElement="Task_SaveComment">
+        <dc:Bounds x="760" y="510" width="150" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="End_PostS_di" bpmnElement="End_PostS">
-        <dc:Bounds x="682" y="240" width="36" height="36" />
-        <bpmndi:BPMNLabel><dc:Bounds x="657" y="216" width="87" height="14" /></bpmndi:BPMNLabel>
+        <dc:Bounds x="682" y="152" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="657" y="128" width="88" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <!-- Edges -->
-      <bpmndi:BPMNEdge id="Flow_P1_di" bpmnElement="Flow_P1"><di:waypoint x="268" y="150" /><di:waypoint x="320" y="150" /></bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_P2_di" bpmnElement="Flow_P2"><di:waypoint x="385" y="190" /><di:waypoint x="385" y="420" /></bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_P3_di" bpmnElement="Flow_P3"><di:waypoint x="460" y="460" /><di:waypoint x="480" y="460" /><di:waypoint x="480" y="305" /><di:waypoint x="500" y="305" /></bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_P4_di" bpmnElement="Flow_P4"><di:waypoint x="630" y="305" /><di:waypoint x="675" y="305" /></bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_YesDiscuss_di" bpmnElement="Flow_YesDiscuss"><di:waypoint x="725" y="305" /><di:waypoint x="770" y="305" /><bpmndi:BPMNLabel><dc:Bounds x="741" y="287" width="13" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_NoDiscuss_di" bpmnElement="Flow_NoDiscuss"><di:waypoint x="700" y="280" /><di:waypoint x="700" y="276" /><bpmndi:BPMNLabel><dc:Bounds x="702" y="258" width="28" height="14" /></bpmndi:BPMNLabel></bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_P5_di" bpmnElement="Flow_P5"><di:waypoint x="835" y="345" /><di:waypoint x="835" y="420" /></bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_P6_di" bpmnElement="Flow_P6"><di:waypoint x="910" y="460" /><di:waypoint x="925" y="460" /><di:waypoint x="925" y="150" /><di:waypoint x="940" y="150" /></bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_P7_di" bpmnElement="Flow_P7"><di:waypoint x="1005" y="110" /><di:waypoint x="1005" y="90" /><di:waypoint x="1070" y="90" /><di:waypoint x="1070" y="132" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="End_PostT_di" bpmnElement="End_PostT">
+        <dc:Bounds x="1152" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1133" y="175" width="75" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_P1_di" bpmnElement="Flow_P1">
+        <di:waypoint x="268" y="150" />
+        <di:waypoint x="320" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_P2_di" bpmnElement="Flow_P2">
+        <di:waypoint x="385" y="190" />
+        <di:waypoint x="385" y="490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_P3_di" bpmnElement="Flow_P3">
+        <di:waypoint x="425" y="490" />
+        <di:waypoint x="425" y="305" />
+        <di:waypoint x="500" y="305" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_P4_di" bpmnElement="Flow_P4">
+        <di:waypoint x="630" y="305" />
+        <di:waypoint x="675" y="305" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_YesDiscuss_di" bpmnElement="Flow_YesDiscuss">
+        <di:waypoint x="725" y="305" />
+        <di:waypoint x="770" y="305" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="741" y="287" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NoDiscuss_di" bpmnElement="Flow_NoDiscuss">
+        <di:waypoint x="700" y="280" />
+        <di:waypoint x="700" y="188" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="706" y="273" width="27" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_P5_di" bpmnElement="Flow_P5">
+        <di:waypoint x="835" y="345" />
+        <di:waypoint x="835" y="510" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_P6_di" bpmnElement="Flow_P6">
+        <di:waypoint x="910" y="550" />
+        <di:waypoint x="925" y="550" />
+        <di:waypoint x="925" y="150" />
+        <di:waypoint x="940" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_P7_di" bpmnElement="Flow_P7">
+        <di:waypoint x="1070" y="150" />
+        <di:waypoint x="1152" y="150" />
+      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

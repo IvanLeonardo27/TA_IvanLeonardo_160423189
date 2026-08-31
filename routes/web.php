@@ -53,12 +53,16 @@ Route::get('/ui/student/kelas/submission', function() { return view('student.cla
 Route::get('/api/tts', [TtsProxyController::class, 'speak'])->name('api.tts');
 // -------------------------
 
-// Rute Komentar & Kalender Pembelajaran
+// Rute Komentar, Kalender Pembelajaran, & Bookmark
 Route::middleware('auth')->group(function () {
     Route::post('/classroom/posts/{post}/comments', [ClassroomCommentController::class, 'store'])->name('classroom.comment.store');
     Route::delete('/classroom/comments/{comment}', [ClassroomCommentController::class, 'destroy'])->name('classroom.comment.destroy');
     Route::get('/calendar', [\App\Http\Controllers\CalendarController::class, 'index'])->name('calendar.index');
     Route::get('/calendar/export-ics', [\App\Http\Controllers\CalendarController::class, 'exportIcs'])->name('calendar.export_ics');
+    
+    // Bookmark Materi
+    Route::post('/student/bookmarks/toggle', [\App\Http\Controllers\Student\BookmarkController::class, 'toggle'])->name('student.bookmarks.toggle');
+    Route::get('/student/bookmarks', [\App\Http\Controllers\Student\BookmarkController::class, 'index'])->name('student.bookmarks.index');
 });
 
 // Rute Kelas untuk Pengajar (Teacher)
@@ -70,6 +74,7 @@ Route::middleware(['auth'])->prefix('teacher/classroom')->name('teacher.classroo
     Route::get('/{classroom}/edit', [TeacherClassroomController::class, 'edit'])->name('edit');
     Route::put('/{classroom}', [TeacherClassroomController::class, 'update'])->name('update');
     Route::delete('/{classroom}', [TeacherClassroomController::class, 'destroy'])->name('destroy');
+    Route::post('/{classroom}/weeks/title', [TeacherClassroomController::class, 'updateWeekTitle'])->name('week.title.update');
     Route::delete('/{classroom}/members/{user}', [TeacherClassroomController::class, 'removeMember'])->name('member.remove');
     Route::post('/submissions/{submission}/grade', [TeacherClassroomController::class, 'gradeSubmission'])->name('submission.grade');
 
@@ -77,6 +82,7 @@ Route::middleware(['auth'])->prefix('teacher/classroom')->name('teacher.classroo
     Route::get('/{classroom}/posts/create', [TeacherClassroomPostController::class, 'create'])->name('post.create');
     Route::post('/{classroom}/posts', [TeacherClassroomPostController::class, 'store'])->name('post.store');
     Route::delete('/{classroom}/posts/{post}', [TeacherClassroomPostController::class, 'destroy'])->name('post.destroy');
+    Route::post('/posts/{post}/toggle-visibility', [TeacherClassroomPostController::class, 'toggleVisibility'])->name('post.toggle_visibility');
     Route::get('/{classroom}/material/{post}', [TeacherClassroomController::class, 'showMaterial'])->name('material.show');
     Route::get('/quizzes/{quiz}/export-excel', [TeacherClassroomPostController::class, 'exportQuizAnswersExcel'])->name('quiz.export_excel');
     Route::get('/quizzes/{quiz}/preview', [TeacherClassroomPostController::class, 'previewQuizSubmissions'])->name('quiz.preview_submissions');

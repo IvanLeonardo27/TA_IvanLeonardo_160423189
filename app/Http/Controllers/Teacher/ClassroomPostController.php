@@ -30,6 +30,7 @@ class ClassroomPostController extends Controller
             'title'            => 'nullable|string|max:200',
             'body'             => 'nullable|string',
             'is_pinned'        => 'boolean',
+            'week_number'      => 'nullable|integer|min:0|max:52',
             'files.*'          => 'nullable|file|max:20480', // 20MB per file
             // Assignment / Quiz fields
             'due_date'            => 'nullable|date',
@@ -111,6 +112,8 @@ class ClassroomPostController extends Controller
             'title'        => $validated['title'] ?? null,
             'body'         => $postBody,
             'is_pinned'    => $request->boolean('is_pinned'),
+            'week_number'  => $request->filled('week_number') ? (int) $request->week_number : null,
+            'is_published' => $request->has('is_published') ? $request->boolean('is_published') : true,
         ]);
 
         // Upload lampiran
@@ -292,5 +295,16 @@ class ClassroomPostController extends Controller
             ->get();
 
         return view('teacher.classroom.quiz_preview', compact('quiz', 'post', 'classroom', 'questions', 'attempts'));
+    }
+
+    /** Toggle status publikasi / visibilitas post (Tampilkan / Sembunyikan dari siswa) */
+    public function toggleVisibility(ClassroomPost $post)
+    {
+        $post->update([
+            'is_published' => !$post->is_published,
+        ]);
+
+        $statusText = $post->is_published ? 'ditampilkan kepada siswa' : 'disembunyikan dari siswa';
+        return back()->with('success', "Status postingan berhasil {$statusText}.");
     }
 }

@@ -100,7 +100,7 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-bold text-gray-500 mb-2 uppercase">Bahasa Indonesia</label>
-                        <input type="text" id="input-indo" placeholder="Ketik kata di sini..."
+                        <input type="text" id="input-indo" placeholder="Ketik kata di sini (minimal 10 kata)..."
                             class="w-full p-4 border-2 border-gray-100 rounded-2xl focus:border-green-primary outline-none transition text-lg">
                     </div>
 
@@ -301,6 +301,13 @@
 
             if (!input) {
                 output.innerText = "...";
+                return;
+            }
+
+            const words = input ? input.split(/\s+/).filter(w => w.length > 0) : [];
+            if (words.length < 10) {
+                output.innerText = `⚠️ Teks yang diterjemahkan minimal 10 kata. (Input Anda: ${words.length} kata)`;
+                output.classList.remove('text-green-primary');
                 return;
             }
 

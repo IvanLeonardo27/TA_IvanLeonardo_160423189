@@ -40,4 +40,9 @@ class JavaneseScriptDetail extends Model
     {
         return $this->hasMany(JavaneseScriptExample::class, 'script_detail_id');
     }
+
+    public function bookmarks(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(Bookmark::class, 'bookmarkable');
+    }
 }

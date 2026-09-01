@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Gate;
 
 class ClassroomController extends Controller
 {
-    /** Daftar kelas yang diikuti pelajar */
+    /** Daftar kelas yang diikuti pelajar beserta statistik dashboard */
     public function index()
     {
         Gate::authorize('student');
@@ -27,8 +27,49 @@ class ClassroomController extends Controller
             ->latest()
             ->get();
 
-        return view('student.classroom.index', compact('classrooms'));
+        $classroomIds = $classrooms->pluck('id');
+
+        // Statistik Cepat untuk Dashboard Terpadu Pelajar
+        $totalClassrooms = $classrooms->count();
+        $totalBookmarks = \App\Models\Bookmark::where('user_id', Auth::id())->count();
+        
+        // Tugas aktif yang belum dikumpulkan
+        $activeAssignmentsCount = \App\Models\ClassroomAssignment::whereHas('post', function($q) use ($classroomIds) {
+                $q->whereIn('classroom_id', $classroomIds)->where('is_published', true);
+            })
+            ->where(function($q) {
+                $q->whereNull('due_date')->orWhere('due_date', '>=', now());
+            })
+            ->whereDoesntHave('submissions', function($q) {
+                $q->where('student_id', Auth::id());
+            })
+            ->count();
+
+        // Kuis aktif yang belum dikerjakan
+        $activeQuizzesCount = \App\Models\ClassroomQuiz::whereHas('post', function($q) use ($classroomIds) {
+                $q->whereIn('classroom_id', $classroomIds)->where('is_published', true);
+            })
+            ->where(function($q) {
+                $q->whereNull('due_date')->orWhere('due_date', '>=', now());
+            })
+            ->whereDoesntHave('attempts', function($q) {
+                $q->where(function($sub) {
+                    $sub->where('student_id', Auth::id())
+                        ->orWhere('user_id', Auth::id());
+                });
+            })
+            ->count();
+
+
+        return view('student.classroom.index', compact(
+            'classrooms',
+            'totalClassrooms',
+            'totalBookmarks',
+            'activeAssignmentsCount',
+            'activeQuizzesCount'
+        ));
     }
+
 
     /** Gabung kelas menggunakan kode */
     public function join(Request $request)

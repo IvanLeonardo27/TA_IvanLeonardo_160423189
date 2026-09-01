@@ -11,6 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->validateCsrfTokens(except: [
+            'login',
+            'logout',
+        ]);
         $middleware->web(append: [
             \App\Http\Middleware\AutoLogoutCustom::class,
         ]);
@@ -20,5 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, $request) {
+            return redirect()->route('login')->with('warning', 'Sesi halaman telah berakhir (CSRF Token Expired). Silakan login kembali.');
+        });
     })->create();

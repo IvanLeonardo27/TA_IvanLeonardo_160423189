@@ -59,12 +59,13 @@
                 {{ $config['label'] }}
             </span>
             <button type="button" 
-                    onclick="removeBookmarkCard('{{ $type }}', {{ $item->id }}, 'bookmark-card-{{ $bookmark->id }}')" 
+                    onclick="removeBookmarkCard('{{ $type }}', {{ $item->id }}, {{ $bookmark->id }})" 
                     class="btn btn-sm btn-light text-danger rounded-circle p-0 d-flex align-items-center justify-content-center shadow-xs" 
                     style="width: 28px; height: 28px;" 
                     title="Hapus dari Bookmark">
                 <i class="fa-solid fa-trash-can" style="font-size: 0.75rem;"></i>
             </button>
+
         </div>
 
         {{-- Visual Highlight berdasarkan Tipe Materi --}}

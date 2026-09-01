@@ -37,8 +37,9 @@
             <li class="nav-item">
                 <button class="nav-link active rounded-pill px-4 py-2 fw-semibold btn-sm shadow-xs" 
                         id="all-tab" data-bs-toggle="pill" data-bs-target="#all-content" type="button">
-                    <i class="fa-solid fa-layer-group me-1.5"></i> Semua Simpanan ({{ $bookmarks->count() }})
+                    <i class="fa-solid fa-layer-group me-1.5"></i> Semua Simpanan (<span id="totalBookmarkCountText">{{ $bookmarks->count() }}</span>)
                 </button>
+
             </li>
             <li class="nav-item">
                 <button class="nav-link rounded-pill px-4 py-2 fw-semibold btn-sm shadow-xs" 
@@ -207,7 +208,7 @@
 
 @push('scripts')
 <script>
-function removeBookmarkCard(type, id, cardId) {
+function removeBookmarkCard(type, id, bookmarkId) {
     if (!confirm('Hapus materi ini dari daftar simpanan Anda?')) return;
 
     fetch('{{ route("student.bookmarks.toggle") }}', {
@@ -221,12 +222,44 @@ function removeBookmarkCard(type, id, cardId) {
     .then(res => res.json())
     .then(data => {
         if (data.status === 'success' && !data.bookmarked) {
-            const card = document.getElementById(cardId);
-            if (card) {
+            // 1. Update jumlah badge simpanan secara real-time
+            const countSpan = document.getElementById('totalBookmarkCountText');
+            if (countSpan && typeof data.total_count !== 'undefined') {
+                countSpan.textContent = data.total_count;
+            }
+
+            // 2. Cari dan hapus semua kartu elemen dengan ID bookmark tersebut (di tab Semua & tab Spesifik)
+            const cards = document.querySelectorAll(`[id*="bookmark-card-"][id$="-${bookmarkId}"], [id="bookmark-card-${bookmarkId}"]`);
+            cards.forEach(card => {
                 card.style.transition = 'all 0.3s ease';
                 card.style.opacity = '0';
-                card.style.transform = 'scale(0.9)';
+                card.style.transform = 'scale(0.85)';
                 setTimeout(() => card.remove(), 300);
+            });
+
+            // 3. Jika total simpanan menjadi 0, tampilkan empty state card
+            if (typeof data.total_count !== 'undefined' && data.total_count === 0) {
+                setTimeout(() => {
+                    const container = document.getElementById('all-content');
+                    if (container) {
+                        container.innerHTML = `
+                            <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white my-4 animate__animated animate__fadeIn">
+                                <div class="mb-3">
+                                    <i class="fa-regular fa-bookmark text-muted opacity-50" style="font-size: 3.5rem;"></i>
+                                </div>
+                                <h5 class="fw-bold text-dark mb-1">Belum Ada Simpanan Materi</h5>
+                                <p class="text-muted small mb-4" style="max-width: 450px; margin: 0 auto;">
+                                    Anda belum menandai materi apa pun. Jelajahi katalog Pewayangan, Macapat, atau Aksara Jawa dan klik ikon <strong>Simpan Bookmark</strong>!
+                                </p>
+                                <div>
+                                    <a href="{{ route('wayang.index') }}" class="btn btn-primary rounded-pill px-4 py-2 text-white fw-semibold btn-sm shadow-sm">
+                                        <i class="fa-solid fa-compass me-1.5"></i> Jelajahi Materi Sekarang
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }, 350);
             }
         }
     })
@@ -234,3 +267,4 @@ function removeBookmarkCard(type, id, cardId) {
 }
 </script>
 @endpush
+

@@ -1,12 +1,19 @@
-<nav class="sidebar d-flex flex-column p-3">
-    <div class="sidebar-header mb-4 mt-2 px-3">
-        <h4 class="text-primary m-0 fw-bold d-flex align-items-center gap-2">
-            <i class="fa-solid fa-graduation-cap"></i>
-            <span>Basa<span class="text-accent" style="font-size: 0.85em;">Kula</span></span>
-        </h4>
-    </div>
+<nav class="sidebar d-flex flex-column justify-content-between p-3" style="position: relative;">
+    <!-- Tombol Close untuk Mobile -->
+    <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Tutup menu">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
 
-    <ul class="nav flex-column mb-auto">
+    <div class="sidebar-top-section d-flex flex-column flex-grow-1 overflow-auto">
+        <div class="sidebar-header mb-4 mt-2 px-3">
+            <h4 class="text-primary m-0 fw-bold d-flex align-items-center gap-2">
+                <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
+                <span>Basa<span class="text-accent" style="font-size: 0.85em;">Kula</span></span>
+            </h4>
+        </div>
+
+        <ul class="nav flex-column mb-auto">
+
         
         @auth
             @if(auth()->user()->isAdmin())
@@ -102,17 +109,12 @@
                     </a>
                 </li>
             @else
-                {{-- Menu Khusus Pelajar --}}
                 <li class="nav-item mb-1">
-                    <a href="/ui/student" class="nav-link {{ request()->is('ui/student') ? 'active' : '' }}">
-                        <i class="fa-solid fa-house"></i> Dashboard Siswa
+                    <a href="{{ route('student.classroom.index') }}" class="nav-link {{ request()->routeIs('student.classroom.*') || request()->is('*classroom*') || request()->is('*kelas*') || request()->is('ui/student*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-house" aria-hidden="true"></i> Dashboard & Kelas Saya
                     </a>
                 </li>
-                <li class="nav-item mb-1">
-                    <a href="{{ route('student.classroom.index') }}" class="nav-link {{ request()->is('*classroom*') || request()->is('*kelas*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-chalkboard-user"></i> Ruang Kelas Saya
-                    </a>
-                </li>
+
                 <li class="nav-item mb-1">
                     <a href="{{ route('calendar.index') }}" class="nav-link {{ request()->routeIs('calendar.index') ? 'active' : '' }}">
                         <i class="fa-solid fa-calendar-days"></i> Kalender Pembelajaran
@@ -160,10 +162,10 @@
         
         <hr class="my-3 text-muted">
     </ul>
+    </div>
 
-    <hr class="text-muted my-2">
-    
-    <div class="dropdown">
+    <div class="dropdown pt-2 border-top border-light-subtle">
+
         @auth
         <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle px-3 py-2 text-main" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
             <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=C9A66B&color=fff" alt="" width="32" height="32" class="rounded-circle me-2">

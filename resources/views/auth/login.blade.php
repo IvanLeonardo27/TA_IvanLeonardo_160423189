@@ -57,7 +57,7 @@
 </div>
 
 <!-- Right Login Form Panel -->
-<div class="col-lg-7 p-4 p-md-5 d-flex flex-column justify-content-center bg-white">
+<div class="col-lg-7 p-4 p-md-5 d-flex flex-column justify-content-center bg-white auth-form-col">
     <div class="px-md-3">
         <!-- Header Form -->
         <div class="mb-4">
@@ -93,6 +93,13 @@
         <div class="alert alert-danger rounded-4 border-0 mb-4 p-3 d-flex align-items-center gap-2 small shadow-sm">
             <i class="fa-solid fa-triangle-exclamation text-danger fs-5"></i>
             <div>{{ session('error') }}</div>
+        </div>
+        @endif
+
+        @if(session('warning'))
+        <div class="alert alert-warning rounded-4 border-0 mb-4 p-3 d-flex align-items-center gap-2 small shadow-sm">
+            <i class="fa-solid fa-triangle-exclamation text-warning fs-5"></i>
+            <div>{{ session('warning') }}</div>
         </div>
         @endif
 

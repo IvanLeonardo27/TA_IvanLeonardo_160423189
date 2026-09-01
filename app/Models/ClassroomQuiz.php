@@ -51,4 +51,11 @@ class ClassroomQuiz extends Model
                     })
                     ->latest();
     }
+
+    /** Semua attempts pada quiz ini */
+    public function attempts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(QuizAttempt::class, 'quiz_id');
+    }
 }
+

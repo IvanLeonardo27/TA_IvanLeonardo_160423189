@@ -1,31 +1,55 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-    /* Color Palette */
-    --primary: #1F4D3A;
-    --primary-hover: #16382a;
-    --secondary: #F8F4EA;
-    --accent: #C9A66B;
-    --accent-hover: #b4935b;
-    --bg-main: #FFFFFF;
-    --bg-soft-blue: #DCEAF7;
-    --text-main: #2D2D2D;
-    --text-muted: #6E6E6E;
-    
-    /* Gradients */
-    --grad-primary-white: linear-gradient(135deg, var(--primary) 0%, #ffffff 100%);
-    --grad-primary-cream: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-    
-    /* Typography */
-    --font-family: 'Inter', sans-serif;
-    
-    /* Border Radius & Shadows */
+    /* ─── Warna Dasar ─────────────────────────────────── */
+    --primary:        #1F4D3A;
+    --primary-light:  #2a6650;
+    --primary-hover:  #16382a;
+    --primary-dark:   #0f2820;
+    --secondary:      #F8F4EA;
+    --accent:         #C9A66B;
+    --accent-hover:   #b4935b;
+    --accent-light:   #f0dfc0;
+    --accent-gold:    #e2b76b;
+    --bg-main:        #FFFFFF;
+    --bg-soft:        #F0F7F4;
+    --bg-soft-blue:   #DCEAF7;
+    --text-main:      #1e2d24;
+    --text-muted:     #6E7F77;
+    --text-light:     #94a3b8;
+
+    /* ─── Gradasi Warna (5-stop smooth) ──────────────── */
+    --grad-primary:        linear-gradient(135deg, #0f2820 0%, #1a4232 25%, #1F4D3A 50%, #2a6650 75%, #1a4232 100%);
+    --grad-sidebar:        linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+    --grad-hero:           linear-gradient(135deg, #0f2820 0%, #163e2d 40%, #1F4D3A 70%, #2a5c46 100%);
+    --grad-card:           linear-gradient(145deg, #ffffff 0%, #fafdf9 50%, #f4fbf7 100%);
+    --grad-card-accent:    linear-gradient(135deg, #fef9f0 0%, #fdf3e0 50%, #faf0d8 100%);
+    --grad-btn:            linear-gradient(135deg, #1F4D3A 0%, #2a6650 50%, #1a4232 100%);
+    --grad-btn-accent:     linear-gradient(135deg, #C9A66B 0%, #d4b87a 50%, #b4935b 100%);
+    --grad-success:        linear-gradient(135deg, #15803d 0%, #16a34a 50%, #22c55e 100%);
+    --grad-danger:         linear-gradient(135deg, #991b1b 0%, #dc2626 50%, #ef4444 100%);
+    --grad-soft-green:     linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+    --grad-page-bg:        linear-gradient(160deg, #f0f7f4 0%, #f8f4ea 50%, #fafaf9 100%);
+
+    /* ─── Tipografi ───────────────────────────────────── */
+    --font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+    /* ─── Border Radius ───────────────────────────────── */
+    --radius-xs: 0.375rem;
     --radius-sm: 0.5rem;
     --radius-md: 1rem;
     --radius-lg: 1.5rem;
-    --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.05);
-    --shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.08);
+    --radius-xl: 2rem;
+
+    /* ─── Bayangan (shadow hierarchy) ────────────────── */
+    --shadow-xs:     0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-soft:   0 4px 16px rgba(31, 77, 58, 0.06), 0 1px 4px rgba(0,0,0,0.04);
+    --shadow-medium: 0 8px 25px rgba(31, 77, 58, 0.1),  0 3px 8px rgba(0,0,0,0.06);
+    --shadow-hover:  0 16px 40px rgba(31, 77, 58, 0.14), 0 6px 12px rgba(0,0,0,0.08);
+    --shadow-strong: 0 25px 50px rgba(31, 77, 58, 0.2),  0 10px 20px rgba(0,0,0,0.1);
+    --shadow-accent: 0 8px 24px rgba(201, 166, 107, 0.3);
 }
+
 
 body {
     font-family: var(--font-family);
@@ -170,8 +194,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .sidebar.active {
-    margin-left: -260px;
+    margin-left: -300px !important;
 }
+
 
 .sidebar .nav-link {
     color: var(--text-muted);

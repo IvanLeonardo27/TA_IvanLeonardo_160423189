@@ -75,26 +75,17 @@
         @endif
     </div>
 
-    {{-- Pengaturan Suara TTS --}}
-    <div class="d-flex align-items-center gap-3">
-        <div class="d-flex align-items-center gap-2">
-            <i class="fa-solid fa-user-gear text-primary fs-6"></i>
-            <span class="small fw-semibold text-muted text-nowrap">Suara:</span>
-            <select id="ttsVoiceSelect" class="form-select form-select-sm border-0 bg-light rounded-3 fw-semibold">
-                <option value="female" selected>👩 Bu Guru</option>
-                <option value="male">👨 Pak Guru</option>
-            </select>
-        </div>
-        
-        @auth
-            @if(auth()->user()->isTeacher())
+    @auth
+        @if(auth()->user()->isTeacher())
+        <div class="d-flex align-items-center gap-3">
             <button class="btn btn-sm btn-primary rounded-pill px-3 py-1 fw-semibold d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#addVocabModal">
                 <i class="fa-solid fa-plus-circle"></i> Tambah Kata
             </button>
-            @endif
-        @endauth
-    </div>
+        </div>
+        @endif
+    @endauth
 </div>
+
 
 {{-- Container Daftar Kosakata --}}
 <div class="row g-4" id="vocabListContainer">

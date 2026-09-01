@@ -71,7 +71,7 @@
 
     {{-- Table Card --}}
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden" style="background:#ffffff; border: 1px solid #E2E8F0 !important;">
-        <div class="table-responsive">
+        <div class="table-responsive table-responsive-card">
             <table class="table table-hover align-middle mb-0" style="font-size:0.92rem;">
                 <thead class="bg-light border-bottom">
                     <tr>

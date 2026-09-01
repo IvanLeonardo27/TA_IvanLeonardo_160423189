@@ -60,11 +60,13 @@ class BookmarkController extends Controller
         if ($existingBookmark) {
             // Jika sudah ada -> Hapus dari simpanan (Un-bookmark)
             $existingBookmark->delete();
+            $totalCount = Bookmark::where('user_id', $user->id)->count();
 
             return response()->json([
-                'status'     => 'success',
-                'bookmarked' => false,
-                'message'    => 'Materi dihapus dari bookmark!',
+                'status'      => 'success',
+                'bookmarked'  => false,
+                'total_count' => $totalCount,
+                'message'     => 'Materi dihapus dari bookmark!',
             ]);
         } else {
             // Jika belum ada -> Tambahkan ke simpanan (Bookmark)
@@ -73,14 +75,17 @@ class BookmarkController extends Controller
                 'bookmarkable_type' => $modelClass,
                 'bookmarkable_id'   => $validated['id'],
             ]);
+            $totalCount = Bookmark::where('user_id', $user->id)->count();
 
             return response()->json([
-                'status'     => 'success',
-                'bookmarked' => true,
-                'message'    => 'Materi berhasil disimpan ke bookmark!',
+                'status'      => 'success',
+                'bookmarked'  => true,
+                'total_count' => $totalCount,
+                'message'     => 'Materi berhasil disimpan ke bookmark!',
             ]);
         }
     }
+
 
     /**
      * Menampilkan Halaman Daftar Simpanan (Bookmark) Siswa

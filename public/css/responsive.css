@@ -1,0 +1,448 @@
+/* ================================================================
+   BasaKula — Responsive UI Stylesheet
+   Target: Android, iOS, Tablet, Desktop
+   Standard: WCAG 2.1 AA | Apple HIG | Material Design 3
+   ================================================================ */
+
+/* ================================================================
+   1. FONT AWESOME ICON FIX
+   Mencegah ikon bergeser/rusak di Android/iOS
+   ================================================================ */
+.fa, .fas, .far, .fal, .fab, .fa-solid, .fa-regular, .fa-brands {
+    display: inline-block !important;
+    vertical-align: middle;
+    line-height: 1 !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+}
+
+.btn .fa, .btn .fas, .btn .far, .btn .fa-solid, .btn .fa-regular {
+    vertical-align: -0.125em;
+    line-height: 1 !important;
+}
+
+.nav-link .fa, .nav-link .fas, .nav-link .far,
+.nav-link .fa-solid, .nav-link .fa-regular {
+    flex-shrink: 0;
+    width: 1.25em;
+    text-align: center;
+}
+
+/* ================================================================
+   2. FLUID TYPOGRAPHY
+   ================================================================ */
+h1 { font-size: clamp(1.5rem, 4vw, 2.25rem) !important; }
+h2 { font-size: clamp(1.25rem, 3vw, 1.875rem) !important; }
+h3 { font-size: clamp(1.1rem, 2.5vw, 1.5rem) !important; }
+h4 { font-size: clamp(1rem, 2vw, 1.25rem) !important; }
+h5 { font-size: clamp(0.9rem, 1.8vw, 1.1rem) !important; }
+h6 { font-size: clamp(0.85rem, 1.5vw, 1rem) !important; }
+
+/* ================================================================
+   3. SAFE AREA INSETS (iPhone X+ Notch & Home Indicator)
+   ================================================================ */
+body {
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
+}
+
+/* ================================================================
+   4. SIDEBAR MOBILE OVERLAY SYSTEM
+   ================================================================ */
+#sidebar-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 1049;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+#sidebar-backdrop.active {
+    display: block;
+    animation: fadeInBackdrop 0.3s ease forwards;
+}
+
+@keyframes fadeInBackdrop {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.sidebar-close-btn {
+    display: none;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: rgba(0,0,0,0.08);
+    border-radius: 50%;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 1rem;
+    transition: background 0.2s;
+    z-index: 10;
+}
+
+.sidebar-close-btn:hover { background: rgba(0,0,0,0.15); }
+
+/* ================================================================
+   5. TOUCH-FRIENDLY UI (min 44x44px)
+   ================================================================ */
+.btn {
+    min-height: 44px;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-sm { min-height: 36px; padding: 0.35rem 0.85rem !important; }
+.btn-xs { min-height: 30px; padding: 0.2rem 0.6rem !important; }
+.nav-link { min-height: 44px; }
+
+/* ================================================================
+   6. TABLE RESPONSIVE — CARD VIEW DI MOBILE
+   ================================================================ */
+@media (max-width: 767.98px) {
+    .table-responsive-card thead { display: none; }
+
+    .table-responsive-card tbody tr {
+        display: block;
+        background: #fff;
+        border-radius: 14px;
+        margin-bottom: 1rem;
+        padding: 12px 16px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        border: 1px solid #f1f5f9;
+        position: relative;
+    }
+
+    .table-responsive-card tbody td {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 6px 0;
+        border: none !important;
+        font-size: 0.88rem;
+        border-bottom: 1px solid #f8fafc !important;
+    }
+
+    .table-responsive-card tbody td:last-child {
+        border-bottom: none !important;
+        padding-top: 10px;
+        margin-top: 4px;
+    }
+
+    .table-responsive-card tbody td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        font-size: 0.72rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        min-width: 85px;
+        flex-shrink: 0;
+    }
+}
+
+/* ================================================================
+   7. SIDEBAR FULL RESPONSIVENESS
+   ================================================================ */
+@media (max-width: 991.98px) {
+    .wrapper {
+        display: block !important;
+        width: 100% !important;
+        min-height: 100% !important;
+    }
+
+    .sidebar {
+        position: fixed !important;
+        left: 0;
+        top: 0;
+        height: 100vh !important;
+        height: 100dvh !important;
+        max-height: 100vh !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        margin-left: -280px !important;
+        z-index: 1050;
+        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 4px 0 24px rgba(0,0,0,0.15) !important;
+        padding-bottom: 40px !important;
+    }
+
+    .sidebar.active {
+        margin-left: 0 !important;
+    }
+
+    .sidebar-close-btn {
+        display: flex !important;
+    }
+
+    #content {
+        width: 100% !important;
+        min-height: 100vh !important;
+        min-height: 100dvh !important;
+        padding: 16px 16px 120px 16px !important; /* 120px clearance khusus layar HP tinggi & bottom bar Chrome/Safari */
+    }
+}
+
+/* Desktop Sidebar Complete Hide when Minimized */
+@media (min-width: 992px) {
+    .sidebar.active {
+        margin-left: -320px !important;
+        transform: translateX(-100%) !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+}
+
+
+
+/* Mobile Calendar Cell Optimization */
+@media (max-width: 575.98px) {
+    .calendar-day-cell {
+        min-height: 62px !important;
+        padding: 4px !important;
+    }
+}
+
+
+/* ================================================================
+   8. NAVBAR RESPONSIVENESS
+   ================================================================ */
+@media (max-width: 575.98px) {
+    .navbar-modern {
+        padding: 0.5rem 0.75rem !important;
+        border-radius: 12px !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .navbar-label-hide-sm { display: none !important; }
+
+    /* Notification dropdown full width mobile */
+    .notif-dropdown-menu {
+        width: 92vw !important;
+        right: -60px !important;
+        left: auto !important;
+    }
+}
+
+/* ================================================================
+   9. FORM INPUT IMPROVEMENTS MOBILE
+   ================================================================ */
+@media (max-width: 767.98px) {
+    .form-control, .form-select {
+        font-size: 16px !important; /* Prevent iOS Safari auto-zoom */
+        min-height: 48px;
+        padding: 0.75rem 1rem;
+    }
+
+    .form-label { font-size: 0.85rem; }
+}
+
+/* ================================================================
+   10. CARD & CONTENT IMPROVEMENTS
+   ================================================================ */
+@media (max-width: 767.98px) {
+    .card { border-radius: 16px !important; }
+    .card-header { padding: 1rem !important; }
+    .card-body { padding: 1rem !important; }
+    .rounded-4 { border-radius: 16px !important; }
+    .rounded-5 { border-radius: 20px !important; }
+}
+
+@media (max-width: 575.98px) {
+    #content { padding: 12px !important; }
+    nav[aria-label="breadcrumb"] { display: none !important; }
+}
+
+/* ================================================================
+   11. MODAL BOTTOM SHEET DI MOBILE
+   ================================================================ */
+@media (max-width: 575.98px) {
+    .modal-dialog:not(#fileViewerModal .modal-dialog) {
+        margin: 0 !important;
+        max-width: 100% !important;
+        min-height: 100vh;
+        display: flex;
+        align-items: flex-end;
+    }
+
+    .modal-dialog:not(#fileViewerModal .modal-dialog) .modal-content {
+        border-radius: 24px 24px 0 0 !important;
+        min-height: 40vh;
+    }
+
+    #fileViewerModal .modal-dialog {
+        margin: 8px !important;
+        max-width: calc(100% - 16px) !important;
+        height: calc(100vh - 16px) !important;
+    }
+
+    #fileViewerModal .modal-content {
+        border-radius: 16px !important;
+        height: 100% !important;
+    }
+}
+
+/* ================================================================
+   12. PAGINATION RESPONSIVE
+   ================================================================ */
+@media (max-width: 575.98px) {
+    .pagination {
+        flex-wrap: wrap;
+        gap: 4px !important;
+        justify-content: center;
+    }
+
+    .pagination .page-item .page-link {
+        height: 36px !important;
+        min-width: 36px !important;
+        font-size: 0.8rem !important;
+    }
+}
+
+/* ================================================================
+   13. AUTH LAYOUT RESPONSIVENESS
+   ================================================================ */
+@media (max-width: 767.98px) {
+    .glass-left-panel { display: none !important; }
+
+    .auth-form-col {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    .glass-auth-card {
+        border-radius: 20px !important;
+    }
+
+    .auth-container {
+        padding: 0 4px !important;
+        max-width: 100% !important;
+    }
+}
+
+/* ================================================================
+   14. DROPDOWN MENU OVERFLOW FIX
+   ================================================================ */
+@media (max-width: 575.98px) {
+    .dropdown-menu {
+        max-width: 94vw !important;
+    }
+
+    .dropdown-menu-end {
+        right: 0 !important;
+        left: auto !important;
+    }
+}
+
+/* ================================================================
+   15. ADMIN TABLE CARD-VIEW (Tailwind admin panel)
+   ================================================================ */
+@media (max-width: 767.98px) {
+    .admin-table-responsive table { display: block; }
+    .admin-table-responsive thead { display: none; }
+    .admin-table-responsive tbody { display: block; }
+
+    .admin-table-responsive tr {
+        display: block;
+        background: white;
+        border-radius: 14px;
+        margin-bottom: 12px;
+        padding: 12px 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        border: 1px solid #e2e8f0;
+    }
+
+    .admin-table-responsive td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 0;
+        border: none !important;
+        font-size: 0.88rem;
+        gap: 8px;
+        border-bottom: 1px solid #f1f5f9 !important;
+    }
+
+    .admin-table-responsive td:last-child {
+        border-bottom: none !important;
+    }
+
+    .admin-table-responsive td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        font-size: 0.72rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        min-width: 90px;
+    }
+}
+
+/* ================================================================
+   16. GLOBAL OVERFLOW & SCROLLING FIXES
+   ================================================================ */
+html {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    max-width: 100%;
+}
+
+body {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    max-width: 100%;
+    min-height: 100vh;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+body.sidebar-open {
+    overflow: hidden !important;
+}
+
+#content {
+    overflow-y: visible !important;
+    overflow-x: hidden !important;
+}
+
+img { max-width: 100%; height: auto; }
+.text-break-word { word-break: break-word; overflow-wrap: break-word; }
+table { word-break: break-word; }
+
+
+/* ================================================================
+   17. GLOBAL SCROLLBAR
+   ================================================================ */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(31, 77, 58, 0.25) transparent;
+}
+*::-webkit-scrollbar { width: 5px; height: 5px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: rgba(31, 77, 58, 0.25); border-radius: 10px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(31, 77, 58, 0.45); }
+
+/* ================================================================
+   18. PRINT
+   ================================================================ */
+@media print {
+    .sidebar, .navbar-modern, #sidebarCollapse, .dropdown { display: none !important; }
+    #content { padding: 0 !important; }
+    body { background: white !important; }
+}

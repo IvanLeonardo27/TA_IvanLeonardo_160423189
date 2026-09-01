@@ -32,7 +32,7 @@ Route::get('/', function() {
 // --- Rute Test UI Baru ---
 Route::get('/ui/login', function() { return view('auth.login'); });
 Route::get('/ui/register', function() { return view('auth.register'); });
-Route::get('/ui/student', function() { return view('student.dashboard'); });
+Route::get('/ui/student', function() { return redirect()->route('student.classroom.index'); });
 Route::get('/ui/teacher', function() { return view('teacher.dashboard'); });
 Route::get('/ui/materi', function() { return view('student.materi.index'); });
 Route::get('/ui/materi/show', function() { return view('student.materi.show'); });

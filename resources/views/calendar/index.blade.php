@@ -3,61 +3,47 @@
 @section('title', 'Kalender Pembelajaran - BasaKula')
 
 @section('content')
-<div class="container-fluid py-4" style="max-width: 1240px;">
-    {{-- Banner Penjelasan Fitur Kalender Pembelajaran & Integrasi Google Calendar --}}
-    <div class="row g-4 mb-4">
-        {{-- Card 1: Fitur Kalender Pembelajaran --}}
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden" style="background: linear-gradient(135deg, #1E4D3B 0%, #153B2D 100%); color: #ffffff;">
-                <div class="card-body p-4 p-md-5 d-flex flex-column justify-content-between">
-                    <div>
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1.5 fw-bold" style="font-size:0.8rem;">
-                                <i class="fa-solid fa-calendar-days me-1 text-accent"></i> Manajemen Agenda Akademik
-                            </span>
-                        </div>
-                        <h3 class="fw-bold mb-3 text-white">Fitur Kalender Pembelajaran</h3>
-                        <p class="text-white-50 mb-0" style="font-size: 0.95rem; line-height: 1.7;">
-                            Fitur ini digunakan untuk membantu siswa mengelola aktivitas pembelajaran dan mengingat berbagai agenda akademik yang akan datang. Sistem menyediakan kalender pembelajaran yang menampilkan jadwal tugas, kuis, maupun kegiatan pembelajaran berdasarkan tanggal pelaksanaannya. Apabila pengajar menambahkan tugas atau kuis dengan batas waktu tertentu, sistem akan secara otomatis menampilkan penanda pada tanggal yang bersangkutan di dalam kalender sehingga siswa dapat mengetahui agenda yang harus diselesaikan.
-                        </p>
-                    </div>
-                    <div class="pt-4 border-top border-white border-opacity-10 mt-3 d-flex align-items-center justify-content-between">
-                        <span class="small text-white-50"><i class="fa-solid fa-clock-rotate-left me-1"></i> Penanda tanggal diperbarui otomatis</span>
-                        <span class="badge bg-success bg-opacity-25 text-white border border-success border-opacity-25 rounded-pill px-3 py-1 fw-semibold">
-                            ● Sistem Aktif
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="container-fluid py-3" style="max-width: 1240px;">
+    {{-- Sleek Banner Hero Kalender Pembelajaran & GCal Export --}}
+    <div class="card border-0 rounded-4 shadow-sm mb-4 overflow-hidden text-white position-relative" 
+         style="background: var(--grad-hero); border: 1px solid rgba(255,255,255,0.1) !important;">
+        
+        <i class="fa-solid fa-calendar-days position-absolute end-0 bottom-0 opacity-10 pe-4 pb-2 d-none d-md-block pointer-events-none user-select-none" 
+           style="font-size: 9.5rem; line-height: 0.8; z-index: 1;" aria-hidden="true"></i>
 
-        {{-- Card 2: Integrasi Google Calendar --}}
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden" style="background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); color: #ffffff;">
-                <div class="card-body p-4 p-md-5 d-flex flex-column justify-content-between">
-                    <div>
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <span class="badge bg-primary bg-opacity-20 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-1.5 fw-bold" style="font-size:0.8rem;">
-                                <i class="fa-brands fa-google me-1 text-primary"></i> Google Calendar API
-                            </span>
-                        </div>
-                        <h3 class="fw-bold mb-3 text-white">Integrasi Google Calendar</h3>
-                        <p class="text-white-50 mb-0" style="font-size: 0.95rem; line-height: 1.7;">
-                            Untuk meningkatkan efektivitas pengelolaan aktivitas pembelajaran, sistem akan terintegrasi dengan layanan Google Calendar melalui Google Calendar API. Integrasi ini memungkinkan jadwal tugas, kuis, maupun kegiatan pembelajaran yang ditambahkan oleh pengajar untuk disinkronkan secara otomatis ke kalender pengguna. Dengan demikian, siswa dapat menerima pengingat (reminder) melalui Google Calendar dan lebih mudah memantau seluruh aktivitas pembelajaran dari berbagai perangkat yang digunakan. Fitur ini diharapkan dapat membantu mengurangi kemungkinan siswa lupa terhadap jadwal tugas maupun kegiatan pembelajaran yang akan datang.
-                        </p>
+        <div class="card-body p-4 p-md-5 position-relative" style="z-index: 2;">
+            <div class="row align-items-center g-3">
+                <div class="col-lg-8">
+                    <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" 
+                         style="background: rgba(255,255,255,0.12); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
+                        <i class="fa-solid fa-calendar-check text-warning"></i>
+                        <span class="small fw-semibold">Manajemen Agenda Akademik & Google Calendar</span>
                     </div>
-                    <div class="pt-4 border-top border-white border-opacity-10 mt-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
-                        <a href="{{ route('calendar.export_ics') }}" class="btn btn-primary rounded-pill px-4 py-2 btn-sm fw-bold btn-bouncy shadow-sm">
-                            <i class="fa-solid fa-cloud-arrow-down me-1.5"></i> Ekspor Kalender (.ics)
-                        </a>
-                        <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-1 fw-semibold">
-                            <i class="fa-solid fa-sync fa-spin me-1"></i> Siap Disinkronkan
-                        </span>
+                    
+                    <h2 class="fw-bold text-white mb-2" style="letter-spacing: -0.02em;">
+                        Kalender Pembelajaran BasaKula 📅
+                    </h2>
+                    <p class="text-white-50 mb-0 fs-6" style="max-width: 620px;">
+                        Pantau tenggat waktu tugas, batas kuis, dan jadwal materi. Otomatis terhubung dan dapat disinkronkan ke Google Calendar Anda.
+                    </p>
+                </div>
+                
+                <div class="col-lg-4 text-lg-end d-flex flex-column flex-sm-row flex-lg-column gap-2 justify-content-lg-end">
+                    <a href="{{ route('calendar.export_ics') }}" 
+                       class="btn btn-accent rounded-pill px-4 py-2.5 shadow-sm fw-bold btn-bouncy d-inline-flex align-items-center justify-content-center gap-2 text-white">
+                        <i class="fa-solid fa-cloud-arrow-down" aria-hidden="true"></i>
+                        <span>Ekspor Kalender (.ics)</span>
+                    </a>
+                    <div class="d-inline-flex align-items-center justify-content-center gap-2 px-3 py-1.5 rounded-pill" 
+                         style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.15); color: #e2e8f0; font-size: 0.78rem;">
+                        <span class="rounded-circle bg-success" style="width: 8px; height: 8px;"></span>
+                        <span>Sistem Aktif & Terintegrasi</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 
     @php
         $prevMonthDate = $currentDate->copy()->subMonth();
@@ -153,8 +139,9 @@
                                 $hasEvents = $dayEvents->isNotEmpty();
                             @endphp
                             <div class="col" style="min-width: 14.28%; flex: 0 0 14.28%;">
-                                <div class="p-2 rounded-4 border position-relative d-flex flex-column justify-content-between {{ $isToday ? 'border-2 border-primary bg-primary-subtle shadow-sm' : ($hasEvents ? 'bg-white shadow-xs' : 'bg-light bg-opacity-50') }}" 
+                                <div class="p-2 rounded-4 border position-relative d-flex flex-column justify-content-between calendar-day-cell {{ $isToday ? 'border-2 border-primary bg-primary-subtle shadow-sm' : ($hasEvents ? 'bg-white shadow-xs' : 'bg-light bg-opacity-50') }}" 
                                      style="min-height: 95px; transition: all .2s ease;">
+
                                     <div class="d-flex align-items-center justify-content-between mb-1">
                                         <span class="fw-bold small {{ $isToday ? 'badge bg-primary text-white rounded-circle p-1.5' : 'text-main' }}" 
                                               style="{{ $isToday ? 'width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;' : 'font-size:0.9rem;' }}">

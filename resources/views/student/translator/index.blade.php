@@ -3,29 +3,16 @@
 @section('title', 'Translator Jawa-Indonesia')
 
 @section('content')
-<div class="row mb-4 align-items-center">
-    <div class="col-md-7">
-        <h3 class="fw-bold text-main mb-1">
-            <i class="fa-solid fa-language text-primary me-2"></i>Penerjemah Bahasa Jawa
-        </h3>
-        <p class="text-muted mb-0 small">Terjemahkan teks antara Bahasa Indonesia, Jawa Ngoko, dan Jawa Krama secara cepat dan akurat.</p>
-    </div>
-    <div class="col-md-5 mt-3 mt-md-0 text-md-end">
-        {{-- Pengaturan Suara TTS --}}
-        <div class="d-inline-flex align-items-center gap-2 p-2 px-3 bg-white rounded-4 shadow-sm border border-light">
-            <i class="fa-solid fa-user-gear text-primary fs-6"></i>
-            <span class="small fw-semibold text-muted">Karakter Suara:</span>
-            <select id="ttsVoiceSelect" class="form-select form-select-sm border-0 bg-light rounded-3 fw-semibold">
-                <option value="female" selected>👩 Bu Guru (Wanita)</option>
-                <option value="male">👨 Pak Guru (Pria)</option>
-            </select>
-        </div>
-    </div>
+<div class="mb-4">
+    <h3 class="fw-bold text-main mb-1">
+        <i class="fa-solid fa-language text-primary me-2"></i>Penerjemah Bahasa Jawa
+    </h3>
+    <p class="text-muted mb-0 small">Terjemahkan teks antara Bahasa Indonesia, Jawa Ngoko, dan Jawa Krama secara cepat dan akurat.</p>
 </div>
 
 <div class="card card-modern p-0 border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-white">
     <!-- Header Language Selector Bar -->
-    <div class="bg-white border-bottom p-3 px-4">
+    <div class="bg-white border-bottom p-3 p-sm-4">
         <div class="row align-items-center g-3">
             {{-- Bahasa Asal --}}
             <div class="col-12 col-md-5">
@@ -50,21 +37,21 @@
 
             {{-- Bahasa Tujuan & Selector Ragam Ngoko / Krama --}}
             <div class="col-12 col-md-5">
-                <div class="d-flex align-items-center justify-content-md-end justify-content-between gap-2">
+                <div class="d-flex align-items-center justify-content-md-end justify-content-between gap-2 flex-wrap">
                     <div class="me-2 d-none d-lg-block">
                         <small class="text-muted d-block fw-semibold" style="font-size: 0.75rem;">KE (HASIL):</small>
                         <span class="fw-bold fs-6 text-main" id="targetLangLabel">Bahasa Jawa</span>
                     </div>
                     
-                    {{-- Form Select Ragam Bahasa yang Terang dan Jelas --}}
-                    <div class="d-inline-flex p-1 bg-light rounded-4 border shadow-sm">
+                    {{-- Form Select Ragam Bahasa --}}
+                    <div class="d-inline-flex p-1 bg-light rounded-4 border shadow-sm w-100 w-sm-auto justify-content-center">
                         <input type="radio" class="btn-check" name="dialectOption" id="dialectNgoko" value="ngoko" checked>
-                        <label class="btn btn-sm btn-dialect-pill rounded-3 px-3 py-2 fw-bold mb-0 text-nowrap" for="dialectNgoko">
+                        <label class="btn btn-sm btn-dialect-pill rounded-3 px-2.5 px-sm-3 py-1.5 py-sm-2 fw-bold mb-0 text-nowrap flex-fill text-center" for="dialectNgoko">
                             <i class="fa-solid fa-comments me-1"></i> Ngoko
                         </label>
 
                         <input type="radio" class="btn-check" name="dialectOption" id="dialectKrama" value="krama">
-                        <label class="btn btn-sm btn-dialect-pill rounded-3 px-3 py-2 fw-bold mb-0 text-nowrap" for="dialectKrama">
+                        <label class="btn btn-sm btn-dialect-pill rounded-3 px-2.5 px-sm-3 py-1.5 py-sm-2 fw-bold mb-0 text-nowrap flex-fill text-center" for="dialectKrama">
                             <i class="fa-solid fa-scroll me-1"></i> Krama Halus
                         </label>
                     </div>
@@ -77,17 +64,22 @@
     <div class="row g-0">
         <!-- Input Textarea (Kiri) -->
         <div class="col-lg-6 border-end-lg position-relative d-flex flex-column" style="background: #ffffff;">
-            <div class="p-4 flex-grow-1">
+            <div class="p-3 p-sm-4 flex-grow-1">
                 <textarea class="form-control border-0 p-0 shadow-none text-main fw-normal" 
-                          id="sourceText" rows="7" 
+                          id="sourceText" rows="6" 
                           placeholder="Ketik atau tempel kalimat yang ingin diterjemahkan di sini (minimal 10 kata)..." 
-                          style="font-size: 1.15rem; resize: none; background: transparent;"></textarea>
+                          style="font-size: 1.05rem; resize: none; background: transparent;"></textarea>
             </div>
             
             {{-- Control Toolbar Input --}}
-            <div class="d-flex justify-content-between align-items-center p-3 px-4 border-top border-light bg-light rounded-bottom-start-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3 px-3 px-sm-4 border-top border-light bg-light rounded-bottom-start-4">
                 <span class="small fw-semibold text-muted" id="charCount">0 / 10 kata (minimal)</span>
                 <div class="d-flex align-items-center gap-2">
+                    {{-- Audio Speaker TTS Input --}}
+                    <button type="button" class="btn btn-sm btn-white rounded-circle shadow-sm btn-action p-0 d-flex align-items-center justify-content-center me-1" 
+                            id="speakSourceBtn" style="width: 38px; height: 38px;" title="Dengar Suara Teks Input">
+                        <i class="fa-solid fa-volume-high text-primary"></i>
+                    </button>
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-semibold" id="clearBtn">
                         <i class="fa-solid fa-eraser me-1"></i> Hapus
                     </button>
@@ -96,11 +88,12 @@
                     </button>
                 </div>
             </div>
+
         </div>
         
         <!-- Output Result Panel (Kanan) -->
         <div class="col-lg-6 position-relative d-flex flex-column" style="background: #FAF8F5;">
-            <div class="p-4 flex-grow-1">
+            <div class="p-3 p-sm-4 flex-grow-1">
                 <div id="loadingSpinner" class="d-none text-center py-4">
                     <div class="spinner-border text-primary" role="status" style="width: 2.5rem; height: 2.5rem;">
                         <span class="visually-hidden">Menerjemahkan...</span>
@@ -110,21 +103,21 @@
 
                 <div id="resultOutputContainer">
                     <textarea class="form-control border-0 p-0 shadow-none text-main fw-semibold" 
-                              id="resultText" rows="7" 
+                              id="resultText" rows="6" 
                               placeholder="Hasil terjemahan Bahasa Jawa akan muncul di sini..." 
-                              readonly style="font-size: 1.15rem; resize: none; background: transparent;"></textarea>
+                              readonly style="font-size: 1.05rem; resize: none; background: transparent;"></textarea>
                 </div>
             </div>
             
             {{-- Control Toolbar Output --}}
-            <div class="d-flex justify-content-between align-items-center p-3 px-4 border-top border-light bg-light rounded-bottom-end-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3 px-3 px-sm-4 border-top border-light bg-light rounded-bottom-end-4">
                 <div class="d-flex align-items-center gap-2">
                     <span class="badge bg-success bg-gradient text-white rounded-pill px-3 py-2 fw-bold shadow-sm" id="targetDialectBadge">
                         🍃 Ragam Terjemahan: Ngoko
                     </span>
                 </div>
 
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2 ms-auto ms-sm-0">
                     {{-- Audio Speaker TTS --}}
                     <button type="button" class="btn btn-sm btn-white rounded-circle shadow-sm btn-action p-0 d-flex align-items-center justify-content-center" 
                             id="speakResultBtn" style="width: 38px; height: 38px;" title="Dengar Suara Terjemahan">
@@ -140,6 +133,7 @@
         </div>
     </div>
 </div>
+
 
 {{-- Tips Penerjemahan --}}
 <div class="card border-0 rounded-4 p-4 shadow-sm" style="background: linear-gradient(135deg, #ffffff 0%, #DCEAF7 100%); border-left: 5px solid var(--primary) !important;">
@@ -207,6 +201,7 @@
         const targetDialectBadge = document.getElementById('targetDialectBadge');
         const loadingSpinner = document.getElementById('loadingSpinner');
         const resultOutputContainer = document.getElementById('resultOutputContainer');
+        const speakSourceBtn = document.getElementById('speakSourceBtn');
         const speakResultBtn = document.getElementById('speakResultBtn');
         const copyResultBtn = document.getElementById('copyResultBtn');
         const voiceSelect = document.getElementById('ttsVoiceSelect');
@@ -216,6 +211,101 @@
         let currentTarget = 'jw';
         let selectedDialect = 'ngoko';
         let debounceTimer = null;
+        let currentTranslatorAudio = null;
+        let currentTranslatorButton = null;
+
+        // Function Play Audio Text-to-Speech (Berlaku untuk Input Teks & Hasil Terjemahan)
+        function playAudioText(textToSpeak, btnElement) {
+            if (!textToSpeak || !btnElement) return;
+
+            const icon = btnElement.querySelector('i');
+            const originalClass = 'fa-solid fa-volume-high text-primary';
+
+            // JIKA SUARA SEDANG BERBUNYI: BERHENTIKAN SUARA (STOP AUDIO)
+            if (currentTranslatorAudio || (window.speechSynthesis && window.speechSynthesis.speaking)) {
+                if (currentTranslatorAudio) {
+                    currentTranslatorAudio.pause();
+                    currentTranslatorAudio.currentTime = 0;
+                    currentTranslatorAudio = null;
+                }
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                }
+                if (currentTranslatorButton) {
+                    const prevIcon = currentTranslatorButton.querySelector('i');
+                    if (prevIcon) prevIcon.className = originalClass;
+                    currentTranslatorButton = null;
+                }
+                icon.className = originalClass;
+                return;
+            }
+
+            // JIKA SUARA TIDAK SEDANG BERBUNYI: PUTAR SUARA BARU
+            icon.className = 'fa-solid fa-spinner fa-spin text-primary';
+            currentTranslatorButton = btnElement;
+
+            const selectedVoice = voiceSelect ? voiceSelect.value : 'female';
+            const audioUrl = `{{ url('/api/tts') }}?text=${encodeURIComponent(textToSpeak)}&gender=${selectedVoice}`;
+            const audio = new Audio(audioUrl);
+            audio.playbackRate = 0.85;
+
+            currentTranslatorAudio = audio;
+
+            audio.onplay = function() {
+                icon.className = 'fa-solid fa-volume-high text-success animate__animated animate__pulse animate__infinite';
+            };
+
+            function resetAudioState() {
+                icon.className = originalClass;
+                currentTranslatorAudio = null;
+                currentTranslatorButton = null;
+            }
+
+            audio.onended = resetAudioState;
+
+            // Fallback ke Web Speech API jika server proxy terhalang CORS/Network
+            function playWebSpeechFallback() {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                    utterance.lang = 'id-ID';
+                    utterance.rate = 0.85;
+
+                    utterance.onstart = function() {
+                        icon.className = 'fa-solid fa-volume-high text-success animate__animated animate__pulse animate__infinite';
+                    };
+                    utterance.onend = resetAudioState;
+                    utterance.onerror = resetAudioState;
+
+                    window.speechSynthesis.speak(utterance);
+                } else {
+                    resetAudioState();
+                }
+            }
+
+            audio.onerror = function() {
+                playWebSpeechFallback();
+            };
+
+            audio.play().catch(() => {
+                playWebSpeechFallback();
+            });
+        }
+
+        // Speaker Input Teks (Bahasa Indonesia / Teks Asal)
+        if (speakSourceBtn) {
+            speakSourceBtn.addEventListener('click', function() {
+                playAudioText(sourceText.value.trim(), this);
+            });
+        }
+
+        // Speaker Hasil Terjemahan (Bahasa Jawa)
+        if (speakResultBtn) {
+            speakResultBtn.addEventListener('click', function() {
+                playAudioText(resultText.value.trim(), this);
+            });
+        }
+
 
         // Dialect Option Change Event
         dialectOptions.forEach(opt => {
@@ -341,104 +431,24 @@
             });
         }
 
-        // Global Audio State Tracker for Translator Page
-        let currentTranslatorAudio = null;
-        let currentTranslatorButton = null;
-
-        // Audio TTS Suara Terjemahan (Toggle Play / Stop)
-        speakResultBtn.addEventListener('click', function() {
-            const textToSpeak = resultText.value.trim();
-            if (!textToSpeak) return;
-
-            const icon = this.querySelector('i');
-            const originalClass = 'fa-solid fa-volume-high text-primary';
-
-            // JIKA SUARA SEDANG BERBUNYI: BERHENTIKAN SUARA (STOP AUDIO)
-            if (currentTranslatorAudio || (window.speechSynthesis && window.speechSynthesis.speaking)) {
-                if (currentTranslatorAudio) {
-                    currentTranslatorAudio.pause();
-                    currentTranslatorAudio.currentTime = 0;
-                    currentTranslatorAudio = null;
-                }
-                if ('speechSynthesis' in window) {
-                    window.speechSynthesis.cancel();
-                }
-                if (currentTranslatorButton) {
-                    const prevIcon = currentTranslatorButton.querySelector('i');
-                    if (prevIcon) prevIcon.className = originalClass;
-                    currentTranslatorButton = null;
-                }
-                icon.className = originalClass;
-                return;
-            }
-
-            // JIKA SUARA TIDAK SEDANG BERBUNYI: PUTAR SUARA BARU
-            icon.className = 'fa-solid fa-spinner fa-spin text-primary';
-            currentTranslatorButton = this;
-
-            const selectedVoice = voiceSelect ? voiceSelect.value : 'female';
-            const audioUrl = `{{ url('/api/tts') }}?text=${encodeURIComponent(textToSpeak)}&gender=${selectedVoice}`;
-            const audio = new Audio(audioUrl);
-            audio.playbackRate = 0.85;
-
-            currentTranslatorAudio = audio;
-
-            audio.onplay = function() {
-                icon.className = 'fa-solid fa-volume-high text-success animate__animated animate__pulse animate__infinite';
-            };
-
-            function resetAudioState() {
-                icon.className = originalClass;
-                currentTranslatorAudio = null;
-                currentTranslatorButton = null;
-            }
-
-            audio.onended = resetAudioState;
-
-            // Fallback ke Web Speech API jika server proxy terhalang CORS/Network
-            function playWebSpeechFallback() {
-                if ('speechSynthesis' in window) {
-                    window.speechSynthesis.cancel();
-                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
-                    utterance.lang = 'id-ID';
-                    utterance.rate = 0.85;
-
-                    utterance.onstart = function() {
-                        icon.className = 'fa-solid fa-volume-high text-success animate__animated animate__pulse animate__infinite';
-                    };
-                    utterance.onend = resetAudioState;
-                    utterance.onerror = resetAudioState;
-
-                    window.speechSynthesis.speak(utterance);
-                } else {
-                    resetAudioState();
-                }
-            }
-
-            audio.onerror = function() {
-                playWebSpeechFallback();
-            };
-
-            audio.play().catch(() => {
-                playWebSpeechFallback();
-            });
-        });
-
         // Copy Text Button
-        copyResultBtn.addEventListener('click', function() {
-            const textToCopy = resultText.value.trim();
-            if (!textToCopy) return;
+        if (copyResultBtn) {
+            copyResultBtn.addEventListener('click', function() {
+                const textToCopy = resultText.value.trim();
+                if (!textToCopy) return;
 
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                const icon = this.querySelector('i');
-                const originalClass = icon.className;
-                icon.className = 'fa-solid fa-check text-success';
-                
-                setTimeout(() => {
-                    icon.className = originalClass;
-                }, 2000);
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    const icon = this.querySelector('i');
+                    const originalClass = icon.className;
+                    icon.className = 'fa-solid fa-check text-success';
+                    
+                    setTimeout(() => {
+                        icon.className = originalClass;
+                    }, 2000);
+                });
             });
-        });
+        }
     });
 </script>
 @endpush
+

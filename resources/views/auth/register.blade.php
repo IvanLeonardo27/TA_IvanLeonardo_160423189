@@ -57,7 +57,7 @@
 </div>
 
 <!-- Right Register Form Panel -->
-<div class="col-lg-7 p-4 p-md-5 d-flex flex-column justify-content-center bg-white">
+<div class="col-lg-7 p-4 p-md-5 d-flex flex-column justify-content-center bg-white auth-form-col">
     <div class="px-md-3">
         <!-- Header Form -->
         <div class="mb-4">

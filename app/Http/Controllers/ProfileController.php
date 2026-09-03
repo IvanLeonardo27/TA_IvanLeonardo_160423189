@@ -76,10 +76,6 @@ class ProfileController extends Controller
             'email' => $validated['email'],
         ]);
 
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
-
         $user->save();
 
         // Update profil sesuai role

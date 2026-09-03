@@ -26,12 +26,18 @@
         </p>
 
         @auth
-            @if(auth()->user()->isTeacher())
-            <div class="mt-3">
+            @if(auth()->user()->isAdmin() || auth()->user()->isTeacher())
+            <div class="mt-3 d-flex justify-content-center gap-2 flex-wrap">
                 <a href="{{ route('teacher.javanese-script.index') }}" class="btn btn-warning text-dark rounded-pill px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2">
                     <i class="fa-solid fa-gear"></i>
-                    <span>Mode Pengajar: Kelola / Tambah Aksara</span>
+                    <span>Kelola Aksara Jawa</span>
                 </a>
+                @if(auth()->user()->isAdmin())
+                <a href="{{ route('teacher.javanese-script.create') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2" style="background:#1F4D3A; border:none;">
+                    <i class="fa-solid fa-plus-circle"></i>
+                    <span>Tambah Aksara Baru</span>
+                </a>
+                @endif
             </div>
             @endif
         @endauth
@@ -171,6 +177,21 @@
                                 <i class="fa-solid fa-arrow-right small"></i>
                             </span>
                         </div>
+
+                        @if(auth()->check() && auth()->user()->isAdmin())
+                        <div class="w-100 d-flex gap-1.5 pt-2 border-top mt-2" onclick="event.preventDefault(); event.stopPropagation();">
+                            <a href="{{ route('teacher.javanese-script.edit', $item->id) }}" class="btn btn-warning btn-sm rounded-pill flex-grow-1 fw-bold text-dark" style="font-size: 0.76rem;">
+                                <i class="fa-solid fa-pen-to-square me-1"></i> Edit
+                            </a>
+                            <form action="{{ route('teacher.javanese-script.destroy', $item->id) }}" method="POST" class="d-inline flex-grow-1" onsubmit="return confirm('Hapus aksara {{ $item->name }}?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill w-100 fw-bold" style="font-size: 0.76rem;">
+                                    <i class="fa-solid fa-trash me-1"></i> Hapus
+                                </button>
+                            </form>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </a>

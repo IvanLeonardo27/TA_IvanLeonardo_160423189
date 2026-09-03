@@ -55,9 +55,9 @@
                         {{-- Pilih Warna Banner --}}
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Warna Banner</label>
-                            <input type="hidden" name="banner_color" id="bannerColorInput" value="{{ old('banner_color', '#1F4D3A') }}">
+                            <input type="hidden" name="banner_color" id="bannerColorInput" value="{{ old('banner_color', '#059669') }}">
                             <div class="d-flex gap-2 flex-wrap mt-1">
-                                @foreach(['#1F4D3A','#2563EB','#7C3AED','#DC2626','#D97706','#059669','#0891B2','#BE185D'] as $color)
+                                @foreach(['#059669','#2563EB','#7C3AED','#DC2626','#D97706','#0D9488','#0284C7','#E11D48','#15803D','#8B5CF6'] as $color)
                                 <button type="button" class="color-btn rounded-circle border-0 shadow-sm"
                                         data-color="{{ $color }}"
                                         style="width:36px;height:36px;background:{{ $color }};transition:transform .15s;"

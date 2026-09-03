@@ -1,16 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Kelas Saya')
+@section('title', auth()->user()->isAdmin() ? 'Kelola Ruang Kelas - Admin BasaKula' : 'Kelas Saya')
 
 @section('content')
 {{-- Header --}}
-<div class="d-flex justify-content-between align-items-center mb-5 animate__animated animate__fadeInDown">
+<div class="d-flex justify-content-between align-items-center mb-5 animate__animated animate__fadeInDown flex-wrap gap-3">
     <div>
-        <h2 class="fw-bold text-main mb-1">Kelas Saya</h2>
-        <p class="text-muted mb-0">Kelola semua kelas yang Anda ajar</p>
+        <h2 class="fw-bold text-main mb-1">{{ auth()->user()->isAdmin() ? 'Kelola Seluruh Ruang Kelas' : 'Kelas Saya' }}</h2>
+        <p class="text-muted mb-0">{{ auth()->user()->isAdmin() ? 'Pantau, buka, edit, atau hapus seluruh ruang kelas yang dibuat oleh setiap pengajar' : 'Kelola semua kelas yang Anda ajar' }}</p>
     </div>
     <a href="{{ route('teacher.classroom.create') }}" class="btn btn-primary rounded-pill px-4 shadow btn-bouncy">
-        <i class="fa-solid fa-plus me-2"></i>Buat Kelas
+        <i class="fa-solid fa-plus me-2"></i>Buat Kelas Baru
     </a>
 </div>
 
@@ -76,7 +76,7 @@
                           style="background:rgba(255,255,255,0.25); font-size:.7rem; letter-spacing:.5px;">
                         {{ strtoupper($classroom->subject ?? 'Bahasa Jawa') }}
                     </span>
-                    <h4 class="fw-bold mb-0 text-truncate" style="text-shadow:0 1px 4px rgba(0,0,0,.2);">
+                    <h4 class="fw-bold mb-0 text-white text-truncate" style="color:#ffffff !important; text-shadow:0 1px 4px rgba(0,0,0,.35);">
                         {{ $classroom->name }}
                     </h4>
                 </div>
@@ -84,12 +84,20 @@
 
             {{-- Card Body --}}
             <div class="card-body p-4 bg-white position-relative">
-                {{-- Avatar Guru --}}
-                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background={{ ltrim($classroom->banner_color, '#') }}&color=fff"
+                {{-- Avatar Guru Pemilik Kelas --}}
+                <img src="https://ui-avatars.com/api/?name={{ urlencode($classroom->teacher->name ?? 'Guru') }}&background={{ ltrim($classroom->banner_color, '#') }}&color=fff"
                      class="rounded-circle border border-3 border-white shadow-sm position-absolute"
-                     style="width:52px;height:52px;top:-26px;left:20px;" alt="Avatar">
+                     style="width:52px;height:52px;top:-26px;left:20px;" alt="Avatar {{ $classroom->teacher->name ?? 'Guru' }}"
+                     title="Pengajar: {{ $classroom->teacher->name ?? 'Guru' }}">
 
                 <div class="mt-3">
+                    {{-- Nama Pengajar --}}
+                    <div class="d-flex align-items-center gap-1.5 mb-2 text-truncate" title="{{ $classroom->teacher->name ?? '-' }}">
+                        <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1 small fw-semibold">
+                            <i class="fa-solid fa-chalkboard-user text-primary me-1"></i> {{ $classroom->teacher->name ?? 'Pengajar' }}
+                        </span>
+                    </div>
+
                     <div class="d-flex align-items-center gap-3 mb-3">
                         <span class="text-muted small">
                             <i class="fa-solid fa-users me-1"></i>{{ $classroom->students_count }} Siswa

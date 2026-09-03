@@ -15,7 +15,20 @@
             </ol>
         </nav>
 
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            @if(auth()->check() && auth()->user()->isAdmin())
+            <a href="{{ route('wayang.edit', $character) }}" class="btn btn-warning rounded-pill px-3.5 py-2 btn-sm fw-bold shadow-xs text-dark d-inline-flex align-items-center gap-1.5" style="background:#FBBF24; border:none;">
+                <i class="fa-solid fa-pen-to-square"></i> Edit Tokoh
+            </a>
+            <form action="{{ route('wayang.destroy', $character) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus tokoh {{ $character->name }}?');">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-outline-danger rounded-pill px-3.5 py-2 btn-sm fw-bold shadow-xs d-inline-flex align-items-center gap-1.5 bg-white">
+                    <i class="fa-solid fa-trash"></i> Hapus
+                </button>
+            </form>
+            @endif
+
             @auth
             @php
                 $isBookmarked = \App\Models\Bookmark::where('user_id', auth()->id())

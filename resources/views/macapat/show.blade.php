@@ -11,20 +11,35 @@
             <span>Kembali ke Tembang Macapat</span>
         </a>
 
-        @auth
-        @php
-            $isBookmarked = \App\Models\Bookmark::where('user_id', auth()->id())
-                ->where('bookmarkable_type', \App\Models\MacapatDetail::class)
-                ->where('bookmarkable_id', $category->id)
-                ->exists();
-        @endphp
-        <button type="button" 
-                onclick="toggleBookmark('macapat', {{ $category->id }}, this)" 
-                class="btn {{ $isBookmarked ? 'btn-warning text-dark' : 'btn-outline-secondary bg-white' }} rounded-pill px-4 py-2 btn-sm fw-semibold shadow-xs">
-            <i class="{{ $isBookmarked ? 'fa-solid' : 'fa-regular' }} fa-bookmark me-1.5 text-warning"></i>
-            <span class="btn-text">{{ $isBookmarked ? 'Tersimpan' : 'Simpan Bookmark' }}</span>
-        </button>
-        @endauth
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            @if(auth()->check() && auth()->user()->isAdmin())
+            <a href="{{ route('teacher.macapat.edit', $category->id) }}" class="btn btn-warning rounded-pill px-3.5 py-2 btn-sm fw-bold shadow-xs text-dark d-inline-flex align-items-center gap-1.5" style="background:#FBBF24; border:none;">
+                <i class="fa-solid fa-pen-to-square"></i> Edit Macapat
+            </a>
+            <form action="{{ route('teacher.macapat.destroy', $category->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus tembang macapat {{ $category->name }}?');">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-outline-danger rounded-pill px-3.5 py-2 btn-sm fw-bold shadow-xs d-inline-flex align-items-center gap-1.5 bg-white">
+                    <i class="fa-solid fa-trash"></i> Hapus
+                </button>
+            </form>
+            @endif
+
+            @auth
+            @php
+                $isBookmarked = \App\Models\Bookmark::where('user_id', auth()->id())
+                    ->where('bookmarkable_type', \App\Models\MacapatDetail::class)
+                    ->where('bookmarkable_id', $category->id)
+                    ->exists();
+            @endphp
+            <button type="button" 
+                    onclick="toggleBookmark('macapat', {{ $category->id }}, this)" 
+                    class="btn {{ $isBookmarked ? 'btn-warning text-dark' : 'btn-outline-secondary bg-white' }} rounded-pill px-4 py-2 btn-sm fw-semibold shadow-xs">
+                <i class="{{ $isBookmarked ? 'fa-solid' : 'fa-regular' }} fa-bookmark me-1.5 text-warning"></i>
+                <span class="btn-text">{{ $isBookmarked ? 'Tersimpan' : 'Simpan Bookmark' }}</span>
+            </button>
+            @endauth
+        </div>
     </div>
 
     <!-- Banner Utama: Nama Tembang & Watak -->

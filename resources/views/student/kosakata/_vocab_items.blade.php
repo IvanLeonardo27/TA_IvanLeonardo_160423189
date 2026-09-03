@@ -131,6 +131,95 @@
             <p class="text-muted small mb-0">Belum ada contoh penggunaan kalimat untuk kata ini.</p>
             @endforelse
         </div>
+
+        @if(auth()->check() && auth()->user()->isAdmin())
+        @php
+            if (!isset($allCategoriesList)) {
+                $allCategoriesList = \App\Models\VocabularyCategory::orderBy('name')->get();
+            }
+        @endphp
+        <div class="d-flex gap-2 mt-3 pt-3 border-top justify-content-end align-items-center">
+            <small class="text-muted fw-bold me-auto"><i class="fa-solid fa-shield-halved text-primary me-1"></i> Kontrol Admin:</small>
+            <button type="button" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold shadow-xs text-dark" data-bs-toggle="modal" data-bs-target="#editVocabModal{{ $vocab->id }}">
+                <i class="fa-solid fa-pen-to-square me-1"></i> Edit Kosakata
+            </button>
+            <form action="{{ route('kosakata.destroy', $vocab) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus kosakata \'{{ $vocab->indonesian_word }}\'?');">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold shadow-xs">
+                    <i class="fa-solid fa-trash me-1"></i> Hapus
+                </button>
+            </form>
+        </div>
+
+        {{-- Modal Edit Kosakata untuk Admin --}}
+        <div class="modal fade" id="editVocabModal{{ $vocab->id }}" tabindex="-1" aria-labelledby="editVocabModalLabel{{ $vocab->id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden text-start">
+                    <div class="modal-header p-4" style="background: linear-gradient(135deg, #16402E 0%, #1F523D 100%); color: #ffffff;">
+                        <h5 class="modal-title fw-bold text-white" id="editVocabModalLabel{{ $vocab->id }}">
+                            <i class="fa-solid fa-pen-to-square me-2"></i> Edit Kosakata: {{ $vocab->indonesian_word }}
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ route('kosakata.update', $vocab) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-body p-4">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Bahasa Indonesia <span class="text-danger">*</span></label>
+                                    <input type="text" name="indonesian_word" class="form-control rounded-3" value="{{ $vocab->indonesian_word }}" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Jawa Ngoko <span class="text-danger">*</span></label>
+                                    <input type="text" name="javanese_ngoko" class="form-control rounded-3" value="{{ $vocab->javanese_ngoko }}" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Jawa Krama <span class="text-danger">*</span></label>
+                                    <input type="text" name="javanese_krama" class="form-control rounded-3" value="{{ $vocab->javanese_krama }}" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Kategori Kosakata</label>
+                                    <select name="category_id" class="form-select rounded-3">
+                                        <option value="">-- Tanpa Kategori --</option>
+                                        @foreach($allCategoriesList as $catItem)
+                                        <option value="{{ $catItem->id }}" {{ $vocab->category_id == $catItem->id ? 'selected' : '' }}>
+                                            {{ $catItem->name }}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <h6 class="fw-bold text-dark mb-2 pb-1 border-bottom">Contoh Kalimat Penggunaan</h6>
+                            @php $firstEx = $vocab->examples->first(); @endphp
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <label class="form-label small text-muted">Kalimat Bahasa Indonesia</label>
+                                    <textarea name="example_indonesian" class="form-control rounded-3" rows="2">{{ $firstEx->indonesian_sentence ?? '' }}</textarea>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small text-muted">Kalimat Jawa Ngoko</label>
+                                    <textarea name="example_ngoko" class="form-control rounded-3" rows="2">{{ $firstEx->ngoko_sentence ?? ($firstEx->javanese_sentence ?? '') }}</textarea>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small text-muted">Kalimat Jawa Krama</label>
+                                    <textarea name="example_krama" class="form-control rounded-3" rows="2">{{ $firstEx->krama_sentence ?? '' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light p-3">
+                            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold" style="background:#16402E; border:none;">
+                                <i class="fa-solid fa-save me-1"></i> Simpan Perubahan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 @empty

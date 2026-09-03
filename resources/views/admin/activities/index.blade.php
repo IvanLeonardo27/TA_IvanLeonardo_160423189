@@ -17,15 +17,20 @@
                 </div>
             </div>
             <div class="d-flex align-items-center gap-2 flex-wrap">
-                <span class="badge bg-white bg-opacity-20 text-white border border-white border-opacity-25 rounded-pill px-3 py-2 fw-semibold">
-                    <i class="fa-solid fa-bolt text-warning me-1.5"></i> {{ $stats['total_activities'] }} Total Interaksi
+                <span class="badge rounded-pill px-3 py-2 fw-bold shadow-xs" style="background: #ffffff; color: #0d3b2e !important; font-size: 0.84rem; border: none;">
+                    <i class="text-warning me-1.5"></i> {{ number_format($stats['total_activities']) }} Total Interaksi
                 </span>
-                <span class="badge bg-white bg-opacity-20 text-white border border-white border-opacity-25 rounded-pill px-3 py-2 fw-semibold">
-                    <i class="fa-solid fa-chalkboard-user me-1.5"></i> {{ $stats['teacher_activities'] }} Pengajar
+                <span class="badge rounded-pill px-3 py-2 fw-bold shadow-xs" style="background: #ffffff; color: #0d3b2e !important; font-size: 0.84rem; border: none;">
+                    <i class="text-success me-1.5"></i> {{ number_format($stats['teacher_activities']) }} Pengajar
                 </span>
-                <span class="badge bg-white bg-opacity-20 text-white border border-white border-opacity-25 rounded-pill px-3 py-2 fw-semibold">
-                    <i class="fa-solid fa-user-graduate me-1.5"></i> {{ $stats['student_activities'] }} Pelajar
+                <span class="badge rounded-pill px-3 py-2 fw-bold shadow-xs" style="background: #ffffff; color: #0d3b2e !important; font-size: 0.84rem; border: none;">
+                    <i class="text-primary me-1.5"></i> {{ number_format($stats['student_activities']) }} Pelajar
                 </span>
+                @if(isset($stats['admin_activities']) && $stats['admin_activities'] > 0)
+                <span class="badge rounded-pill px-3 py-2 fw-bold shadow-xs" style="background: #ffffff; color: #0d3b2e !important; font-size: 0.84rem; border: none;">
+                    <i class="text-danger me-1.5"></i> {{ number_format($stats['admin_activities']) }} Admin
+                </span>
+                @endif
             </div>
         </div>
     </div>
@@ -51,9 +56,10 @@
                 {{-- Role Filter --}}
                 <div class="col-lg-3 col-md-6">
                     <select name="role" class="form-select rounded-pill bg-light py-2" onchange="this.form.submit()">
-                        <option value="all" {{ request('role', 'all') === 'all' ? 'selected' : '' }}>Semua Peran (Pengajar & Pelajar)</option>
+                        <option value="all" {{ request('role', 'all') === 'all' ? 'selected' : '' }}>Semua Peran</option>
                         <option value="teacher" {{ request('role') === 'teacher' ? 'selected' : '' }}>👨‍🏫 Pengajar (Guru)</option>
                         <option value="student" {{ request('role') === 'student' ? 'selected' : '' }}>🎓 Pelajar (Siswa)</option>
+                        <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>🛡️ Administrator</option>
                     </select>
                 </div>
 
@@ -61,6 +67,8 @@
                 <div class="col-lg-3 col-md-8">
                     <select name="action" class="form-select rounded-pill bg-light py-2" onchange="this.form.submit()">
                         <option value="all" {{ request('action', 'all') === 'all' ? 'selected' : '' }}>Semua Jenis Aktivitas</option>
+                        <option value="login" {{ request('action') === 'login' ? 'selected' : '' }}>🔑 Masuk ke Sistem (Login)</option>
+                        <option value="logout" {{ request('action') === 'logout' ? 'selected' : '' }}>🚪 Keluar Sistem (Logout)</option>
                         <option value="classroom" {{ request('action') === 'classroom' ? 'selected' : '' }}>🏫 Ruang Kelas (Buat & Gabung)</option>
                         <option value="post" {{ request('action') === 'post' ? 'selected' : '' }}>📢 Materi & Pengumuman</option>
                         <option value="submission" {{ request('action') === 'submission' ? 'selected' : '' }}>📝 Pengumpulan & Nilai Tugas</option>
@@ -99,18 +107,20 @@
             <div class="d-flex flex-column gap-3">
                 @forelse($paginatedLogs as $log)
                 @php
-                    $isTeacher = ($log['role'] === 'teacher');
-                    $borderAccent = $isTeacher ? '#16402E' : '#0284C7';
-                    $iconBg = $isTeacher ? 'background: #E8F5E9; color: #16402E;' : 'background: #E0F2FE; color: #0369A1;';
-                    $roleBadgeClass = $isTeacher ? 'background: #DCFCE7; color: #166534;' : 'background: #E0F2FE; color: #075985;';
+                    $role = $log->role ?? $log['role'];
+                    $isAdmin = ($role === 'admin');
+                    $isTeacher = ($role === 'teacher');
+                    $borderAccent = $isAdmin ? '#D97706' : ($isTeacher ? '#16402E' : '#0284C7');
+                    $iconBg = $isAdmin ? 'background: #FEF3C7; color: #B45309;' : ($isTeacher ? 'background: #E8F5E9; color: #16402E;' : 'background: #E0F2FE; color: #0369A1;');
+                    $roleBadgeClass = $isAdmin ? 'background: #FEF3C7; color: #92400E;' : ($isTeacher ? 'background: #DCFCE7; color: #166534;' : 'background: #E0F2FE; color: #075985;');
                 @endphp
                 <div class="p-3 p-md-3.5 rounded-4 border bg-white shadow-xs position-relative transition-all hover-lift" 
                      style="border-left: 4.5px solid {{ $borderAccent }} !important; border-color: #E2E8F0;">
                     <div class="d-flex align-items-start gap-3">
-                        {{-- Icon Avatar --}}
+                        {{-- Icon Avatar (Diambil dinamis dari Accessor Model) --}}
                         <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0 shadow-xs" 
                              style="width: 44px; height: 44px; {{ $iconBg }} font-size: 1.15rem;">
-                            <i class="{{ $log['icon'] }}"></i>
+                            <i class="{{ $log->icon }}"></i>
                         </div>
 
                         {{-- Main Body --}}
@@ -120,48 +130,50 @@
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
                                     {{-- Role Pill --}}
                                     <span class="badge rounded-pill px-2.5 py-1 fw-bold" style="{{ $roleBadgeClass }} font-size: 0.73rem;">
-                                        {{ $log['role_label'] }}
+                                        {{ $log->role_label }}
                                     </span>
 
                                     {{-- User Code --}}
-                                    @if(!empty($log['actor_code']) && $log['actor_code'] !== '-')
+                                    @php $code = $log->code ?? ($log['code'] ?? '-'); @endphp
+                                    @if(!empty($code) && $code !== '-')
                                     <span class="d-inline-flex align-items-center font-monospace px-2.5 py-0.5 rounded-pill border" 
                                           style="background: #F8FAFC; color: #475569; font-size: 0.76rem;">
-                                        {{ $log['actor_code'] }}
+                                        {{ $code }}
                                     </span>
                                     @endif
 
-                                    {{-- Actor Name --}}
+                                    {{-- User Name --}}
                                     <strong class="text-dark" style="font-size: 0.95rem;">
-                                        {{ $log['actor_name'] }}
+                                        {{ $log->name ?? ($log['name'] ?? '-') }}
                                     </strong>
                                 </div>
 
                                 {{-- Timestamp --}}
                                 <div class="text-muted small fw-medium d-flex align-items-center gap-1.5" style="font-size: 0.8rem;">
                                     <i class="fa-regular fa-clock text-secondary"></i>
-                                    <span>{{ $log['timestamp'] ? \Carbon\Carbon::parse($log['timestamp'])->translatedFormat('d M Y, H:i') : '-' }}</span>
+                                    <span>{{ $log->created_at ? \Carbon\Carbon::parse($log->created_at)->translatedFormat('d M Y, H:i') : '-' }}</span>
                                 </div>
                             </div>
 
                             {{-- Description Text --}}
                             <div class="text-secondary mb-2" style="font-size: 0.92rem; line-height: 1.55;">
-                                {{ $log['description'] }}
+                                {{ $log->description ?? ($log['description'] ?? '') }}
                             </div>
 
                             {{-- Meta Badges --}}
                             <div class="d-flex align-items-center gap-2.5 flex-wrap small text-muted" style="font-size: 0.78rem;">
                                 <span class="badge bg-light text-secondary border rounded-pill px-2.5 py-1">
-                                    <i class="fa-solid fa-tag me-1 opacity-75"></i> {{ $log['action'] }}
+                                    <i class="fa-solid fa-tag me-1 opacity-75"></i> {{ $log->action }}
                                 </span>
-                                @if(!empty($log['target']))
+                                @if(!empty($log->target))
                                 <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1">
-                                    <i class="fa-solid fa-location-dot text-primary me-1"></i> {{ $log['target'] }}
+                                    <i class="fa-solid fa-location-dot text-primary me-1"></i> {{ $log->target }}
                                 </span>
                                 @endif
-                                @if(!empty($log['actor_email']) && $log['actor_email'] !== '-')
+                                @php $email = $log->email ?? ($log['email'] ?? '-'); @endphp
+                                @if(!empty($email) && $email !== '-')
                                 <span class="text-muted d-inline-flex align-items-center gap-1">
-                                    <i class="fa-regular fa-envelope"></i> {{ $log['actor_email'] }}
+                                    <i class="fa-regular fa-envelope"></i> {{ $email }}
                                 </span>
                                 @endif
                             </div>

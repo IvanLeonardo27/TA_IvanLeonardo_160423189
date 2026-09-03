@@ -19,10 +19,13 @@ class ClassroomController extends Controller
     {
         Gate::authorize('teacher');
 
-        $classrooms = Classroom::where('teacher_id', Auth::id())
-            ->withCount('students')
-            ->latest()
-            ->get();
+        $query = Classroom::with('teacher')->withCount('students');
+
+        if (!Auth::user()->isAdmin()) {
+            $query->where('teacher_id', Auth::id());
+        }
+
+        $classrooms = $query->latest()->get();
 
         return view('teacher.classroom.index', compact('classrooms'));
     }
@@ -61,6 +64,14 @@ class ClassroomController extends Controller
             'joined_at'    => now(),
         ]);
 
+        \App\Models\ActivityLog::log(
+            Auth::user(),
+            'Membuat Ruang Kelas',
+            'classroom',
+            "Membuat kelas baru '{$classroom->name}' dengan kode akses {$classroom->code}.",
+            $classroom->name
+        );
+
         return redirect()->route('teacher.classroom.show', $classroom)
             ->with('success', 'Kelas berhasil dibuat!');
     }
@@ -77,7 +88,20 @@ class ClassroomController extends Controller
         $students = $classroom->students()->get();
         $members  = $classroom->members()->get();
 
-        return view('teacher.classroom.show', compact('classroom', 'posts', 'students', 'members'));
+        // Ambil seluruh pelajar terdaftar di sistem yang belum bergabung di kelas ini (atau out_at != null)
+        $availableStudents = User::where(function ($q) {
+                $q->where('role_id', 3)
+                  ->orWhereHas('role', fn($r) => $r->where('name', 'student'));
+            })
+            ->where('status', 'active')
+            ->whereDoesntHave('classroomMemberships', function ($q) use ($classroom) {
+                $q->where('classroom_id', $classroom->id)
+                  ->whereNull('out_at');
+            })
+            ->orderBy('name')
+            ->get(['id', 'name', 'email', 'user_code']);
+
+        return view('teacher.classroom.show', compact('classroom', 'posts', 'students', 'members', 'availableStudents'));
     }
 
     /** Form edit kelas */
@@ -114,6 +138,79 @@ class ClassroomController extends Controller
 
         return redirect()->route('teacher.classroom.index')
             ->with('success', 'Kelas berhasil dihapus.');
+    }
+
+    /** Tambah pelajar terdaftar ke kelas */
+    public function addMember(Request $request, Classroom $classroom)
+    {
+        Gate::authorize('manageMembers', $classroom);
+
+        $request->validate([
+            'student_ids'   => 'nullable|array',
+            'student_ids.*' => 'exists:users,id',
+            'student_id'    => 'nullable|exists:users,id',
+        ]);
+
+        $studentIds = $request->input('student_ids', []);
+        if ($request->filled('student_id')) {
+            $studentIds[] = $request->student_id;
+        }
+        $studentIds = array_unique(array_filter($studentIds));
+
+        if (empty($studentIds)) {
+            return back()->with('error', 'Silakan centang/pilih setidaknya satu pelajar untuk ditambahkan.');
+        }
+
+        $addedCount = 0;
+        $addedNames = [];
+
+        foreach ($studentIds as $id) {
+            $student = User::find($id);
+            if (!$student) continue;
+
+            $member = ClassroomMember::where('classroom_id', $classroom->id)
+                ->where('user_id', $student->id)
+                ->first();
+
+            if ($member) {
+                if ($member->out_at !== null) {
+                    $member->update([
+                        'out_at'    => null,
+                        'joined_at' => now(),
+                    ]);
+                    $addedCount++;
+                    $addedNames[] = $student->name;
+                }
+            } else {
+                ClassroomMember::create([
+                    'classroom_id' => $classroom->id,
+                    'user_id'      => $student->id,
+                    'role'         => 'student',
+                    'joined_at'    => now(),
+                ]);
+                $addedCount++;
+                $addedNames[] = $student->name;
+            }
+        }
+
+        if ($addedCount > 0) {
+            $namesStr = implode(', ', array_slice($addedNames, 0, 3));
+            if (count($addedNames) > 3) {
+                $namesStr .= ' lan ' . (count($addedNames) - 3) . ' liyane';
+            }
+
+            \App\Models\ActivityLog::log(
+                Auth::user(),
+                'Menambahkan Siswa ke Kelas',
+                'classroom',
+                "Menambahkan {$addedCount} siswa ({$namesStr}) ke kelas '{$classroom->name}'.",
+                $classroom->name
+            );
+
+            return back()->with('success', "Berhasil menambahkan {$addedCount} pelajar ke dalam kelas!");
+        }
+
+        return back()->with('info', 'Semua pelajar yang dipilih sudah terdaftar di kelas ini.');
     }
 
     /** Hapus anggota dari kelas (Catat out_at) */

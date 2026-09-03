@@ -63,16 +63,21 @@
 
         {{-- Ruang Kelas --}}
         <div class="col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm rounded-4 p-4 h-100" style="background: #ffffff; border: 1px solid #E2E8F0 !important;">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <span class="text-muted fw-semibold small">Ruang Kelas</span>
-                    <div class="rounded-circle d-flex align-items-center justify-content-center shadow-xs" style="width:44px;height:44px;background:#DCFCE7;color:#166534;">
-                        <i class="fa-solid fa-school fs-5"></i>
+            <a href="{{ route('teacher.classroom.index') }}" class="text-decoration-none d-block h-100">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 transition-all hover-lift" style="background: #ffffff; border: 1px solid #E2E8F0 !important;">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-muted fw-semibold small">Ruang Kelas</span>
+                        <div class="rounded-circle d-flex align-items-center justify-content-center shadow-xs" style="width:44px;height:44px;background:#DCFCE7;color:#166534;">
+                            <i class="fa-solid fa-school fs-5"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-1">{{ $stats['total_classrooms'] }}</h3>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <small class="text-muted"><i class="fa-solid fa-layer-group me-1"></i> {{ $stats['active_classrooms'] }} Kelas Berjalan</small>
+                        <small class="text-primary fw-bold">Kelola <i class="fa-solid fa-arrow-right small"></i></small>
                     </div>
                 </div>
-                <h3 class="fw-bold text-dark mb-1">{{ $stats['total_classrooms'] }}</h3>
-                <small class="text-muted"><i class="fa-solid fa-layer-group me-1"></i> {{ $stats['active_classrooms'] }} Kelas Berjalan</small>
-            </div>
+            </a>
         </div>
 
         {{-- Interaksi Tugas & Kuis --}}

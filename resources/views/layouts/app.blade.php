@@ -43,6 +43,10 @@
     <!-- Responsive CSS (Mobile/Tablet/Desktop) -->
     <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
     
+    <!-- Driver.js Spotlight Tour Library & Custom Styles -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css">
+    <link rel="stylesheet" href="{{ asset('css/basakula-tutorial.css') }}">
+    
     @stack('styles')
 </head>
 <body>
@@ -306,6 +310,15 @@
         };
     </script>
     
+    <!-- Driver.js & BasaKula Tutorial Engine -->
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
+    <script src="{{ asset('js/basakula-tutorial-tour.js') }}"></script>
+    @auth
+    <script>
+        window.BASAKULA_USER_ROLE = "{{ auth()->user()->isAdmin() ? 'admin' : (auth()->user()->isTeacher() ? 'teacher' : 'student') }}";
+    </script>
+    @endauth
+
     @stack('scripts')
 </body>
 </html>

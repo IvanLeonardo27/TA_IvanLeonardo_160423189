@@ -15,6 +15,16 @@
 
         <div class="d-flex align-items-center ms-auto">
             @auth
+                <!-- Tutorial Trigger Button -->
+                <button type="button" 
+                        data-tour="btn-tutorial-trigger"
+                        onclick="BasaKulaTutorial.startTour()" 
+                        class="btn btn-sm rounded-pill font-weight-bold px-3 me-3 d-inline-flex align-items-center gap-2 shadow-xs border-0" 
+                        style="background: #0d3b2e; color: #ffffff; font-size: 0.8rem; font-weight: 700;">
+                    <i class="fa-solid fa-circle-question text-warning"></i>
+                    <span class="d-none d-sm-inline">Tutorial System</span>
+                </button>
+
                 @php
                     $appNotifications = \App\Services\NotificationService::getForUser(auth()->user());
                     $unreadCount = $appNotifications->count();

@@ -97,4 +97,64 @@ class VocabularyController extends Controller
 
         return redirect()->back()->with('success', 'Kosakata baru berhasil ditambahkan!');
     }
+
+    public function update(Request $request, Vocabulary $vocabulary)
+    {
+        $request->validate([
+            'indonesian_word'    => 'required|string|max:191',
+            'javanese_ngoko'     => 'required|string|max:191',
+            'javanese_krama'     => 'required|string|max:191',
+            'category_id'        => 'nullable|exists:vocabulary_categories,id',
+            'example_indonesian' => 'nullable|string',
+            'example_ngoko'      => 'nullable|string',
+            'example_krama'      => 'nullable|string',
+        ]);
+
+        $categoryName = null;
+        if ($request->filled('category_id')) {
+            $cat = VocabularyCategory::find($request->category_id);
+            if ($cat) {
+                $categoryName = $cat->name;
+            }
+        }
+
+        $vocabulary->update([
+            'indonesian_word' => $request->indonesian_word,
+            'javanese_ngoko'  => $request->javanese_ngoko,
+            'javanese_krama'  => $request->javanese_krama,
+            'category_id'     => $request->category_id,
+            'category'        => $categoryName,
+        ]);
+
+        if ($request->filled('example_indonesian') || $request->filled('example_ngoko') || $request->filled('example_krama')) {
+            $example = $vocabulary->examples()->first();
+            if ($example) {
+                $example->update([
+                    'indonesian_sentence' => $request->example_indonesian,
+                    'ngoko_sentence'      => $request->example_ngoko,
+                    'krama_sentence'      => $request->example_krama,
+                    'javanese_sentence'   => $request->example_ngoko ?: $request->example_krama,
+                ]);
+            } else {
+                VocabularyExample::create([
+                    'vocabulary_id'       => $vocabulary->id,
+                    'indonesian_sentence' => $request->example_indonesian,
+                    'ngoko_sentence'      => $request->example_ngoko,
+                    'krama_sentence'      => $request->example_krama,
+                    'javanese_sentence'   => $request->example_ngoko ?: $request->example_krama,
+                ]);
+            }
+        }
+
+        return redirect()->back()->with('success', "Kosakata '{$vocabulary->indonesian_word}' berhasil diperbarui!");
+    }
+
+    public function destroy(Vocabulary $vocabulary)
+    {
+        $word = $vocabulary->indonesian_word;
+        $vocabulary->examples()->delete();
+        $vocabulary->delete();
+
+        return redirect()->back()->with('success', "Kosakata '{$word}' berhasil dihapus.");
+    }
 }

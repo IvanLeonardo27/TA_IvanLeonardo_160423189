@@ -245,14 +245,26 @@ class UserAddedVocabularySeeder extends Seeder
             $exNgoko = !empty($row[5]) && $row[5] !== 'NULL' ? trim($row[5]) : null;
             $exKrama = !empty($row[6]) && $row[6] !== 'NULL' ? trim($row[6]) : null;
 
+            $catId = null;
+            if ($cat) {
+                $categoryObj = \App\Models\VocabularyCategory::firstOrCreate(
+                    ['name' => $cat],
+                    ['description' => 'Kategori ' . $cat]
+                );
+                $catId = $categoryObj->id;
+            }
+
+
             $vocab = Vocabulary::updateOrCreate(
                 ['indonesian_word' => $indo],
                 [
                     'javanese_ngoko' => $ngoko,
                     'javanese_krama' => $krama,
-                    'category'       => $cat
+                    'category'       => $cat,
+                    'category_id'    => $catId
                 ]
             );
+
 
             if ($exIndo) {
                 VocabularyExample::updateOrCreate(

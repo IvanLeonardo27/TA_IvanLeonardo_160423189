@@ -86,7 +86,6 @@ class ClassroomController extends Controller
 
         Gate::authorize('join', $classroom);
 
-        // Jika pernah keluar dan gabung kembali, buat record baru dengan joined_at terbaru
         ClassroomMember::create([
             'classroom_id' => $classroom->id,
             'user_id'      => Auth::id(),
@@ -94,6 +93,16 @@ class ClassroomController extends Controller
             'joined_at'    => now(),
             'out_at'       => null,
         ]);
+
+        \App\Models\ActivityLog::log(
+            Auth::user(),
+            'Bergabung ke Kelas',
+            'classroom',
+            "Bergabung ke ruang kelas '{$classroom->name}'.",
+            $classroom->name,
+            'fa-solid fa-right-to-bracket',
+            'bg-info'
+        );
 
         return redirect()->route('student.classroom.show', $classroom)
             ->with('success', "Berhasil bergabung ke kelas: {$classroom->name}!");

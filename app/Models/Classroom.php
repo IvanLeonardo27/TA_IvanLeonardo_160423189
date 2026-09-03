@@ -59,7 +59,7 @@ class Classroom extends Model
 
         $totalItems = $totalAssignments + $totalQuizzes;
         if ($totalItems === 0) {
-            return 100; // Jika kelas belum memiliki tugas/quiz, dianggap 100%
+            return 0; // Default 0% jika kelas belum memiliki tugas/kuis
         }
 
         // Hitung tugas yang sudah dikumpulkan siswa

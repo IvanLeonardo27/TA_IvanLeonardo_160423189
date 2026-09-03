@@ -13,6 +13,23 @@
         <p class="text-muted mx-auto" style="max-width: 650px; font-size: 1.05rem;">
             Ayo sinau 10 jinis Tembang Macapat, mangerteni paugeran Guru Gatra, Guru Wilangan, lan Guru Lagu, sarta nyinaoni watak lan maknane.
         </p>
+
+        @auth
+            @if(auth()->user()->isAdmin() || auth()->user()->isTeacher())
+            <div class="mt-3 d-flex justify-content-center gap-2 flex-wrap">
+                <a href="{{ route('teacher.macapat.index') }}" class="btn btn-warning text-dark rounded-pill px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Kelola Tembang Macapat</span>
+                </a>
+                @if(auth()->user()->isAdmin())
+                <a href="{{ route('teacher.macapat.create') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2" style="background:#1F4D3A; border:none;">
+                    <i class="fa-solid fa-plus-circle"></i>
+                    <span>Tambah Macapat Baru</span>
+                </a>
+                @endif
+            </div>
+            @endif
+        @endauth
     </div>
 
     <!-- Search Bar Section -->
@@ -107,6 +124,21 @@
                             <i class="fa-solid fa-arrow-right small"></i>
                         </a>
                     </div>
+
+                    @if(auth()->check() && auth()->user()->isAdmin())
+                    <div class="d-flex gap-1.5 pt-2 border-top mt-2" onclick="event.stopPropagation();">
+                        <a href="{{ route('teacher.macapat.edit', $item->id) }}" class="btn btn-warning btn-sm rounded-pill flex-grow-1 fw-bold text-dark" style="font-size: 0.76rem;">
+                            <i class="fa-solid fa-pen-to-square me-1"></i> Edit
+                        </a>
+                        <form action="{{ route('teacher.macapat.destroy', $item->id) }}" method="POST" class="d-inline flex-grow-1" onsubmit="return confirm('Hapus tembang macapat {{ $item->name }}?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill w-100 fw-bold" style="font-size: 0.76rem;">
+                                <i class="fa-solid fa-trash me-1"></i> Hapus
+                            </button>
+                        </form>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>

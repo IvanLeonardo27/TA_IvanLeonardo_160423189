@@ -23,10 +23,6 @@
 {{-- 1. Hero Greeting Banner --}}
 <div class="card border-0 rounded-4 shadow-sm mb-4 overflow-hidden text-white position-relative" 
      style="background: var(--grad-hero); border: 1px solid rgba(255,255,255,0.1) !important;">
-    
-    <!-- Background Watermark Icon -->
-    <i class="fa-solid fa-graduation-cap position-absolute end-0 bottom-0 opacity-10 pe-4 pb-2 d-none d-md-block pointer-events-none user-select-none" 
-       style="font-size: 10.5rem; line-height: 0.8; z-index: 1;" aria-hidden="true"></i>
 
     <div class="card-body p-4 p-md-5 position-relative" style="z-index: 2;">
         <div class="row align-items-center g-3">
@@ -145,19 +141,19 @@
 </div>
 
 {{-- 3. Section Header: Ruang Kelas Saya --}}
-<div class="d-flex align-items-center justify-content-between gap-2 gap-sm-3 mb-3.5 mt-4 pt-1">
-    <div class="d-flex align-items-center gap-2 min-w-0">
-        <h5 class="fw-bold text-main mb-0" style="font-size: clamp(0.95rem, 3.6vw, 1.3rem);">
+<div class="d-flex align-items-center justify-content-between gap-2 gap-sm-3 mt-5 mb-4 pt-2 pb-1">
+    <div class="d-flex align-items-center gap-3 min-w-0">
+        <h5 class="fw-bold text-main mb-0" style="font-size: clamp(1.05rem, 3.6vw, 1.35rem); letter-spacing: -0.01em;">
             Ruang Kelas Panjenengan
         </h5>
-        <span class="badge bg-primary text-white rounded-pill px-2.5 py-1 flex-shrink-0 shadow-xs" style="font-size: 0.72rem;">
+        <span class="badge bg-primary text-white rounded-pill px-3 py-1.5 flex-shrink-0 shadow-xs ms-1" style="font-size: 0.76rem; font-weight: 600;">
             {{ $classrooms->count() }} Kelas
         </span>
     </div>
     
     <div class="flex-shrink-0 ms-2">
-        <button class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1.5 shadow-xs fw-semibold text-nowrap d-inline-flex align-items-center gap-1.5" 
-                style="font-size: 0.82rem;"
+        <button class="btn btn-outline-primary rounded-pill px-3.5 py-2 shadow-xs fw-semibold text-nowrap d-inline-flex align-items-center gap-2 btn-bouncy" 
+                style="font-size: 0.85rem;"
                 data-bs-toggle="modal" data-bs-target="#joinModal">
             <i class="fa-solid fa-plus-circle" aria-hidden="true"></i>
             <span>Gabung Kelas</span>
@@ -212,7 +208,7 @@
                     </span>
                 </div>
 
-                <h4 class="fw-bold mb-1 text-truncate position-relative" style="z-index:1; text-shadow:0 1px 4px rgba(0,0,0,.2);">
+                <h4 class="fw-bold mb-1 text-white text-truncate position-relative" style="z-index:1; color:#ffffff !important; text-shadow:0 1px 4px rgba(0,0,0,.35);">
                     {{ $classroom->name }}
                 </h4>
             </div>

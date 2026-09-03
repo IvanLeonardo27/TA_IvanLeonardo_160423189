@@ -5,7 +5,7 @@
     </button>
 
     <div class="sidebar-top-section d-flex flex-column flex-grow-1 overflow-auto">
-        <div class="sidebar-header mb-4 mt-2 px-3">
+        <div class="sidebar-header mb-4 mt-2 px-3" data-tour="sidebar-header">
             <h4 class="text-primary m-0 fw-bold d-flex align-items-center gap-2">
                 <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
                 <span>Basa<span class="text-accent" style="font-size: 0.85em;">Kula</span></span>
@@ -18,48 +18,53 @@
         @auth
             @if(auth()->user()->isAdmin())
                 {{-- Menu Khusus Super Admin --}}
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-dashboard-admin">
                     <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard*') ? 'active' : '' }}">
                         <i class="fa-solid fa-shield-halved text-primary"></i> Dashboard Admin
                     </a>
                 </li>
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-kelola-pengajar">
                     <a href="{{ route('admin.users.teachers.index') }}" class="nav-link {{ request()->routeIs('admin.users.teachers*') ? 'active' : '' }}">
                         <i class="fa-solid fa-chalkboard-user text-primary"></i> Kelola Pengajar
                     </a>
                 </li>
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-kelola-pelajar">
                     <a href="{{ route('admin.users.students.index') }}" class="nav-link {{ request()->routeIs('admin.users.students*') ? 'active' : '' }}">
                         <i class="fa-solid fa-user-graduate text-info"></i> Kelola Pelajar
                     </a>
                 </li>
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-log-aktivitas">
                     <a href="{{ route('admin.activities.index') }}" class="nav-link {{ request()->routeIs('admin.activities*') ? 'active' : '' }}">
                         <i class="fa-solid fa-clock-rotate-left text-warning"></i> Log Aktivitas
                     </a>
                 </li>
+                <li class="nav-item mb-1" data-tour="sidebar-kelola-kelas">
+                    <a href="{{ route('teacher.classroom.index') }}" class="nav-link {{ request()->routeIs('teacher.classroom*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-school text-success"></i> Kelola Ruang Kelas
+                    </a>
+                </li>
                 <hr class="my-2 text-muted">
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-aksara">
                     <a href="{{ route('teacher.javanese-script.index') }}" class="nav-link {{ request()->is('*teacher/javanese-script*') || request()->is('*aksara-jawa*') ? 'active' : '' }}">
                         <i class="fa-solid fa-font"></i> Aksara Jawa
                     </a>
                 </li>
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-macapat">
                     <a href="{{ route('teacher.macapat.index') }}" class="nav-link {{ request()->is('*macapat*') ? 'active' : '' }}">
                         <i class="fa-solid fa-music"></i> Tembang Macapat
                     </a>
                 </li>
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-wayang">
                     <a href="{{ route('wayang.index') }}" class="nav-link {{ request()->is('*wayang*') ? 'active' : '' }}">
                         <i class="fa-solid fa-masks-theater"></i> Pewayangan
                     </a>
                 </li>
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-kamus">
                     <a href="/ui/kosakata" class="nav-link {{ request()->is('*kosakata*') ? 'active' : '' }}">
                         <i class="fa-solid fa-book-journal-whills"></i> Kamus Kosakata
                     </a>
                 </li>
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-translator">
                     <a href="/ui/translator" class="nav-link {{ request()->is('*translator*') ? 'active' : '' }}">
                         <i class="fa-solid fa-language"></i> Translator Jawa
                     </a>
@@ -67,85 +72,85 @@
 
             @elseif(auth()->user()->isTeacher())
                 {{-- Menu Khusus Pengajar --}}
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-kelola-kelas">
                     <a href="{{ route('teacher.classroom.index') }}" class="nav-link {{ request()->routeIs('teacher.classroom.index') || request()->routeIs('teacher.classroom.show') ? 'active' : '' }}">
                         <i class="fa-solid fa-chalkboard-user"></i> Kelola Kelas
                     </a>
                 </li>
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-buat-kelas">
                     <a href="{{ route('teacher.classroom.create') }}" class="nav-link {{ request()->routeIs('teacher.classroom.create') ? 'active' : '' }}">
                         <i class="fa-solid fa-plus-circle"></i> Buat Kelas Baru
                     </a>
                 </li>
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-kalender">
                     <a href="{{ route('calendar.index') }}" class="nav-link {{ request()->routeIs('calendar.index') ? 'active' : '' }}">
                         <i class="fa-solid fa-calendar-days"></i> Kalender Pembelajaran
                     </a>
                 </li>
                 <hr class="my-2 text-muted">
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-aksara">
                     <a href="{{ route('teacher.javanese-script.index') }}" class="nav-link {{ request()->is('*teacher/javanese-script*') || request()->is('*aksara-jawa*') ? 'active' : '' }}">
                         <i class="fa-solid fa-font"></i> Aksara Jawa
                     </a>
                 </li>
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-macapat">
                     <a href="{{ route('teacher.macapat.index') }}" class="nav-link {{ request()->is('*macapat*') ? 'active' : '' }}">
                         <i class="fa-solid fa-music"></i> Tembang Macapat
                     </a>
                 </li>
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-wayang">
                     <a href="{{ route('wayang.index') }}" class="nav-link {{ request()->is('*wayang*') ? 'active' : '' }}">
                         <i class="fa-solid fa-masks-theater"></i> Pewayangan
                     </a>
                 </li>
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-kamus">
                     <a href="/ui/kosakata" class="nav-link {{ request()->is('*kosakata*') ? 'active' : '' }}">
                         <i class="fa-solid fa-book-journal-whills"></i> Kamus Kosakata
                     </a>
                 </li>
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-translator">
                     <a href="/ui/translator" class="nav-link {{ request()->is('*translator*') ? 'active' : '' }}">
                         <i class="fa-solid fa-language"></i> Translator Jawa
                     </a>
                 </li>
             @else
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-dashboard-siswa">
                     <a href="{{ route('student.classroom.index') }}" class="nav-link {{ request()->routeIs('student.classroom.*') || request()->is('*classroom*') || request()->is('*kelas*') || request()->is('ui/student*') ? 'active' : '' }}">
                         <i class="fa-solid fa-house" aria-hidden="true"></i> Dashboard & Kelas Saya
                     </a>
                 </li>
 
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-kalender">
                     <a href="{{ route('calendar.index') }}" class="nav-link {{ request()->routeIs('calendar.index') ? 'active' : '' }}">
                         <i class="fa-solid fa-calendar-days"></i> Kalender Pembelajaran
                     </a>
                 </li>
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-aksara">
                     <a href="{{ route('javanese-script.index') }}" class="nav-link {{ request()->is('*aksara-jawa*') ? 'active' : '' }}">
                         <i class="fa-solid fa-font"></i> Aksara Jawa
                     </a>
                 </li>
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-macapat">
                     <a href="{{ route('macapat.index') }}" class="nav-link {{ request()->is('*macapat*') ? 'active' : '' }}">
                         <i class="fa-solid fa-music"></i> Tembang Macapat
                     </a>
                 </li>
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-wayang">
                     <a href="{{ route('wayang.index') }}" class="nav-link {{ request()->is('*wayang*') ? 'active' : '' }}">
                         <i class="fa-solid fa-masks-theater"></i> Pewayangan
                     </a>
                 </li>
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-kamus">
                     <a href="/ui/kosakata" class="nav-link {{ request()->is('*kosakata*') ? 'active' : '' }}">
                         <i class="fa-solid fa-book-journal-whills"></i> Kamus Kosakata
                     </a>
                 </li>
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-translator">
                     <a href="/ui/translator" class="nav-link {{ request()->is('*translator*') ? 'active' : '' }}">
                         <i class="fa-solid fa-language"></i> Translator Jawa
                     </a>
                 </li>
-                <li class="nav-item mb-1">
+                <li class="nav-item mb-1" data-tour="sidebar-bookmark">
                     <a href="{{ route('student.bookmarks.index') }}" class="nav-link {{ request()->routeIs('student.bookmarks.*') ? 'active' : '' }}">
                         <i class="fa-solid fa-bookmark text-warning"></i> Bookmark Saya
                     </a>

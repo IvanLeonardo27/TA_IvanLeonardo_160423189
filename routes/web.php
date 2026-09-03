@@ -1,8 +1,5 @@
 <?php
 
-use App\Http\Controllers\AdminPageController;
-use App\Http\Controllers\AdminVocabCsvController;
-use App\Http\Controllers\CustomerPageController;
 use App\Http\Controllers\CustomerQuizAttemptController;
 use App\Http\Controllers\CustomerTranslateController;
 use App\Http\Controllers\ProfileController;
@@ -34,22 +31,18 @@ Route::get('/ui/login', function() { return view('auth.login'); });
 Route::get('/ui/register', function() { return view('auth.register'); });
 Route::get('/ui/student', function() { return redirect()->route('student.classroom.index'); });
 Route::get('/ui/teacher', function() { return view('teacher.dashboard'); });
-Route::get('/ui/materi', function() { return view('student.materi.index'); });
-Route::get('/ui/materi/show', function() { return view('student.materi.show'); });
 Route::get('/ui/kosakata/kategori', [\App\Http\Controllers\VocabularyController::class, 'categories'])->name('kosakata.categories');
 Route::get('/ui/kosakata/kategori/{category}', [\App\Http\Controllers\VocabularyController::class, 'index'])->name('kosakata.category.show');
 Route::get('/ui/kosakata', [\App\Http\Controllers\VocabularyController::class, 'index'])->name('kosakata.index');
 Route::post('/ui/kosakata', [\App\Http\Controllers\VocabularyController::class, 'store'])->name('kosakata.store');
+Route::put('/ui/kosakata/{vocabulary}', [\App\Http\Controllers\VocabularyController::class, 'update'])->name('kosakata.update');
+Route::delete('/ui/kosakata/{vocabulary}', [\App\Http\Controllers\VocabularyController::class, 'destroy'])->name('kosakata.destroy');
 Route::get('/ui/kosakata/show', function() { return view('student.kosakata.show'); });
 Route::get('/ui/translator', function() { return view('student.translator.index'); });
 Route::get('/ui/quiz', function() { return view('student.quiz.index'); });
 Route::get('/ui/quiz/show', function() { return view('student.quiz.show'); });
-Route::get('/ui/teacher/kelas', function() { return view('teacher.classroom.index', ['classrooms' => collect()]); });
-Route::get('/ui/teacher/kelas/create', function() { return view('teacher.classroom.create'); });
-Route::get('/ui/teacher/kelas/show', function() { return view('teacher.classroom.show', ['classroom' => new \App\Models\Classroom(['name' => 'Bahasa Jawa - Kelas 5A', 'code' => 'JW5A-26', 'banner_color' => '#1F4D3A', 'banner_icon' => 'graduation-cap']), 'posts' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10), 'students' => collect(), 'members' => collect()]); });
-Route::get('/ui/student/kelas', function() { return view('student.classroom.index', ['classrooms' => collect()]); });
-Route::get('/ui/student/kelas/show', function() { return view('student.classroom.show', ['classroom' => new \App\Models\Classroom(['name' => 'Bahasa Jawa - Kelas 5A', 'banner_color' => '#1F4D3A', 'banner_icon' => 'graduation-cap']), 'posts' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10), 'teacher' => new \App\Models\User(['name' => 'Pak Guru']), 'members' => collect(), 'totalMembers' => 0]); });
-Route::get('/ui/student/kelas/submission', function() { return view('student.classroom.submission.show', ['classroom' => new \App\Models\Classroom(['name' => 'Bahasa Jawa - Kelas 5A']), 'assignment' => new \App\Models\ClassroomAssignment(['post' => new \App\Models\ClassroomPost(['title' => 'Tugas: Mengarang Bebas']), 'max_score' => 100]), 'submission' => null]); });
+Route::get('/ui/teacher/kelas', function() { return redirect()->route('teacher.classroom.index'); });
+Route::get('/ui/student/kelas', function() { return redirect()->route('student.classroom.index'); });
 Route::get('/api/tts', [TtsProxyController::class, 'speak'])->name('api.tts');
 // -------------------------
 
@@ -76,6 +69,7 @@ Route::middleware(['auth'])->prefix('teacher/classroom')->name('teacher.classroo
     Route::delete('/{classroom}', [TeacherClassroomController::class, 'destroy'])->name('destroy');
     Route::post('/{classroom}/weeks/title', [TeacherClassroomController::class, 'updateWeekTitle'])->name('week.title.update');
     Route::delete('/{classroom}/members/{user}', [TeacherClassroomController::class, 'removeMember'])->name('member.remove');
+    Route::post('/{classroom}/members', [TeacherClassroomController::class, 'addMember'])->name('member.add');
     Route::post('/submissions/{submission}/grade', [TeacherClassroomController::class, 'gradeSubmission'])->name('submission.grade');
 
     // Post & Assignments & Quiz Export / Preview
@@ -106,23 +100,6 @@ Route::middleware(['auth'])->prefix('student/classroom')->name('student.classroo
     Route::get('/quizzes/{quiz}/result/{attempt?}', [\App\Http\Controllers\Student\ClassroomQuizController::class, 'result'])->name('quiz.result');
 });
 
-// Rute Materi Pembelajaran untuk Pengajar (Teacher)
-Route::middleware(['auth'])->prefix('teacher/materials')->name('teacher.materials.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\Teacher\MaterialController::class, 'index'])->name('index');
-    Route::get('/create', [\App\Http\Controllers\Teacher\MaterialController::class, 'create'])->name('create');
-    Route::post('/', [\App\Http\Controllers\Teacher\MaterialController::class, 'store'])->name('store');
-    Route::get('/{material}', [\App\Http\Controllers\Teacher\MaterialController::class, 'show'])->name('show');
-    Route::get('/{material}/edit', [\App\Http\Controllers\Teacher\MaterialController::class, 'edit'])->name('edit');
-    Route::put('/{material}', [\App\Http\Controllers\Teacher\MaterialController::class, 'update'])->name('update');
-    Route::delete('/{material}', [\App\Http\Controllers\Teacher\MaterialController::class, 'destroy'])->name('destroy');
-});
-
-// Rute Materi Pembelajaran untuk Pelajar (Student)
-Route::middleware(['auth'])->prefix('student/materials')->name('student.materials.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\Student\MaterialController::class, 'index'])->name('index');
-    Route::get('/{material}', [\App\Http\Controllers\Student\MaterialController::class, 'show'])->name('show');
-});
-
 // Rute Tembang Macapat untuk Pengajar (Teacher)
 Route::middleware(['auth'])->prefix('teacher/macapat')->name('teacher.macapat.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Teacher\MacapatController::class, 'index'])->name('index');
@@ -146,12 +123,6 @@ Route::middleware(['auth'])->prefix('teacher/javanese-script')->name('teacher.ja
     Route::delete('/{id}', [\App\Http\Controllers\Teacher\JavaneseScriptController::class, 'destroy'])->name('destroy');
 });
 
-// Rute Tembang Macapat untuk Pelajar (Student)
-Route::middleware(['auth'])->prefix('student/macapat')->name('student.macapat.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\Student\MacapatController::class, 'index'])->name('index');
-    Route::get('/{macapat}', [\App\Http\Controllers\Student\MacapatController::class, 'show'])->name('show');
-});
-
 // Halaman Pembelajaran Tembang Macapat (Utama & Detail)
 Route::get('/macapat', [\App\Http\Controllers\MacapatController::class, 'index'])->name('macapat.index');
 Route::get('/macapat/{id}', [\App\Http\Controllers\MacapatController::class, 'show'])->name('macapat.show');
@@ -160,8 +131,15 @@ Route::get('/macapat/{id}', [\App\Http\Controllers\MacapatController::class, 'sh
 Route::get('/aksara-jawa', [\App\Http\Controllers\JavaneseScriptController::class, 'index'])->name('javanese-script.index');
 Route::get('/aksara-jawa/{id}', [\App\Http\Controllers\JavaneseScriptController::class, 'show'])->name('javanese-script.show');
 
-// Halaman Pembelajaran Pewayangan (Katalog & Detail Tokoh)
+// Halaman Pembelajaran & Pengelolaan Pewayangan (Katalog, Detail, & CRUD Admin)
 Route::get('/wayang', [\App\Http\Controllers\WayangController::class, 'index'])->name('wayang.index');
+Route::middleware(['auth'])->prefix('wayang')->name('wayang.')->group(function () {
+    Route::get('/create', [\App\Http\Controllers\WayangController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\WayangController::class, 'store'])->name('store');
+    Route::get('/{character}/edit', [\App\Http\Controllers\WayangController::class, 'edit'])->name('edit');
+    Route::put('/{character}', [\App\Http\Controllers\WayangController::class, 'update'])->name('update');
+    Route::delete('/{character}', [\App\Http\Controllers\WayangController::class, 'destroy'])->name('destroy');
+});
 Route::get('/wayang/{character}', [\App\Http\Controllers\WayangController::class, 'show'])->name('wayang.show');
 
 Route::post('/translate', CustomerTranslateController::class)->name('customer.translate');
@@ -206,12 +184,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Log Aktivitas Interaksi Pembelajaran
     Route::get('/activities', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('activities.index');
 
-    // Kosakata Management Legacy
-    Route::post('/kosakata', [AdminPageController::class, 'storeVocab'])->name('vocab.store');
-    Route::put('/kosakata/{vocabWord}', [AdminPageController::class, 'updateVocab'])->name('vocab.update');
-    Route::delete('/kosakata/{vocabWord}', [AdminPageController::class, 'destroyVocab'])->name('vocab.destroy');
-    Route::get('/kosakata/export', [AdminVocabCsvController::class, 'export'])->name('vocab.export');
-    Route::post('/kosakata/import', [AdminVocabCsvController::class, 'import'])->name('vocab.import');
 });
 
 // Download attachment dengan nama asli file

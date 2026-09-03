@@ -7,7 +7,7 @@
     $maxCustomWeek = count($customTitles) > 0 ? max(array_keys($customTitles)) : 0;
     $maxPostWeek = $postsByWeek->keys()->max() ?? 0;
     $maxWeekCount = max(4, $maxCustomWeek, $maxPostWeek);
-    $isTeacher = auth()->user()->isTeacher();
+    $isTeacher = auth()->user()->isTeacher() || auth()->user()->isAdmin();
 @endphp
 
 <div class="accordion basakula-course-accordion mb-4" id="courseWeeksAccordion">

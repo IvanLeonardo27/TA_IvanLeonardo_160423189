@@ -16,7 +16,20 @@ class TestingUserSeeder extends Seeder
         $teacherRole = Role::firstOrCreate(['name' => 'teacher'], ['description' => 'Pengajar/Guru']);
         $studentRole = Role::firstOrCreate(['name' => 'student'], ['description' => 'Pelajar/Siswa']);
 
-        // 1. Akun Pengajar (Guru)
+        // 1. Akun Super Admin
+        User::updateOrCreate(
+            ['email' => 'admin@sekolah.com'],
+            [
+                'name'      => 'Administrator BasaKula',
+                'password'  => Hash::make('password123'),
+                'role_id'   => $adminRole->id,
+                'status'    => 'active',
+                'user_code' => 'ADM001',
+            ]
+        );
+
+        // 2. Akun Pengajar (Guru)
+
         User::updateOrCreate(
             ['email' => 'guru@sekolah.com'],
             [

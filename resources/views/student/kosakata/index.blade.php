@@ -76,7 +76,7 @@
     </div>
 
     @auth
-        @if(auth()->user()->isTeacher())
+        @if(auth()->user()->isAdmin() || auth()->user()->isTeacher())
         <div class="d-flex align-items-center gap-3">
             <button class="btn btn-sm btn-primary rounded-pill px-3 py-1 fw-semibold d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#addVocabModal">
                 <i class="fa-solid fa-plus-circle"></i> Tambah Kata
@@ -105,9 +105,9 @@
     @endif
 </div>
 
-{{-- Modal Tambah Kosakata (Pengajar) --}}
+{{-- Modal Tambah Kosakata (Pengajar & Admin) --}}
 @auth
-@if(auth()->user()->isTeacher())
+@if(auth()->user()->isAdmin() || auth()->user()->isTeacher())
 <div class="modal fade" id="addVocabModal" tabindex="-1" aria-labelledby="addVocabModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg rounded-4">

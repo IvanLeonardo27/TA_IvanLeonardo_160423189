@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Translate" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.27.0">
+  <bpmn:collaboration id="Collaboration_Translate">
+    <bpmn:participant id="Participant_LMS" name="LMS Pembelajaran Bahasa Jawa BasaKula" processRef="Process_Translate" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Translate" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_Pengguna" name="Pengguna (Pelajar / Pengajar)">
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InputText</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DisplayResult</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_1</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Sistem" name="Sistem (Laravel &#38; API External)">
+        <bpmn:flowNodeRef>Task_ValidasiKata</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_ValidasiKata</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_GoogleTranslate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_GoogleApi</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_LocalDictEngine</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_RagamBasa</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ConvertToKrama</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_1" name="Buka Halaman Penerjemah">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_InputText" name="Pilih Arah Terjemahan, Ragam Basa (Ngoko/Krama), &#38; Input Teks (Min. 10 Kata)">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:incoming>Flow_KurangKata</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_DisplayResult" name="Menampilkan Hasil Terjemahan &#38; Opsi Salin / Play Suara TTS">
+      <bpmn:incoming>Flow_ToDisplay1</bpmn:incoming>
+      <bpmn:incoming>Flow_NotKrama</bpmn:incoming>
+      <bpmn:outgoing>Flow_End</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_1" name="Proses Penerjemahan Selesai">
+      <bpmn:incoming>Flow_End</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_InputText" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_InputText" targetRef="Task_ValidasiKata" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_ValidasiKata" targetRef="Gateway_ValidasiKata" />
+    <bpmn:sequenceFlow id="Flow_KurangKata" name="Tidak (&#60; 10 kata)" sourceRef="Gateway_ValidasiKata" targetRef="Task_InputText" />
+    <bpmn:sequenceFlow id="Flow_KataCukup" name="Ya (≥ 10 kata)" sourceRef="Gateway_ValidasiKata" targetRef="Task_GoogleTranslate" />
+    <bpmn:sequenceFlow id="Flow_CheckApi" sourceRef="Task_GoogleTranslate" targetRef="Gateway_GoogleApi" />
+    <bpmn:sequenceFlow id="Flow_ApiSukses" name="Ya" sourceRef="Gateway_GoogleApi" targetRef="Gateway_RagamBasa" />
+    <bpmn:sequenceFlow id="Flow_ApiGagal" name="Tidak (Error / Limit)" sourceRef="Gateway_GoogleApi" targetRef="Task_LocalDictEngine" />
+    <bpmn:sequenceFlow id="Flow_FromLocalDict" sourceRef="Task_LocalDictEngine" targetRef="Gateway_RagamBasa" />
+    <bpmn:sequenceFlow id="Flow_IsKrama" name="Ya" sourceRef="Gateway_RagamBasa" targetRef="Task_ConvertToKrama" />
+    <bpmn:sequenceFlow id="Flow_NotKrama" name="Tidak" sourceRef="Gateway_RagamBasa" targetRef="Task_DisplayResult" />
+    <bpmn:sequenceFlow id="Flow_ToDisplay1" sourceRef="Task_ConvertToKrama" targetRef="Task_DisplayResult" />
+    <bpmn:sequenceFlow id="Flow_End" sourceRef="Task_DisplayResult" targetRef="EndEvent_1" />
+    <bpmn:task id="Task_ValidasiKata" name="Memvalidasi Jumlah Kata Input (Minimal 10 Kata)">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_ValidasiKata" name="Apakah Jumlah Kata ≥ 10?">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_KataCukup</bpmn:outgoing>
+      <bpmn:outgoing>Flow_KurangKata</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_GoogleTranslate" name="Proses Penerjemahan via Google Translate API">
+      <bpmn:incoming>Flow_KataCukup</bpmn:incoming>
+      <bpmn:outgoing>Flow_CheckApi</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_GoogleApi" name="Apakah API Google Berhasil?">
+      <bpmn:incoming>Flow_CheckApi</bpmn:incoming>
+      <bpmn:outgoing>Flow_ApiSukses</bpmn:outgoing>
+      <bpmn:outgoing>Flow_ApiGagal</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_LocalDictEngine" name="Fallback: Terjemahkan via Mesin Kamus Lokal (Database 1.842+ Vocabularies)">
+      <bpmn:incoming>Flow_ApiGagal</bpmn:incoming>
+      <bpmn:outgoing>Flow_FromLocalDict</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_RagamBasa" name="Arah Indo-&#62;Jawa &#38; Mode Krama?">
+      <bpmn:incoming>Flow_ApiSukses</bpmn:incoming>
+      <bpmn:incoming>Flow_FromLocalDict</bpmn:incoming>
+      <bpmn:outgoing>Flow_IsKrama</bpmn:outgoing>
+      <bpmn:outgoing>Flow_NotKrama</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_ConvertToKrama" name="Konversi Kata ke Dialek Krama (convertToKrama)">
+      <bpmn:incoming>Flow_IsKrama</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToDisplay1</bpmn:outgoing>
+    </bpmn:task>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Translate">
+    <bpmndi:BPMNPlane id="BPMNPlane_Translate" bpmnElement="Collaboration_Translate">
+      <bpmndi:BPMNShape id="Participant_LMS_di" bpmnElement="Participant_LMS" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1380" height="570" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Sistem_di" bpmnElement="Lane_Sistem" isHorizontal="true">
+        <dc:Bounds x="190" y="260" width="1350" height="390" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Pengguna_di" bpmnElement="Lane_Pengguna" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="1350" height="180" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="232" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="212" y="185" width="76" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_InputText_di" bpmnElement="Task_InputText">
+        <dc:Bounds x="320" y="120" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_DisplayResult_di" bpmnElement="Task_DisplayResult">
+        <dc:Bounds x="1250" y="120" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1">
+        <dc:Bounds x="1452" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1433" y="185" width="74" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ValidasiKata_di" bpmnElement="Task_ValidasiKata">
+        <dc:Bounds x="320" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ValidasiKata_di" bpmnElement="Gateway_ValidasiKata" isMarkerVisible="true">
+        <dc:Bounds x="515" y="385" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="503" y="446" width="76" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_GoogleTranslate_di" bpmnElement="Task_GoogleTranslate">
+        <dc:Bounds x="660" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_GoogleApi_di" bpmnElement="Gateway_GoogleApi" isMarkerVisible="true">
+        <dc:Bounds x="875" y="385" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="857" y="347.5" width="85" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_LocalDictEngine_di" bpmnElement="Task_LocalDictEngine">
+        <dc:Bounds x="830" y="480" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_RagamBasa_di" bpmnElement="Gateway_RagamBasa" isMarkerVisible="true">
+        <dc:Bounds x="1045" y="385" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="988" y="348.5" width="84" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ConvertToKrama_di" bpmnElement="Task_ConvertToKrama">
+        <dc:Bounds x="1250" y="370" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="268" y="160" />
+        <di:waypoint x="320" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="390" y="200" />
+        <di:waypoint x="390" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="460" y="410" />
+        <di:waypoint x="515" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_KurangKata_di" bpmnElement="Flow_KurangKata">
+        <di:waypoint x="540" y="385" />
+        <di:waypoint x="540" y="160" />
+        <di:waypoint x="460" y="160" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="514" y="262" width="83" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_KataCukup_di" bpmnElement="Flow_KataCukup">
+        <di:waypoint x="565" y="410" />
+        <di:waypoint x="660" y="410" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="572" y="389" width="69" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CheckApi_di" bpmnElement="Flow_CheckApi">
+        <di:waypoint x="800" y="410" />
+        <di:waypoint x="875" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ApiSukses_di" bpmnElement="Flow_ApiSukses">
+        <di:waypoint x="925" y="410" />
+        <di:waypoint x="1045" y="410" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="979" y="413" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ApiGagal_di" bpmnElement="Flow_ApiGagal">
+        <di:waypoint x="900" y="435" />
+        <di:waypoint x="900" y="480" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="908" y="445" width="64" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_FromLocalDict_di" bpmnElement="Flow_FromLocalDict">
+        <di:waypoint x="970" y="520" />
+        <di:waypoint x="1070" y="520" />
+        <di:waypoint x="1070" y="435" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_IsKrama_di" bpmnElement="Flow_IsKrama">
+        <di:waypoint x="1095" y="410" />
+        <di:waypoint x="1250" y="410" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1158" y="389" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NotKrama_di" bpmnElement="Flow_NotKrama">
+        <di:waypoint x="1070" y="385" />
+        <di:waypoint x="1070" y="160" />
+        <di:waypoint x="1250" y="160" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1072" y="173" width="27" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToDisplay1_di" bpmnElement="Flow_ToDisplay1">
+        <di:waypoint x="1320" y="370" />
+        <di:waypoint x="1320" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_End_di" bpmnElement="Flow_End">
+        <di:waypoint x="1390" y="160" />
+        <di:waypoint x="1452" y="160" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -8,11 +8,13 @@ use App\Models\ClassroomAssignment;
 use App\Models\ClassroomPost;
 use App\Models\ClassroomQuiz;
 use App\Models\ClassroomSubmission;
-use App\Models\Material;
+use App\Models\JavaneseScriptDetail;
+use App\Models\MacapatDetail;
 use App\Models\QuizAttempt;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Vocabulary;
+use App\Models\WayangCharacter;
 use Illuminate\Support\Facades\Gate;
 
 class DashboardController extends Controller
@@ -31,11 +33,12 @@ class DashboardController extends Controller
             'active_students'    => $roleStudent ? User::where('role_id', $roleStudent->id)->where('status', 'active')->count() : 0,
             'total_classrooms'   => Classroom::count(),
             'active_classrooms'  => Classroom::where('status', 'active')->count(),
-            'total_materials'    => Material::count() + ClassroomPost::where('type', 'material')->count(),
+            'total_materials'    => WayangCharacter::count() + MacapatDetail::count() + JavaneseScriptDetail::count() + ClassroomPost::where('type', 'material')->count(),
             'total_submissions'  => ClassroomSubmission::count(),
             'total_quiz_attempts'=> QuizAttempt::count(),
             'total_vocabularies' => Vocabulary::count(),
         ];
+
 
         $latestTeachers = $roleTeacher 
             ? User::where('role_id', $roleTeacher->id)->with('teacherProfile')->latest()->take(5)->get()

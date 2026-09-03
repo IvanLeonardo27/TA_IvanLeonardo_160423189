@@ -87,8 +87,14 @@
             </h5>
         </div>
 
-        {{-- Filter Allegiance --}}
+        {{-- Filter Allegiance & Admin Actions --}}
         <div class="d-flex align-items-center gap-2 flex-wrap">
+            @if(auth()->check() && auth()->user()->isAdmin())
+            <a href="{{ route('wayang.create') }}" class="btn btn-warning rounded-pill px-3 py-1.5 fw-bold shadow-xs text-dark d-inline-flex align-items-center gap-1.5 me-2" style="background:#FBBF24; border:none; font-size: 0.84rem;">
+                <i class="fa-solid fa-plus-circle"></i> Tambah Tokoh Wayang
+            </a>
+            @endif
+
             <span class="small fw-bold text-muted"><i class="fa-solid fa-flag me-1"></i> Pihak:</span>
             <a href="{{ route('wayang.index', array_filter(['category' => $categoryId, 'search' => $search])) }}" 
                class="badge rounded-pill px-3 py-1.5 text-decoration-none {{ !$allegiance ? 'bg-dark text-white' : 'bg-light text-muted border' }}">
@@ -215,6 +221,21 @@
                             Selengkapnya <i class="fa-solid fa-arrow-right ms-1"></i>
                         </a>
                     </div>
+
+                    @if(auth()->check() && auth()->user()->isAdmin())
+                    <div class="d-flex gap-1.5 pt-2 border-top mt-2">
+                        <a href="{{ route('wayang.edit', $char) }}" class="btn btn-outline-primary btn-sm rounded-pill flex-grow-1 fw-bold" style="font-size: 0.76rem;">
+                            <i class="fa-solid fa-pen-to-square me-1"></i> Edit
+                        </a>
+                        <form action="{{ route('wayang.destroy', $char) }}" method="POST" class="d-inline flex-grow-1" onsubmit="return confirm('Hapus tokoh {{ $char->name }}?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill w-100 fw-bold" style="font-size: 0.76rem;">
+                                <i class="fa-solid fa-trash me-1"></i> Hapus
+                            </button>
+                        </form>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>

@@ -5,10 +5,10 @@
   </bpmn:collaboration>
   <bpmn:process id="Process_Auth" isExecutable="false">
     <bpmn:laneSet id="LaneSet_1">
-      <bpmn:lane id="Lane_PelajarPengajar" name="Admin">
+      <bpmn:lane id="Lane_Admin" name="Admin">
         <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_InputData</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_LihatDashboard</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_LihatNotifikasi</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>EndEvent_1</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_Sistem" name="Sistem (Laravel &#38; MySQL)">
@@ -16,19 +16,19 @@
         <bpmn:flowNodeRef>Gateway_Validasi</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_HashDanSimpan</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_Role</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_DirectTeacher</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_DirectStudent</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CreateTeacherProfile</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CreateStudentProfile</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:startEvent id="StartEvent_1" name="Buka Halaman Registrasi / Login">
+    <bpmn:startEvent id="StartEvent_1" name="Buka Form Tambah Pengguna">
       <bpmn:outgoing>Flow_1</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:task id="Task_InputData" name="Mengisi Data Diri (Nama, Email, Password, Role)">
+    <bpmn:task id="Task_InputData" name="Admin Mengisi Form Registrasi Pengguna Baru (Nama, Email, Password, Role, NIP/NISN)">
       <bpmn:incoming>Flow_1</bpmn:incoming>
       <bpmn:incoming>Flow_GagalValidasi</bpmn:incoming>
       <bpmn:outgoing>Flow_2</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Task_ValidasiData" name="Memvalidasi Format Data dan Keunikan Email">
+    <bpmn:task id="Task_ValidasiData" name="Memvalidasi Form Input &#38; Keunikan Email">
       <bpmn:incoming>Flow_2</bpmn:incoming>
       <bpmn:outgoing>Flow_3</bpmn:outgoing>
     </bpmn:task>
@@ -37,26 +37,26 @@
       <bpmn:outgoing>Flow_Valid</bpmn:outgoing>
       <bpmn:outgoing>Flow_GagalValidasi</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Task_HashDanSimpan" name="Hashing Password, Simpan User ke DB (insert users), &#38; Buat Sesi">
+    <bpmn:task id="Task_HashDanSimpan" name="Generate Kode Unik (277...), Hashing Password, &#38; Simpan User ke DB">
       <bpmn:incoming>Flow_Valid</bpmn:incoming>
       <bpmn:outgoing>Flow_4</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:exclusiveGateway id="Gateway_Role" name="Role Pengguna?">
+    <bpmn:exclusiveGateway id="Gateway_Role" name="Role Pengguna Didaftarkan?">
       <bpmn:incoming>Flow_4</bpmn:incoming>
       <bpmn:outgoing>Flow_Teacher</bpmn:outgoing>
       <bpmn:outgoing>Flow_Student</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Task_DirectTeacher" name="Arahkan ke Dashboard Pengajar (Kelola Kelas)">
+    <bpmn:task id="Task_CreateTeacherProfile" name="Buat Profil Pengajar (TeacherProfile: NIP, Instansi)">
       <bpmn:incoming>Flow_Teacher</bpmn:incoming>
-      <bpmn:outgoing>Flow_ToDashboard1</bpmn:outgoing>
+      <bpmn:outgoing>Flow_ToNotif1</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Task_DirectStudent" name="Arahkan ke Dashboard Pelajar (Ruang Kelas Saya)">
+    <bpmn:task id="Task_CreateStudentProfile" name="Buat Profil Pelajar (StudentProfile: NISN, Sekolah)">
       <bpmn:incoming>Flow_Student</bpmn:incoming>
-      <bpmn:outgoing>Flow_ToDashboard2</bpmn:outgoing>
+      <bpmn:outgoing>Flow_ToNotif2</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Task_LihatDashboard" name="Melihat Halaman Dashboard Sesuai Hak Akses">
-      <bpmn:incoming>Flow_ToDashboard1</bpmn:incoming>
-      <bpmn:incoming>Flow_ToDashboard2</bpmn:incoming>
+    <bpmn:task id="Task_LihatNotifikasi" name="Menerima Notifikasi Sukses &#38; Kode Pengguna Baru">
+      <bpmn:incoming>Flow_ToNotif1</bpmn:incoming>
+      <bpmn:incoming>Flow_ToNotif2</bpmn:incoming>
       <bpmn:outgoing>Flow_End</bpmn:outgoing>
     </bpmn:task>
     <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_InputData" />
@@ -65,12 +65,12 @@
     <bpmn:sequenceFlow id="Flow_GagalValidasi" name="Tidak" sourceRef="Gateway_Validasi" targetRef="Task_InputData" />
     <bpmn:sequenceFlow id="Flow_Valid" name="Ya" sourceRef="Gateway_Validasi" targetRef="Task_HashDanSimpan" />
     <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_HashDanSimpan" targetRef="Gateway_Role" />
-    <bpmn:sequenceFlow id="Flow_Teacher" name="Pengajar" sourceRef="Gateway_Role" targetRef="Task_DirectTeacher" />
-    <bpmn:sequenceFlow id="Flow_Student" name="Pelajar" sourceRef="Gateway_Role" targetRef="Task_DirectStudent" />
-    <bpmn:sequenceFlow id="Flow_ToDashboard1" sourceRef="Task_DirectTeacher" targetRef="Task_LihatDashboard" />
-    <bpmn:sequenceFlow id="Flow_ToDashboard2" sourceRef="Task_DirectStudent" targetRef="Task_LihatDashboard" />
-    <bpmn:sequenceFlow id="Flow_End" sourceRef="Task_LihatDashboard" targetRef="EndEvent_1" />
-    <bpmn:endEvent id="EndEvent_1" name="Pengguna Berhasil Masuk">
+    <bpmn:sequenceFlow id="Flow_Teacher" name="Pengajar" sourceRef="Gateway_Role" targetRef="Task_CreateTeacherProfile" />
+    <bpmn:sequenceFlow id="Flow_Student" name="Pelajar" sourceRef="Gateway_Role" targetRef="Task_CreateStudentProfile" />
+    <bpmn:sequenceFlow id="Flow_ToNotif1" sourceRef="Task_CreateTeacherProfile" targetRef="Task_LihatNotifikasi" />
+    <bpmn:sequenceFlow id="Flow_ToNotif2" sourceRef="Task_CreateStudentProfile" targetRef="Task_LihatNotifikasi" />
+    <bpmn:sequenceFlow id="Flow_End" sourceRef="Task_LihatNotifikasi" targetRef="EndEvent_1" />
+    <bpmn:endEvent id="EndEvent_1" name="Akun Pengguna Berhasil Didaftarkan oleh Admin">
       <bpmn:incoming>Flow_End</bpmn:incoming>
     </bpmn:endEvent>
   </bpmn:process>
@@ -82,7 +82,7 @@
       <bpmndi:BPMNShape id="Lane_Sistem_di" bpmnElement="Lane_Sistem" isHorizontal="true">
         <dc:Bounds x="190" y="260" width="1110" height="240" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_PelajarPengajar_di" bpmnElement="Lane_PelajarPengajar" isHorizontal="true">
+      <bpmndi:BPMNShape id="Lane_Admin_di" bpmnElement="Lane_Admin" isHorizontal="true">
         <dc:Bounds x="190" y="80" width="1110" height="180" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
@@ -113,13 +113,13 @@
           <dc:Bounds x="760" y="392" width="81" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_DirectTeacher_di" bpmnElement="Task_DirectTeacher">
+      <bpmndi:BPMNShape id="Task_CreateTeacherProfile_di" bpmnElement="Task_CreateTeacherProfile">
         <dc:Bounds x="870" y="280" width="130" height="70" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_DirectStudent_di" bpmnElement="Task_DirectStudent">
+      <bpmndi:BPMNShape id="Task_CreateStudentProfile_di" bpmnElement="Task_CreateStudentProfile">
         <dc:Bounds x="870" y="370" width="130" height="70" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_LihatDashboard_di" bpmnElement="Task_LihatDashboard">
+      <bpmndi:BPMNShape id="Task_LihatNotifikasi_di" bpmnElement="Task_LihatNotifikasi">
         <dc:Bounds x="1030" y="120" width="120" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1">
@@ -175,12 +175,12 @@
           <dc:Bounds x="813" y="408" width="35" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_ToDashboard1_di" bpmnElement="Flow_ToDashboard1">
+      <bpmndi:BPMNEdge id="Flow_ToNotif1_di" bpmnElement="Flow_ToNotif1">
         <di:waypoint x="1000" y="315" />
         <di:waypoint x="1040" y="315" />
         <di:waypoint x="1040" y="200" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_ToDashboard2_di" bpmnElement="Flow_ToDashboard2">
+      <bpmndi:BPMNEdge id="Flow_ToNotif2_di" bpmnElement="Flow_ToNotif2">
         <di:waypoint x="1000" y="405" />
         <di:waypoint x="1080" y="405" />
         <di:waypoint x="1080" y="200" />

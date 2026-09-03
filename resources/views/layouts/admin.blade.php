@@ -14,6 +14,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
 
+    <!-- Driver.js Spotlight Tour Library & Custom Styles -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css">
+    <link rel="stylesheet" href="{{ asset('css/basakula-tutorial.css') }}">
+
     <style>
         :root {
             --color-almond: #EFDECD;
@@ -77,6 +81,15 @@
 
 <body class="@yield('body_class', '')">
     @yield('content')
+
+    <!-- Driver.js & BasaKula Tutorial Engine -->
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
+    <script src="{{ asset('js/basakula-tutorial-tour.js') }}"></script>
+    @auth
+    <script>
+        window.BASAKULA_USER_ROLE = "admin";
+    </script>
+    @endauth
 
     @stack('scripts')
 </body>

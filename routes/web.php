@@ -183,6 +183,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Log Aktivitas Interaksi Pembelajaran
     Route::get('/activities', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('activities.index');
+    Route::post('/activities/reset', [\App\Http\Controllers\Admin\ActivityLogController::class, 'reset'])->name('activities.reset');
+    Route::post('/activities/restore', [\App\Http\Controllers\Admin\ActivityLogController::class, 'restore'])->name('activities.restore');
 
 });
 

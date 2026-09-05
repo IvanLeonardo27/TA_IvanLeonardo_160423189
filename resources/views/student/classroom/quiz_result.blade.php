@@ -85,8 +85,8 @@
                     <a href="{{ route('student.classroom.show', $classroom) }}" class="btn btn-light rounded-pill px-4 py-2.5 fw-bold text-muted border border-2">
                         <i class="fa-solid fa-arrow-left me-2"></i> Kembali ke Ruang Kelas
                     </a>
-                    <button onclick="window.close()" class="btn rounded-pill px-4.5 py-2.5 fw-bold text-white shadow-sm btn-bouncy ms-auto" style="background:#8B5CF6;">
-                        <i class="fa-solid fa-xmark me-2"></i> Tutup Tab Ini
+                    <button type="button" onclick="closeQuizTab()" class="btn rounded-pill px-4.5 py-2.5 fw-bold text-white shadow-sm btn-bouncy ms-auto" style="background:#8B5CF6;">
+                        <i class="fa-solid fa-xmark me-2"></i> Tutup & Selesai
                     </button>
                 </div>
 
@@ -96,9 +96,28 @@
 
     </div>
 </div>
+@endsection
 
 @push('scripts')
 <script>
+function closeQuizTab() {
+    try {
+        window.open('', '_self', '');
+        window.close();
+    } catch (e) {}
+
+    try {
+        if (window.opener && !window.opener.closed) {
+            window.opener.focus();
+        }
+    } catch (e) {}
+
+    // Fallback: Jika window.close() diblokir oleh browser (misal tab hasil form POST/navigasi), redirect kembali ke kelas
+    setTimeout(function() {
+        window.location.href = "{{ route('student.classroom.show', $classroom) }}";
+    }, 100);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const timeElements = document.querySelectorAll('.user-local-time');
     timeElements.forEach(el => {
@@ -119,4 +138,3 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endpush
-@endsection

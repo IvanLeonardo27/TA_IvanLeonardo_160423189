@@ -50,7 +50,9 @@ class ClassroomPostPolicy
      */
     public function delete(User $user, ClassroomPost $post): bool
     {
-        // Pemilik kelas atau penulis postingan
-        return $post->classroom->teacher_id === $user->id || $post->user_id === $user->id;
+        // Pemilik kelas atau pembuat postingan
+        return ($post->classroom && $post->classroom->teacher_id === $user->id) 
+            || ($post->author_id === $user->id) 
+            || ($post->user_id === $user->id);
     }
 }

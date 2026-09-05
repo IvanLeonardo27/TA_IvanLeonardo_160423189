@@ -70,12 +70,25 @@ class Classroom extends Model
           ->count('assignment_id');
 
         // Hitung quiz yang sudah dikerjakan siswa
-        $completedQuizzes = QuizAttempt::whereHas('quiz.post', function ($q) {
+        $completedQuizzes = ClassroomQuiz::whereHas('post', function ($q) {
             $q->where('classroom_id', $this->id);
         })->where(function ($q) use ($studentId) {
-            $q->where('student_id', $studentId)->orWhere('user_id', $studentId);
-        })->distinct('quiz_id')
-          ->count('quiz_id');
+            $q->whereHas('attempts', function ($att) use ($studentId) {
+                $att->where('student_id', $studentId)->orWhere('user_id', $studentId);
+            })->orWhereExists(function ($sub) use ($studentId) {
+                $sub->select(\Illuminate\Support\Facades\DB::raw(1))
+                    ->from('quiz_attempts')
+                    ->where(function ($match) {
+                        $match->whereColumn('quiz_attempts.quiz_id', 'classroom_quizzes.id')
+                              ->orWhereColumn('quiz_attempts.quiz_set_id', 'classroom_quizzes.quiz_set_id');
+                    })
+                    ->where(function ($user) use ($studentId) {
+                        $user->where('quiz_attempts.student_id', $studentId)
+                             ->orWhere('quiz_attempts.user_id', $studentId);
+                    })
+                    ->whereNull('quiz_attempts.deleted_at');
+            });
+        })->count();
 
         $completedCount = $completedAssignments + $completedQuizzes;
         $percentage = (int) round(($completedCount / $totalItems) * 100);

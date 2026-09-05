@@ -52,13 +52,15 @@ class ClassroomSubmissionController extends Controller
         ClassroomSubmission::updateOrCreate(
             ['assignment_id' => $assignment->id, 'student_id' => Auth::id()],
             [
-                'original_name' => $file->getClientOriginalName(),
-                'file_path'     => $path,
-                'note'          => $request->note,
-                'submitted_at'  => now(),
-                'status'        => 'submitted',
-                'score'         => null,
-                'teacher_feedback' => null,
+                'original_name'     => $file->getClientOriginalName(),
+                'original_filename' => $file->getClientOriginalName(),
+                'file_path'         => $path,
+                'note'              => $request->note,
+                'notes'             => $request->note,
+                'submitted_at'      => now(),
+                'status'            => 'submitted',
+                'score'             => null,
+                'teacher_feedback'  => null,
             ]
         );
 

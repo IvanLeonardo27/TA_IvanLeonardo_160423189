@@ -26,12 +26,12 @@ class ClassroomPostController extends Controller
         \Illuminate\Support\Facades\Gate::authorize('create', [ClassroomPost::class, $classroom]);
 
         $validated = $request->validate([
-            'type'             => 'required|in:announcement,material,assignment,quiz',
-            'title'            => 'nullable|string|max:200',
-            'body'             => 'nullable|string',
-            'is_pinned'        => 'boolean',
-            'week_number'      => 'nullable|integer|min:0|max:52',
-            'files.*'          => 'nullable|file|max:20480', // 20MB per file
+            'type'                => 'required|in:announcement,material,assignment,quiz,url',
+            'title'               => 'nullable|string|max:200',
+            'body'                => 'nullable|string',
+            'link_url'            => 'nullable|url|max:500',
+            'week_number'         => 'nullable|integer|min:0|max:52',
+            'files.*'             => 'nullable|file|max:20480', // 20MB per file
             // Assignment / Quiz fields
             'due_date'            => 'nullable|date',
             'assignment_due_date' => 'nullable|date',
@@ -111,7 +111,7 @@ class ClassroomPostController extends Controller
             'type'         => $validated['type'],
             'title'        => $validated['title'] ?? null,
             'body'         => $postBody,
-            'is_pinned'    => $request->boolean('is_pinned'),
+            'link_url'     => $validated['type'] === 'url' ? ($request->input('link_url') ?? $request->input('external_url')) : null,
             'week_number'  => $request->filled('week_number') ? (int) $request->week_number : null,
             'is_published' => $request->has('is_published') ? $request->boolean('is_published') : true,
         ]);
@@ -150,17 +150,16 @@ class ClassroomPostController extends Controller
 
             // 1. Buat Set Kuis untuk bank soal
             $quizSet = \App\Models\QuizSet::create([
-                'title'               => $quizTitle,
-                'slug'                => \Illuminate\Support\Str::slug($quizTitle . '-' . time()),
-                'time_limit_seconds'  => max(1, $durationMinutes) * 60,
-                'is_active'           => true,
+                'title'              => $quizTitle,
+                'slug'               => \Illuminate\Support\Str::slug($quizTitle . '-' . time()),
+                'description'        => $validated['instructions'] ?? 'Kuis Evaluasi Pembelajaran',
+                'category'           => 'classroom',
+                'time_limit_seconds' => max(1, $durationMinutes) * 60,
+                'is_active'          => true,
             ]);
 
             // 2. Simpan setiap soal pilihan ganda yang diinput pengajar
-            $questionsInput = $validated['type'] === 'material' 
-                ? $request->input('material_questions', $request->input('questions', []))
-                : $request->input('questions', []);
-
+            $questionsInput = $request->input('questions', []);
             $checkpointSlide = (int) $request->input('checkpoint_slide', 1);
 
             if (is_array($questionsInput)) {
@@ -175,46 +174,50 @@ class ClassroomPostController extends Controller
                     $correctIndex = 0;
                     $idx = 0;
                     foreach ($optionsRaw as $letter => $optText) {
-                        $optionsList[] = $optText;
-                        if ($letter === $correctLetter) {
-                            $correctIndex = $idx;
+                        if (!empty($optText)) {
+                            $optionsList[] = $optText;
+                            if ($letter === $correctLetter) {
+                                $correctIndex = $idx;
+                            }
+                            $idx++;
                         }
-                        $idx++;
                     }
 
                     \App\Models\QuizQuestion::create([
-                        'quiz_set_id'   => $quizSet->id,
-                        'question'      => $qData['text'],
-                        'options'       => $optionsList,
-                        'correct_index' => $correctIndex,
-                        'points'        => 10,
-                        'is_active'     => true,
-                        'explanation'   => "checkpoint_slide:{$checkpointSlide}",
+                        'quiz_set_id'    => $quizSet->id,
+                        'question'       => $qData['text'],
+                        'question_text'  => $qData['text'],
+                        'options'        => $optionsList,
+                        'correct_index'  => $correctIndex,
+                        'correct_answer' => (string) $correctIndex,
+                        'points'         => 10,
+                        'is_active'      => true,
+                        'explanation'    => $qData['explanation'] ?? "checkpoint_slide:{$checkpointSlide}",
                     ]);
                 }
             }
 
             // 3. Tautkan post dengan quiz_set_id yang baru dibuat
-            $baseInstructions = $request->input('material_instructions') ?: 'Kerjakan pertanyaan checkpoint berikut untuk menguji pemahaman materi yang baru saja dipelajari.';
             $quizDueDate = $validated['quiz_due_date'] 
                         ?? ($validated['due_date'] ?? $request->input('quiz_due_date', $request->input('due_date')));
 
             \App\Models\ClassroomQuiz::create([
                 'post_id'          => $post->id,
                 'quiz_set_id'      => $quizSet->id,
-                'due_date'         => $validated['type'] === 'material' ? null : ($quizDueDate ?: null),
+                'due_date'         => $quizDueDate ?: null,
                 'duration_minutes' => $durationMinutes,
                 'max_score'        => $validated['max_score'] ?? 100,
                 'show_score'       => true,
-                'max_attempts'     => $validated['type'] === 'material' ? (int)$request->input('material_max_attempts', 0) : (int)$request->input('max_attempts', 1),
-                'instructions'     => $validated['type'] === 'material' ? "{$baseInstructions} [checkpoint_slide:{$checkpointSlide}]" : ($validated['instructions'] ?? null),
+                'max_attempts'     => (int)$request->input('max_attempts', 1),
+                'instructions'     => $validated['instructions'] ?? null,
             ]);
         }
 
         $successMsg = match($validated['type']) {
-            'material'     => $hasPractice ? 'Materi belajar beserta latihan soal berhasil dipublikasikan!' : 'Materi belajar berhasil dipublikasikan!',
+            'material'     => $request->boolean('has_practice_questions') ? 'Materi belajar beserta latihan soal berhasil dipublikasikan!' : 'Materi belajar berhasil dipublikasikan!',
             'assignment'   => 'Tugas berhasil dipublikasikan!',
             'quiz'         => 'Evaluasi / Kuis pilihan ganda berhasil dibuat!',
+            'url'          => 'Tautan link URL berhasil dipublikasikan!',
             'announcement' => 'Pengumuman berhasil dipublikasikan!',
             default        => 'Postingan berhasil dipublikasikan!',
         };
@@ -255,7 +258,15 @@ class ClassroomPostController extends Controller
 
             // Mengambil hasil percobaan kuis dari database
             $attempts = \App\Models\QuizAttempt::query()
-                ->where('quiz_set_id', $quiz->quiz_set_id)
+                ->where(function($q) use ($quiz) {
+                    $q->where('quiz_id', $quiz->id);
+                    if (!empty($quiz->quiz_set_id)) {
+                        $q->orWhere('quiz_set_id', $quiz->quiz_set_id);
+                    }
+                    if (!empty($quiz->quiz_master_id)) {
+                        $q->orWhere('quiz_master_id', $quiz->quiz_master_id);
+                    }
+                })
                 ->get();
 
             foreach ($attempts as $attempt) {
@@ -284,13 +295,28 @@ class ClassroomPostController extends Controller
 
         // Ambil daftar soal pilihan ganda kuis
         $questions = \App\Models\QuizQuestion::query()
-            ->where('quiz_set_id', $quiz->quiz_set_id)
+            ->where(function($q) use ($quiz) {
+                if (!empty($quiz->quiz_set_id)) {
+                    $q->where('quiz_set_id', $quiz->quiz_set_id);
+                }
+                if (!empty($quiz->quiz_master_id)) {
+                    $q->orWhere('quiz_master_id', $quiz->quiz_master_id);
+                }
+            })
             ->where('is_active', true)
             ->get();
 
         // Ambil seluruh percobaan kuis siswa
         $attempts = \App\Models\QuizAttempt::query()
-            ->where('quiz_set_id', $quiz->quiz_set_id)
+            ->where(function($q) use ($quiz) {
+                $q->where('quiz_id', $quiz->id);
+                if (!empty($quiz->quiz_set_id)) {
+                    $q->orWhere('quiz_set_id', $quiz->quiz_set_id);
+                }
+                if (!empty($quiz->quiz_master_id)) {
+                    $q->orWhere('quiz_master_id', $quiz->quiz_master_id);
+                }
+            })
             ->orderBy('created_at', 'desc')
             ->get();
 

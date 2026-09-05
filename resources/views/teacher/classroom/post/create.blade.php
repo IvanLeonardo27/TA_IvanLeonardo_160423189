@@ -19,18 +19,42 @@
                 <form action="{{ route('teacher.classroom.post.store', $classroom) }}" method="POST" enctype="multipart/form-data" id="postForm" novalidate>
                     @csrf
 
-                    {{-- Pilih Tipe Post --}}
+                    @php
+                        $selectedType = old('type', request('type', 'material'));
+                        $targetWeek = (int) request('week', old('week_number', 1));
+                        $targetWeekTitle = $targetWeek === 0 ? 'General (Pengumuman Umum)' : ('Week ' . $targetWeek . ' - ' . $classroom->getWeekTitle($targetWeek));
+                    @endphp
+
+                    {{-- Target Minggu Otomatis Terhubung dari Button + (Menghilangkan Dropdown Manual) --}}
+                    <input type="hidden" name="week_number" value="{{ $targetWeek }}">
+                    <div class="mb-4 p-3 rounded-4 bg-light border d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px; height:36px; background:#E0F2FE; color:#0284C7;">
+                                <i class="fa-solid fa-calendar-check fs-6"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block" style="font-size: 0.72rem; line-height: 1.1;">Penempatan Konten</small>
+                                <span class="fw-bold text-dark" style="font-size: 0.88rem;">{{ $targetWeekTitle }}</span>
+                            </div>
+                        </div>
+                        <span class="badge bg-white text-primary border rounded-pill px-2.5 py-1 fw-semibold shadow-xs" style="font-size: 0.72rem;">
+                            <i class="fa-solid fa-link me-1 opacity-75"></i>Terpilih Otomatis
+                        </span>
+                    </div>
+
+                    {{-- Pilih Tipe Post (4 Fitur Pembelajaran + Pengumuman) --}}
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Jenis Postingan <span class="text-danger">*</span></label>
-                        <input type="hidden" name="type" id="typeInput" value="announcement">
+                        <input type="hidden" name="type" id="typeInput" value="{{ $selectedType }}">
                         <div class="d-flex gap-2 gap-md-3 flex-wrap">
                             @foreach([
-                                ['announcement','Pengumuman','bullhorn','#10B981'],
                                 ['material','Materi Belajar','book-open','#3B82F6'],
                                 ['assignment','Tugas','clipboard-list','#EF4444'],
                                 ['quiz','Evaluasi / Quiz','pen-to-square','#8B5CF6'],
+                                ['url','Tautan Web / URL','link','#0284C7'],
+                                ['announcement','Pengumuman','bullhorn','#10B981'],
                             ] as [$val, $label, $icon, $color])
-                            <button type="button" class="type-btn btn border-2 rounded-4 px-3 px-md-4 py-2.5 py-md-3 d-flex flex-column align-items-center gap-1 {{ $val === 'announcement' ? 'btn-primary border-primary text-white' : 'btn-light' }}"
+                            <button type="button" class="type-btn btn border-2 rounded-4 px-3 px-md-4 py-2.5 py-md-3 d-flex flex-column align-items-center gap-1 {{ $val === $selectedType ? 'btn-primary border-primary text-white' : 'btn-light' }}"
                                     data-type="{{ $val }}" data-color="{{ $color }}" style="flex:1 1 auto; min-width:110px; max-width:160px; transition:.2s;">
                                 <i class="fa-solid fa-{{ $icon }} fs-4"></i>
                                 <span class="fw-semibold small text-center" style="font-size:0.8rem;">{{ $label }}</span>
@@ -40,26 +64,9 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label fw-semibold">Judul</label>
+                        <label class="form-label fw-semibold" id="titleLabel">Judul Postingan <span class="text-danger">*</span></label>
                         <input type="text" name="title" id="postTitleInput" class="form-control rounded-4 border-0 bg-light form-control-lg"
                                placeholder="Judul postingan..." value="{{ old('title') }}">
-                    </div>
-
-                    {{-- Target Minggu / Week --}}
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Target Minggu / Week <span class="text-muted fw-normal">(Lokasi Penempatan)</span></label>
-                        <select name="week_number" class="form-select rounded-4 border-0 bg-light form-select-lg">
-                            <option value="">-- Otomatis (Dihitung 7 Hari Sejak Kelas Dibuat) --</option>
-                            <option value="0" {{ old('week_number') === '0' ? 'selected' : '' }}>📌 General (Pengumuman Umum)</option>
-                            @for($w = 1; $w <= 16; $w++)
-                                <option value="{{ $w }}" {{ old('week_number') == $w ? 'selected' : '' }}>
-                                    📅 Week {{ $w }} - {{ $classroom->getWeekTitle($w) }}
-                                </option>
-                            @endfor
-                        </select>
-                        <div class="form-text text-muted small">
-                            Pengajar dapat memilih secara khusus postingan ini akan ditempatkan di <strong>Week</strong> berapa, atau biarkan <strong>Otomatis</strong> agar tersusun sesuai tanggal upload.
-                        </div>
                     </div>
 
                     {{-- Status Visibilitas Siswa --}}
@@ -74,9 +81,38 @@
                         </div>
                     </div>
 
+                    {{-- Field Khusus Tautan URL (Referensi Gambar 4: Moodle New URL) --}}
+                    <div id="urlFields" class="d-none">
+                        <div class="card border-0 rounded-4 p-4 shadow-sm mb-4" style="background: #F0F9FF; border: 1.5px solid #BAE6FD !important;">
+                            <div class="d-flex align-items-center gap-3 mb-3 pb-2 border-bottom border-info-subtle">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs" style="width:42px;height:42px;flex-shrink:0; color:#0284C7;">
+                                    <i class="fa-solid fa-link fs-5"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0" style="color: #0369A1;">Tautan Web Eksternal (External URL)</h6>
+                                    <small class="text-muted">Masukkan tautan website referensi, artikel, Google Docs/Drive, atau video.</small>
+                                </div>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label fw-bold small text-dark" id="externalUrlLabel">
+                                    External URL <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-0 text-muted shadow-xs"><i class="fa-solid fa-globe"></i></span>
+                                    <input type="url" name="link_url" id="linkUrlInput" class="form-control border-0 bg-white shadow-xs form-control-lg" 
+                                           placeholder="https://contoh-website.com/materi-pembelajaran" value="{{ old('link_url') }}">
+                                </div>
+                                <div class="form-text text-muted small mt-1.5">
+                                    <i class="fa-solid fa-circle-info me-1"></i>Contoh format: <code>https://id.wikipedia.org/...</code> atau <code>https://docs.google.com/...</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- Deskripsi Umum / Pengantar --}}
                     <div class="mb-4" id="standardBodyField">
-                        <label class="form-label fw-semibold">Isi / Deskripsi Materi</label>
+                        <label class="form-label fw-semibold" id="standardBodyLabel">Isi / Deskripsi Materi</label>
                         <textarea name="body" rows="4" class="form-control rounded-4 border-0 bg-light"
                                   placeholder="Tuliskan ringkasan materi, petunjuk umum, atau deskripsi pembelajaran...">{{ old('body') }}</textarea>
                     </div>
@@ -289,14 +325,32 @@
 
                         {{-- DYNAMIC QUESTION BUILDER (PILIHAN GANDA) --}}
                         <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
-                            <h6 class="fw-bold text-main m-0 small"><i class="fa-solid fa-list-ol text-purple me-2"></i>Daftar Soal Pilihan Ganda</h6>
-                            <button type="button" id="addQuestionBtn" class="btn btn-sm rounded-pill text-white fw-bold px-3 btn-bouncy" style="background:#8B5CF6; font-size:0.8rem;">
-                                <i class="fa-solid fa-plus me-1"></i> Tambah Soal Baru
+                            <div class="d-flex align-items-center gap-2">
+                                <h6 class="fw-bold text-main m-0 small"><i class="fa-solid fa-list-ol text-purple me-2"></i>Daftar Soal Pilihan Ganda</h6>
+                                <span class="badge bg-light text-secondary border rounded-pill px-2.5 py-1 font-monospace" id="questionCountBadge" style="font-size:0.75rem;">1 Soal</span>
+                            </div>
+                            <button type="button" id="addQuestionTopBtn" class="btn btn-sm rounded-pill text-white fw-bold px-3 btn-bouncy" style="background:#8B5CF6; font-size:0.8rem;">
+                                <i class="fa-solid fa-plus me-1"></i> Tambah Soal
                             </button>
                         </div>
 
                         <div id="questionsContainer" class="d-flex flex-column gap-4">
                             <!-- Question Card Template will be injected via JS -->
+                        </div>
+
+                        {{-- Tombol Tambah Soal Baru di Akhir Setiap Soal --}}
+                        <div class="mt-4 text-center" id="addQuestionEndWrapper">
+                            <div class="p-3.5 rounded-4 border-2 border-dashed bg-white shadow-xs d-flex flex-column align-items-center justify-content-center"
+                                 style="border-color: #C4B5FD !important; border-style: dashed !important; background: linear-gradient(135deg, rgba(139,92,246,0.03) 0%, rgba(243,232,255,0.25) 100%) !important;">
+                                <button type="button" id="addQuestionBtn" class="btn rounded-pill text-white fw-bold px-4 py-2.5 btn-bouncy shadow-sm d-inline-flex align-items-center gap-2"
+                                        style="background: #8B5CF6; font-size: 0.92rem;">
+                                    <i class="fa-solid fa-circle-plus fs-5"></i>
+                                    <span>Tambah Soal Baru</span>
+                                </button>
+                                <span class="text-muted small mt-2" style="font-size: 0.76rem;">
+                                    <i class="fa-solid fa-arrow-down text-purple me-1"></i>Soal berikutnya akan ditambahkan di sini, dan tombol ini otomatis selalu berada di akhir soal.
+                                </span>
+                            </div>
                         </div>
                     </div>
 
@@ -343,18 +397,49 @@
     const assignFields              = document.getElementById('assignmentFields');
     const quizFields                = document.getElementById('quizFields');
     const materialSection           = document.getElementById('materialSection');
+    const urlFields                 = document.getElementById('urlFields');
     const standardAttachmentSection = document.getElementById('standardAttachmentSection');
+    const titleLabel                = document.getElementById('titleLabel');
+    const postTitleInput            = document.getElementById('postTitleInput');
+    const standardBodyLabel         = document.getElementById('standardBodyLabel');
 
     function syncFieldStates(type) {
         assignFields.classList.toggle('d-none', type !== 'assignment');
         quizFields.classList.toggle('d-none', type !== 'quiz');
         materialSection.classList.toggle('d-none', type !== 'material');
-        standardAttachmentSection.classList.toggle('d-none', type === 'material');
+        if (urlFields) {
+            urlFields.classList.toggle('d-none', type !== 'url');
+            urlFields.querySelectorAll('input, select, textarea').forEach(el => el.disabled = (type !== 'url'));
+        }
+        standardAttachmentSection.classList.toggle('d-none', type === 'material' || type === 'url');
 
         // Toggle disabled attribute so hidden inputs are not submitted
         assignFields.querySelectorAll('input, select, textarea').forEach(el => el.disabled = (type !== 'assignment'));
         quizFields.querySelectorAll('input, select, textarea').forEach(el => el.disabled = (type !== 'quiz'));
         materialSection.querySelectorAll('input, select, textarea').forEach(el => el.disabled = (type !== 'material'));
+
+        // Dynamic labels based on type
+        if (type === 'url') {
+            if (titleLabel) titleLabel.innerHTML = 'Nama Tautan (Name) <span class="text-danger">*</span>';
+            if (postTitleInput) postTitleInput.placeholder = 'Contoh: Materi Dokumentasi Kotlin / Link Modul...';
+            if (standardBodyLabel) standardBodyLabel.textContent = 'Deskripsi Tautan (Description) - Opsional';
+        } else if (type === 'assignment') {
+            if (titleLabel) titleLabel.innerHTML = 'Judul Tugas <span class="text-danger">*</span>';
+            if (postTitleInput) postTitleInput.placeholder = 'Judul tugas...';
+            if (standardBodyLabel) standardBodyLabel.textContent = 'Ringkasan Tugas';
+        } else if (type === 'quiz') {
+            if (titleLabel) titleLabel.innerHTML = 'Judul Evaluasi / Quiz <span class="text-danger">*</span>';
+            if (postTitleInput) postTitleInput.placeholder = 'Judul kuis atau ujian...';
+            if (standardBodyLabel) standardBodyLabel.textContent = 'Petunjuk Singkat Kuis';
+        } else if (type === 'material') {
+            if (titleLabel) titleLabel.innerHTML = 'Judul Materi Pembelajaran <span class="text-danger">*</span>';
+            if (postTitleInput) postTitleInput.placeholder = 'Judul materi...';
+            if (standardBodyLabel) standardBodyLabel.textContent = 'Isi / Deskripsi Materi';
+        } else {
+            if (titleLabel) titleLabel.innerHTML = 'Judul Pengumuman';
+            if (postTitleInput) postTitleInput.placeholder = 'Judul pengumuman...';
+            if (standardBodyLabel) standardBodyLabel.textContent = 'Isi Pengumuman';
+        }
     }
 
     typeButtons.forEach(btn => {
@@ -374,7 +459,7 @@
     });
 
     // Initial sync
-    syncFieldStates(typeInput.value || 'announcement');
+    syncFieldStates(typeInput.value || 'material');
 
     // Format Mode Switcher (PPT Upload vs Ketik Slide Manual)
     const modePptBtn             = document.getElementById('modePptBtn');
@@ -743,20 +828,42 @@
     }
 
     function updateGenericQuestionNumbers(container) {
+        const total = container.children.length;
         [...container.children].forEach((card, idx) => {
             const badge = card.querySelector('.question-number-badge');
-            badge.textContent = `Soal #${idx + 1}`;
+            if (badge) badge.textContent = `Soal #${idx + 1}`;
         });
+        const countBadge = document.getElementById('questionCountBadge');
+        if (countBadge) {
+            countBadge.textContent = `${total} Soal`;
+        }
     }
 
     // Initialize Quiz with 1 question card by default
     renderGenericQuestionCard(questionsContainer, 0, 'questions', '#8B5CF6');
+    updateGenericQuestionNumbers(questionsContainer);
 
-    addQuestionBtn.addEventListener('click', () => {
+    function addNewQuizQuestion() {
         quizQuestionIndexCount++;
         renderGenericQuestionCard(questionsContainer, quizQuestionIndexCount, 'questions', '#8B5CF6');
         updateGenericQuestionNumbers(questionsContainer);
-    });
+
+        // Smooth scroll to the newly added question card & focus
+        const lastCard = questionsContainer.lastElementChild;
+        if (lastCard) {
+            lastCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const textarea = lastCard.querySelector('textarea');
+            if (textarea) setTimeout(() => textarea.focus(), 250);
+        }
+    }
+
+    if (addQuestionBtn) {
+        addQuestionBtn.addEventListener('click', addNewQuizQuestion);
+    }
+    const addQuestionTopBtn = document.getElementById('addQuestionTopBtn');
+    if (addQuestionTopBtn) {
+        addQuestionTopBtn.addEventListener('click', addNewQuizQuestion);
+    }
 
     // Client-side Form Submit Validation (Reliable submission)
     const postForm      = document.getElementById('postForm');

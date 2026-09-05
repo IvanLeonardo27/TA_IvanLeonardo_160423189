@@ -68,6 +68,9 @@ Route::middleware(['auth'])->prefix('teacher/classroom')->name('teacher.classroo
     Route::put('/{classroom}', [TeacherClassroomController::class, 'update'])->name('update');
     Route::delete('/{classroom}', [TeacherClassroomController::class, 'destroy'])->name('destroy');
     Route::post('/{classroom}/weeks/title', [TeacherClassroomController::class, 'updateWeekTitle'])->name('week.title.update');
+    Route::post('/{classroom}/weeks/add', [TeacherClassroomController::class, 'addWeek'])->name('week.add');
+    Route::delete('/{classroom}/weeks/{week}', [TeacherClassroomController::class, 'destroyWeek'])->name('week.destroy');
+    Route::get('/{classroom}/members', [TeacherClassroomController::class, 'members'])->name('members');
     Route::delete('/{classroom}/members/{user}', [TeacherClassroomController::class, 'removeMember'])->name('member.remove');
     Route::post('/{classroom}/members', [TeacherClassroomController::class, 'addMember'])->name('member.add');
     Route::post('/submissions/{submission}/grade', [TeacherClassroomController::class, 'gradeSubmission'])->name('submission.grade');

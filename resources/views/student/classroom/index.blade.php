@@ -187,7 +187,7 @@
             
             {{-- Banner Card --}}
             <div class="position-relative text-white p-4" 
-                 style="background:{{ $classroom->banner_color }}; min-height:140px; border-radius:20px 20px 0 0;">
+                 style="background: linear-gradient(135deg, {{ $classroom->banner_color }} 0%, color-mix(in srgb, {{ $classroom->banner_color }} 70%, #000) 100%); min-height:140px; border-radius:20px 20px 0 0;">
                 <i class="fa-solid fa-{{ $classroom->banner_icon }} position-absolute opacity-10"
                    style="font-size:8.5rem; right:-15px; bottom:-25px; pointer-events: none;"></i>
 

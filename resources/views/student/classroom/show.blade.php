@@ -5,7 +5,7 @@
 @section('content')
 {{-- HERO BANNER REDESIGN (VANJAVA IL EARNING BRANDED) --}}
 <div class="card border-0 shadow-sm mb-4 overflow-hidden animate__animated animate__fadeInDown" 
-     style="border-radius: 24px; background: linear-gradient(135deg, var(--primary) 0%, #16382a 100%);">
+     style="border-radius: 24px; background: linear-gradient(135deg, {{ $classroom->banner_color ?? 'var(--primary)' }} 0%, color-mix(in srgb, {{ $classroom->banner_color ?? '#16382a' }} 70%, #000) 100%);">
     <div class="p-4 p-md-5 position-relative text-white" style="min-height: 190px;">
         <!-- Decorative Background Elements -->
         <div class="position-absolute" style="right: -40px; bottom: -50px; opacity: 0.12;">
@@ -156,7 +156,7 @@
                             </div>
                             <span class="badge rounded-pill ms-auto px-3 py-1.5 fw-semibold"
                                   style="background:{{ $post->type_color }}18; color:{{ $post->type_color }}; font-size:.75rem;">
-                                {{ ['announcement'=>'Pengumuman','material'=>'Materi','assignment'=>'Tugas','quiz'=>'Evaluasi / Quiz'][$post->type] }}
+                                {{ $post->type_label ?? (['announcement'=>'Pengumuman','material'=>'Materi','assignment'=>'Tugas','quiz'=>'Evaluasi / Quiz','url'=>'Tautan URL'][$post->type] ?? 'Postingan') }}
                             </span>
                         </div>
                         @if($post->title)
@@ -218,6 +218,35 @@
                                 </div>
                             </div>
                         </div>
+                        @elseif($post->type === 'url')
+                        @if($post->body)
+                        <p class="text-muted mb-3" style="white-space:pre-line;">{{ $post->body }}</p>
+                        @endif
+                        @php
+                            $targetLink = $post->url ?: $post->link_url;
+                        @endphp
+                        @if($targetLink)
+                        <div class="card border-0 rounded-4 overflow-hidden shadow-xs mb-3" style="background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%); border: 1.5px solid #BAE6FD !important;">
+                            <div class="card-body p-3.5">
+                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="rounded-4 d-flex align-items-center justify-content-center bg-info bg-opacity-20 text-info shadow-xs" style="width: 50px; height: 50px; flex-shrink:0;">
+                                            <i class="fa-solid fa-link fs-4 text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold text-main mb-1 fs-6">{{ $post->title ?? 'Tautan Link Web' }}</h6>
+                                            <a href="{{ $targetLink }}" target="_blank" rel="noopener noreferrer" class="text-primary text-decoration-none small text-truncate d-block" style="max-width: 460px;">
+                                                <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>{{ $targetLink }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <a href="{{ $targetLink }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary rounded-pill px-4 py-2 fw-bold btn-bouncy shadow-sm">
+                                        <i class="fa-solid fa-arrow-up-right-from-square me-1.5"></i> Buka Tautan
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                         @elseif($post->body)
                         <p class="text-muted mb-3" style="white-space:pre-line;">{{ $post->body }}</p>
                         @endif
@@ -258,8 +287,21 @@
                         @if($post->type === 'quiz' && $post->quiz)
                         @php
                             $userAttempts = \App\Models\QuizAttempt::query()
-                                ->where('quiz_set_id', $post->quiz->quiz_set_id)
-                                ->where('user_id', auth()->id())
+                                ->where(function($q) use ($post) {
+                                    if (!empty($post->quiz->id)) {
+                                        $q->where('quiz_id', $post->quiz->id);
+                                    }
+                                    if (!empty($post->quiz->quiz_set_id)) {
+                                        $q->orWhere('quiz_set_id', $post->quiz->quiz_set_id);
+                                    }
+                                    if (!empty($post->quiz->quiz_master_id)) {
+                                        $q->orWhere('quiz_master_id', $post->quiz->quiz_master_id);
+                                    }
+                                })
+                                ->where(function($q) {
+                                    $q->where('user_id', auth()->id())
+                                      ->orWhere('student_id', auth()->id());
+                                })
                                 ->orderBy('created_at', 'desc')
                                 ->get();
                             $hasAttempted = $userAttempts->isNotEmpty();
@@ -658,14 +700,26 @@ document.addEventListener('DOMContentLoaded', function() {
             isRendering = true;
             pdfDocInstance.getPage(num).then(function(page) {
                 const ctx = pdfCanvas.getContext('2d');
-                const canvasArea = deck.querySelector('.slide-canvas-area');
-                const availableWidth = Math.min((canvasArea ? canvasArea.clientWidth : 750) - 30, 850) || 720;
-                const unscaledViewport = page.getViewport({ scale: 1 });
-                const scale = (availableWidth / unscaledViewport.width) * 1.5; // High resolution crisp display
-                const viewport = page.getViewport({ scale: scale });
+                const container = pdfCanvas.parentElement;
+                const containerW = Math.max(300, (container ? container.clientWidth : 750) - 24);
+                const containerH = Math.max(300, (container ? container.clientHeight : 560) - 24);
+                const unscaledViewport = page.getViewport({ scale: 1.0 });
+
+                const scaleX = containerW / unscaledViewport.width;
+                const scaleY = containerH / unscaledViewport.height;
+                const fitScale = Math.min(scaleX, scaleY);
+
+                const dpr = window.devicePixelRatio || 1.5;
+                const renderScale = fitScale * Math.max(1.5, dpr);
+                const viewport = page.getViewport({ scale: renderScale });
 
                 pdfCanvas.height = viewport.height;
                 pdfCanvas.width  = viewport.width;
+
+                const cssWidth  = Math.round(unscaledViewport.width * fitScale);
+                const cssHeight = Math.round(unscaledViewport.height * fitScale);
+                pdfCanvas.style.width  = cssWidth + 'px';
+                pdfCanvas.style.height = cssHeight + 'px';
 
                 const renderContext = {
                     canvasContext: ctx,

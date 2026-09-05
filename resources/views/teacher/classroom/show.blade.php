@@ -5,7 +5,7 @@
 @section('content')
 {{-- HERO BANNER KELAS REDESIGN --}}
 <div class="card border-0 shadow-sm mb-4 overflow-hidden animate__animated animate__fadeInDown" 
-     style="border-radius:24px; background: linear-gradient(135deg, var(--primary) 0%, #16382a 100%);">
+     style="border-radius:24px; background: linear-gradient(135deg, {{ $classroom->banner_color ?? 'var(--primary)' }} 0%, color-mix(in srgb, {{ $classroom->banner_color ?? '#16382a' }} 70%, #000) 100%);">
     <div class="p-4 p-md-5 position-relative text-white" style="min-height:190px;">
         <i class="fa-solid fa-{{ $classroom->banner_icon ?? 'graduation-cap' }} position-absolute opacity-10"
            style="font-size:15rem; right:-20px; bottom:-40px; color:#ffffff;"></i>
@@ -49,6 +49,11 @@
                             <i class="fa-solid fa-user-plus me-2"></i>Tambah Pelajar
                         </button>
                     </li>
+                    <li>
+                        <a class="dropdown-item py-2 fw-semibold text-secondary" href="{{ route('teacher.classroom.members', $classroom) }}">
+                            <i class="fa-solid fa-users-gear me-2 text-info"></i>Kelola Anggota Kelas
+                        </a>
+                    </li>
                     @endcan
                     <li><hr class="dropdown-divider my-1"></li>
                     <li>
@@ -74,23 +79,48 @@
 @endif
 
 {{-- NAVIGASI TAB MODERN --}}
-<ul class="nav gap-2 mb-4 animate__animated animate__fadeInUp" id="classroomTab" role="tablist">
-    <li class="nav-item">
-        <button class="btn rounded-pill px-4 py-2 fw-semibold btn-primary shadow"
+<style>
+#classroomTab .nav-link {
+    background-color: #F8FAFC;
+    color: #475569;
+    border: 1.5px solid #E2E8F0;
+    transition: all 0.2s ease-in-out;
+}
+#classroomTab .nav-link:hover {
+    background-color: #F1F5F9;
+    color: #1E293B;
+    border-color: #CBD5E1;
+}
+#classroomTab .nav-link.active {
+    background-color: var(--primary, #059669) !important;
+    color: #FFFFFF !important;
+    border-color: var(--primary, #059669) !important;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25) !important;
+}
+</style>
+
+<ul class="nav nav-pills gap-2 mb-4 animate__animated animate__fadeInUp" id="classroomTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active rounded-pill px-4 py-2 fw-semibold"
                 id="tab-weeks" data-bs-toggle="pill" data-bs-target="#pane-weeks"
-                type="button" role="tab">
+                type="button" role="tab" data-tab="weeks">
             <i class="fa-solid fa-layer-group me-2"></i>Kurikulum & Minggu (Week)
         </button>
     </li>
-    @foreach([['stream','Stream Feed','comment-dots'],['classwork','Tugas Kelas','book-open'],['people','Anggota','users']] as [$key, $label, $icon])
-    <li class="nav-item">
-        <button class="btn rounded-pill px-4 py-2 fw-semibold btn-light text-muted"
-                id="tab-{{ $key }}" data-bs-toggle="pill" data-bs-target="#pane-{{ $key }}"
-                type="button" role="tab">
-            <i class="fa-solid fa-{{ $icon }} me-2"></i>{{ $label }}
+    <li class="nav-item" role="presentation">
+        <button class="nav-link rounded-pill px-4 py-2 fw-semibold"
+                id="tab-stream" data-bs-toggle="pill" data-bs-target="#pane-stream"
+                type="button" role="tab" data-tab="stream">
+            <i class="fa-solid fa-comment-dots me-2"></i>Stream Feed
         </button>
     </li>
-    @endforeach
+    <li class="nav-item" role="presentation">
+        <a href="{{ route('teacher.classroom.members', $classroom) }}" 
+           class="nav-link rounded-pill px-4 py-2 fw-semibold"
+           id="tab-people">
+            <i class="fa-solid fa-users me-2"></i>Anggota Kelas
+        </a>
+    </li>
 </ul>
 
 <div class="tab-content animate__animated animate__fadeInUp">
@@ -170,7 +200,7 @@
                             </div>
                             <div class="d-flex align-items-center gap-2">
                                 <span class="badge rounded-pill px-3 fw-semibold" style="background:{{ $post->type_color }}20; color:{{ $post->type_color }}; font-size:.72rem;">
-                                    {{ ['announcement'=>'Pengumuman','material'=>'Materi','assignment'=>'Tugas','quiz'=>'Evaluasi / Quiz'][$post->type] }}
+                                    {{ $post->type_label ?? (['announcement'=>'Pengumuman','material'=>'Materi','assignment'=>'Tugas','quiz'=>'Evaluasi / Quiz','url'=>'Tautan URL'][$post->type] ?? 'Postingan') }}
                                 </span>
                                 <form action="{{ route('teacher.classroom.post.destroy', [$classroom, $post]) }}" method="POST"
                                       onsubmit="return confirm('Hapus postingan ini?')">
@@ -239,6 +269,35 @@
                                 </div>
                             </div>
                         </div>
+                        @elseif($post->type === 'url')
+                        @if($post->body)
+                        <p class="text-muted mb-3" style="white-space:pre-line;">{{ $post->body }}</p>
+                        @endif
+                        @php
+                            $targetLink = $post->url ?: $post->link_url;
+                        @endphp
+                        @if($targetLink)
+                        <div class="card border-0 rounded-4 overflow-hidden shadow-xs mb-3" style="background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%); border: 1.5px solid #BAE6FD !important;">
+                            <div class="card-body p-3.5">
+                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="rounded-4 d-flex align-items-center justify-content-center bg-info bg-opacity-20 text-info shadow-xs" style="width: 50px; height: 50px; flex-shrink:0;">
+                                            <i class="fa-solid fa-link fs-4 text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold text-main mb-1 fs-6">{{ $post->title ?? 'Tautan Link Web' }}</h6>
+                                            <a href="{{ $targetLink }}" target="_blank" rel="noopener noreferrer" class="text-primary text-decoration-none small text-truncate d-block" style="max-width: 460px;">
+                                                <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>{{ $targetLink }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <a href="{{ $targetLink }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary rounded-pill px-4 py-2 fw-bold btn-bouncy shadow-sm">
+                                        <i class="fa-solid fa-arrow-up-right-from-square me-1.5"></i> Buka Tautan
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                         @elseif($post->body)
                         <p class="text-muted mb-3" style="white-space:pre-line;">{{ $post->body }}</p>
                         @endif
@@ -374,10 +433,10 @@
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <h6 class="fw-bold text-main mb-0">Anggota Terbaru</h6>
                         @can('manageMembers', $classroom)
-                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-0.5 fw-semibold d-inline-flex align-items-center gap-1" style="font-size: 0.74rem;" data-bs-toggle="modal" data-bs-target="#addStudentModal">
-                            <i class="fa-solid fa-user-plus"></i>
-                            <span>Tambah</span>
-                        </button>
+                        <a href="{{ route('teacher.classroom.members', $classroom) }}" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-0.5 fw-semibold d-inline-flex align-items-center gap-1" style="font-size: 0.74rem;">
+                            <i class="fa-solid fa-users-gear"></i>
+                            <span>Kelola</span>
+                        </a>
                         @endcan
                     </div>
                     @forelse($students->take(5) as $student)
@@ -389,108 +448,11 @@
                     <p class="text-muted small">Belum ada siswa.</p>
                     @endforelse
                     @if($students->count() > 5)
-                    <a href="#pane-people" onclick="document.getElementById('tab-people').click()" class="text-primary small fw-semibold text-decoration-none d-block mt-1">
+                    <a href="{{ route('teacher.classroom.members', $classroom) }}" class="text-primary small fw-semibold text-decoration-none d-block mt-1">
                         +{{ $students->count() - 5 }} siswa lainnya
                     </a>
                     @endif
                 </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- ======================== CLASSWORK TAB ======================== --}}
-    <div class="tab-pane fade" id="pane-classwork" role="tabpanel">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="fw-bold text-main m-0">Semua Tugas & Materi</h5>
-            <a href="{{ route('teacher.classroom.post.create', $classroom) }}" class="btn btn-primary rounded-pill px-4 btn-bouncy">
-                <i class="fa-solid fa-plus me-2"></i>Tambah
-            </a>
-        </div>
-
-        @php $assignments = $posts->where('type', 'assignment'); @endphp
-        @forelse($assignments as $post)
-        <div class="card border-0 shadow-sm mb-3 d-flex flex-row align-items-center p-4 gap-3 gap-md-4 flex-wrap" style="border-radius:16px; border-left:5px solid #EF4444 !important;">
-            <div class="rounded-circle bg-danger bg-opacity-10 text-danger d-flex align-items-center justify-content-center" style="width:50px;height:50px;flex-shrink:0;">
-                <i class="fa-solid fa-clipboard-list fs-5"></i>
-            </div>
-            <div class="flex-grow-1">
-                <h6 class="fw-bold text-dark mb-1">{{ $post->title ?? ($post->body ? Str::limit(strip_tags($post->body), 55) : 'Tugas Pembelajaran') }}</h6>
-                <small class="text-muted">
-                    <i class="fa-regular fa-clock me-1 text-danger"></i> Tenggat: {{ $post->assignment?->due_date?->format('d M Y, H:i') ?? 'Tidak ada' }}
-                </small>
-            </div>
-            <div class="d-flex align-items-center gap-3 ms-auto">
-                <div class="text-end">
-                    <h5 class="fw-bold text-primary mb-0">{{ $post->assignment?->submissions->count() ?? 0 }} / {{ $students->count() }}</h5>
-                    <small class="text-muted">Terkumpul</small>
-                </div>
-                @if($post->assignment)
-                <button type="button" class="btn btn-outline-danger rounded-pill px-3.5 py-2 btn-sm fw-bold btn-bouncy" data-bs-toggle="modal" data-bs-target="#submissionModal{{ $post->assignment->id }}">
-                    <i class="fa-solid fa-folder-open me-1.5"></i> Periksa Tugas
-                </button>
-                @endif
-            </div>
-        </div>
-        @empty
-        <div class="text-center py-5">
-            <p class="text-muted">Belum ada tugas yang dibuat untuk kelas ini.</p>
-        </div>
-        @endforelse
-    </div>
-
-    {{-- ======================== PEOPLE TAB ======================== --}}
-    <div class="tab-pane fade" id="pane-people" role="tabpanel">
-        <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius:18px;">
-            <div class="d-flex justify-content-between align-items-center border-bottom border-primary pb-3 mb-4">
-                <h5 class="fw-bold text-primary m-0">Pengajar</h5>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&size=45" class="rounded-circle shadow-sm" width="45" height="45">
-                <div>
-                    <h6 class="fw-bold text-main mb-0">{{ auth()->user()->name }}</h6>
-                    <small class="text-muted">Pengajar Utama</small>
-                </div>
-            </div>
-        </div>
-
-        <div class="card border-0 shadow-sm p-4" style="border-radius:18px;">
-            <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom border-primary pb-3 mb-4 gap-2">
-                <h5 class="fw-bold text-primary m-0 d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-user-graduate"></i>
-                    <span>Siswa</span>
-                    <span class="badge bg-primary rounded-pill">{{ $students->count() }}</span>
-                </h5>
-                @can('manageMembers', $classroom)
-                <button type="button" class="btn btn-primary btn-sm rounded-pill px-3.5 py-1.5 fw-semibold d-inline-flex align-items-center gap-2 btn-bouncy shadow-xs"
-                        data-bs-toggle="modal" data-bs-target="#addStudentModal">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>Tambah Pelajar</span>
-                </button>
-                @endcan
-            </div>
-            <div class="row g-3">
-                @forelse($students as $student)
-                <div class="col-md-6">
-                    <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($student->name) }}&size=40" class="rounded-circle" width="40" height="40">
-                            <div>
-                                <h6 class="fw-bold text-main mb-0 small">{{ $student->name }}</h6>
-                                <small class="text-muted">{{ $student->email }}</small>
-                            </div>
-                        </div>
-                        <form action="{{ route('teacher.classroom.member.remove', [$classroom, $student]) }}" method="POST"
-                              onsubmit="return confirm('Keluarkan {{ $student->name }} dari kelas?')">
-                            @csrf @method('DELETE')
-                            <button class="btn btn-light btn-sm rounded-circle text-danger" style="width:32px;height:32px;padding:0;" title="Keluarkan">
-                                <i class="fa-solid fa-xmark fa-xs"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                @empty
-                <p class="text-muted">Belum ada siswa yang bergabung.</p>
-                @endforelse
             </div>
         </div>
     </div>
@@ -643,6 +605,34 @@
 </div>
 @endif
 @endforeach
+
+{{-- Modal Edit Judul Week Header --}}
+<div class="modal fade" id="editWeekTitleModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="fw-bold modal-title" style="color: #16402E;">Edit Judul Header Minggu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('teacher.classroom.week.title.update', $classroom) }}" method="POST">
+                @csrf
+                <div class="modal-body py-3">
+                    <input type="hidden" name="week_number" id="modalWeekNumberInput" value="1">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Judul Topik / Header Minggu</label>
+                        <input type="text" name="title" id="modalWeekTitleInput" class="form-control rounded-3" placeholder="Contoh: Pengenalan Basa Jawa" required>
+                    </div>
+                    <small class="text-muted">Judul ini akan langsung menggantikan nama header minggu di ruang kelas siswa (misal: <em>Week 1 - Pengenalan Basa Jawa</em>).</small>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn text-white rounded-pill px-4 fw-semibold" style="background: #16402E;"><i class="fa-solid fa-save me-1"></i> Simpan Judul</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@include('teacher.classroom.partials._add_student_modal')
 @endsection
 
 @push('scripts')
@@ -676,14 +666,26 @@ document.addEventListener('DOMContentLoaded', function() {
             isRendering = true;
             pdfDocInstance.getPage(num).then(function(page) {
                 const ctx = pdfCanvas.getContext('2d');
-                const canvasArea = deck.querySelector('.slide-canvas-area');
-                const availableWidth = Math.min((canvasArea ? canvasArea.clientWidth : 750) - 30, 850) || 720;
-                const unscaledViewport = page.getViewport({ scale: 1 });
-                const scale = (availableWidth / unscaledViewport.width) * 1.5;
-                const viewport = page.getViewport({ scale: scale });
+                const container = pdfCanvas.parentElement;
+                const containerW = Math.max(300, (container ? container.clientWidth : 750) - 24);
+                const containerH = Math.max(300, (container ? container.clientHeight : 560) - 24);
+                const unscaledViewport = page.getViewport({ scale: 1.0 });
+
+                const scaleX = containerW / unscaledViewport.width;
+                const scaleY = containerH / unscaledViewport.height;
+                const fitScale = Math.min(scaleX, scaleY);
+
+                const dpr = window.devicePixelRatio || 1.5;
+                const renderScale = fitScale * Math.max(1.5, dpr);
+                const viewport = page.getViewport({ scale: renderScale });
 
                 pdfCanvas.height = viewport.height;
                 pdfCanvas.width  = viewport.width;
+
+                const cssWidth  = Math.round(unscaledViewport.width * fitScale);
+                const cssHeight = Math.round(unscaledViewport.height * fitScale);
+                pdfCanvas.style.width  = cssWidth + 'px';
+                pdfCanvas.style.height = cssHeight + 'px';
 
                 const renderContext = {
                     canvasContext: ctx,
@@ -776,203 +778,46 @@ document.addEventListener('DOMContentLoaded', function() {
 
         updateDeckUI(0);
     });
+
+    // Tab URL Routing (Support #weeks, #stream, #people, #anggota & ?tab=...)
+    function activateTabFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab');
+        const hash = (window.location.hash || '').replace('#', '').toLowerCase();
+        const target = tabParam || hash;
+
+        if (target) {
+            let targetBtn = null;
+            if (target === 'weeks' || target === 'kurikulum') {
+                targetBtn = document.getElementById('tab-weeks');
+            } else if (target === 'stream' || target === 'feed') {
+                targetBtn = document.getElementById('tab-stream');
+            } else if (target === 'people' || target === 'anggota' || target === 'members' || target === 'pane-people') {
+                window.location.href = "{{ route('teacher.classroom.members', $classroom) }}";
+                return;
+            }
+
+            if (targetBtn) {
+                const tabInstance = bootstrap.Tab.getOrCreateInstance(targetBtn);
+                tabInstance.show();
+            }
+        }
+    }
+
+    // Update URL hash saat tab diklik
+    document.querySelectorAll('#classroomTab button[data-bs-toggle="pill"]').forEach(btn => {
+        btn.addEventListener('shown.bs.tab', () => {
+            const tabKey = btn.getAttribute('data-tab');
+            if (tabKey) {
+                history.replaceState(null, null, '#' + tabKey);
+            }
+        });
+    });
+
+    activateTabFromUrl();
+    window.addEventListener('hashchange', activateTabFromUrl);
 });
 </script>
 @endpush
-
-{{-- Modal Edit Judul Week Header (Di-render di Root Level agar tidak terjebak Z-Index backdrop) --}}
-<div class="modal fade" id="editWeekTitleModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0 shadow">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="fw-bold modal-title" style="color: #16402E;">Edit Judul Header Minggu</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form action="{{ route('teacher.classroom.week.title.update', $classroom) }}" method="POST">
-                @csrf
-                <div class="modal-body py-3">
-                    <input type="hidden" name="week_number" id="modalWeekNumberInput" value="1">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Judul Topik / Header Minggu</label>
-                        <input type="text" name="title" id="modalWeekTitleInput" class="form-control rounded-3" placeholder="Contoh: Pengenalan Basa Jawa" required>
-                    </div>
-                    <small class="text-muted">Judul ini akan langsung menggantikan nama header minggu di ruang kelas siswa (misal: <em>Week 1 - Pengenalan Basa Jawa</em>).</small>
-                </div>
-                <div class="modal-footer border-0 pt-0">
-                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn text-white rounded-pill px-4 fw-semibold" style="background: #16402E;"><i class="fa-solid fa-save me-1"></i> Simpan Judul</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-{{-- ======================== MODAL TAMBAH PELAJAR KE KELAS ======================== --}}
-@can('manageMembers', $classroom)
-<div class="modal fade" id="addStudentModal" tabindex="-1" aria-labelledby="addStudentModalLabel" aria-hidden="true" style="z-index: 1065;">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-            <form action="{{ route('teacher.classroom.member.add', $classroom) }}" method="POST" class="d-flex flex-column h-100">
-                @csrf
-                <div class="modal-header border-bottom p-4" style="background: linear-gradient(135deg, rgba(5,150,105,0.06) 0%, rgba(37,99,235,0.06) 100%);">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                             style="width: 48px; height: 48px; background: rgba(5, 150, 105, 0.12); color: #059669;">
-                            <i class="fa-solid fa-user-plus fs-5"></i>
-                        </div>
-                        <div>
-                            <h5 class="modal-title fw-bold text-main mb-0" id="addStudentModalLabel">Tambah Pelajar ke Kelas</h5>
-                            <small class="text-muted">Pilih siswa yang terdaftar di sistem untuk dimasukkan ke kelas <strong>{{ $classroom->name }}</strong></small>
-                        </div>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                <div class="modal-body p-4">
-                    @if($availableStudents->isEmpty())
-                        <div class="text-center py-5">
-                            <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                                 style="width: 68px; height: 68px; background: rgba(5, 150, 105, 0.1); color: #059669;">
-                                <i class="fa-solid fa-circle-check fs-2"></i>
-                            </div>
-                            <h5 class="fw-bold text-main mb-1">Semua Siswa Sudah Terdaftar</h5>
-                            <p class="text-muted small mb-0" style="max-width: 380px; margin: 0 auto;">
-                                Seluruh pelajar yang terdaftar aktif di sistem sudah menjadi anggota kelas ini.
-                            </p>
-                        </div>
-                    @else
-                        {{-- Search Filter & Select All Bar --}}
-                        <div class="row g-3 align-items-center mb-3">
-                            <div class="col-md-7">
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-0 ps-3">
-                                        <i class="fa-solid fa-magnifying-glass text-muted"></i>
-                                    </span>
-                                    <input type="text" id="searchStudentInput" class="form-control bg-light border-0 py-2"
-                                           placeholder="Cari nama, NIS, atau email..." onkeyup="filterStudentsList()">
-                                </div>
-                            </div>
-                            <div class="col-md-5 d-flex align-items-center justify-content-between justify-content-md-end gap-3">
-                                <div class="form-check m-0">
-                                    <input class="form-check-input cursor-pointer" type="checkbox" id="selectAllStudents" onchange="toggleSelectAllStudents(this)">
-                                    <label class="form-check-label small fw-semibold text-dark user-select-none cursor-pointer" for="selectAllStudents">
-                                        Pilih Semua ({{ $availableStudents->count() }})
-                                    </label>
-                                </div>
-                                <span id="selectedCountBadge" class="badge bg-primary-subtle text-primary rounded-pill px-2.5 py-1.5 fw-semibold" style="font-size: 0.78rem;">
-                                    0 dipilih
-                                </span>
-                            </div>
-                        </div>
-
-                        {{-- Scrollable List of Students --}}
-                        <div class="border rounded-4 p-2 overflow-auto" style="max-height: 360px;" id="studentsContainer">
-                            <div class="row g-2" id="studentsList">
-                                @foreach($availableStudents as $student)
-                                <div class="col-md-6 student-item-col" data-student-search="{{ strtolower($student->name . ' ' . $student->email . ' ' . ($student->user_code ?? '')) }}">
-                                    <label class="d-flex align-items-center gap-3 p-2.5 rounded-3 border bg-white h-100 cursor-pointer hover-shadow transition-all mb-0 user-select-none"
-                                           for="student_chk_{{ $student->id }}" style="cursor: pointer;">
-                                        <input class="form-check-input student-checkbox flex-shrink-0 m-0" type="checkbox"
-                                               name="student_ids[]" value="{{ $student->id }}" id="student_chk_{{ $student->id }}"
-                                               onchange="updateSelectedCount()">
-                                        
-                                        <img src="https://ui-avatars.com/api/?name={{ urlencode($student->name) }}&size=40&background=E2E8F0&color=1E293B"
-                                             class="rounded-circle flex-shrink-0 shadow-xs" width="38" height="38" alt="{{ $student->name }}">
-                                        
-                                        <div class="min-w-0 flex-grow-1">
-                                            <div class="fw-bold text-dark text-truncate small">{{ $student->name }}</div>
-                                            <div class="d-flex align-items-center gap-1.5 flex-wrap">
-                                                @if(!empty($student->user_code))
-                                                <span class="badge bg-light text-secondary font-monospace border" style="font-size: 0.65rem;">
-                                                    {{ $student->user_code }}
-                                                </span>
-                                                @endif
-                                                <span class="text-muted text-truncate" style="font-size: 0.72rem;">{{ $student->email }}</span>
-                                            </div>
-                                        </div>
-                                    </label>
-                                </div>
-                                @endforeach
-                            </div>
-                            <div id="noStudentFoundMsg" class="text-center py-4 text-muted small d-none">
-                                <i class="fa-solid fa-user-slash fs-4 d-block mb-2 text-secondary"></i>
-                                Tidak ditemukan pelajar yang cocok dengan kata kunci pencarian.
-                            </div>
-                        </div>
-                    @endif
-                </div>
-
-                <div class="modal-footer bg-light border-top p-3 d-flex justify-content-between align-items-center">
-                    <small class="text-muted">
-                        <i class="fa-solid fa-circle-info me-1 text-primary"></i>Pelajar yang ditambahkan akan langsung dapat mengakses kelas ini.
-                    </small>
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-light rounded-pill px-4 py-2 fw-semibold" data-bs-dismiss="modal">Batal</button>
-                        @if($availableStudents->isNotEmpty())
-                        <button type="submit" id="submitAddStudentsBtn" class="btn btn-primary rounded-pill px-4 py-2 btn-bouncy fw-bold shadow-xs">
-                            <i class="fa-solid fa-user-plus me-1.5"></i>Tambahkan ke Kelas
-                        </button>
-                        @endif
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<script>
-function filterStudentsList() {
-    const query = document.getElementById('searchStudentInput').value.toLowerCase().trim();
-    const items = document.querySelectorAll('.student-item-col');
-    let visibleCount = 0;
-
-    items.forEach(item => {
-        const text = item.getAttribute('data-student-search');
-        if (!query || text.includes(query)) {
-            item.classList.remove('d-none');
-            visibleCount++;
-        } else {
-            item.classList.add('d-none');
-        }
-    });
-
-    const noFound = document.getElementById('noStudentFoundMsg');
-    if (noFound) {
-        if (visibleCount === 0) {
-            noFound.classList.remove('d-none');
-        } else {
-            noFound.classList.add('d-none');
-        }
-    }
-}
-
-function toggleSelectAllStudents(master) {
-    const checkboxes = document.querySelectorAll('.student-checkbox');
-    checkboxes.forEach(chk => {
-        const col = chk.closest('.student-item-col');
-        if (!col || !col.classList.contains('d-none')) {
-            chk.checked = master.checked;
-        }
-    });
-    updateSelectedCount();
-}
-
-function updateSelectedCount() {
-    const checked = document.querySelectorAll('.student-checkbox:checked').length;
-    const badge = document.getElementById('selectedCountBadge');
-    if (badge) {
-        badge.textContent = `${checked} dipilih`;
-    }
-    const btn = document.getElementById('submitAddStudentsBtn');
-    if (btn) {
-        btn.disabled = (checked === 0);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    updateSelectedCount();
-});
-</script>
-@endcan
 
 

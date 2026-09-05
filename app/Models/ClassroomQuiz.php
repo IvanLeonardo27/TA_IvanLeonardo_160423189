@@ -41,6 +41,11 @@ class ClassroomQuiz extends Model
         return $this->belongsTo(QuizSet::class, 'quiz_set_id');
     }
 
+    public function quizMaster(): BelongsTo
+    {
+        return $this->belongsTo(QuizSet::class, 'quiz_set_id');
+    }
+
     /** Attempt milik student tertentu */
     public function myAttempt(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
@@ -50,6 +55,37 @@ class ClassroomQuiz extends Model
                           ->orWhere('user_id', auth()->id());
                     })
                     ->latest();
+    }
+
+    /** Accessor cerdas untuk myAttempt (mencakup quiz_id, quiz_set_id, dan quiz_master_id) */
+    public function getMyAttemptAttribute()
+    {
+        $userId = auth()->id();
+        if (!$userId) {
+            return null;
+        }
+
+        if ($this->relationLoaded('myAttempt')) {
+            $rel = $this->getRelation('myAttempt');
+            if ($rel) return $rel;
+        }
+
+        return QuizAttempt::query()
+            ->where(function($q) {
+                $q->where('quiz_id', $this->id);
+                if (!empty($this->quiz_set_id)) {
+                    $q->orWhere('quiz_set_id', $this->quiz_set_id);
+                }
+                if (!empty($this->quiz_master_id)) {
+                    $q->orWhere('quiz_master_id', $this->quiz_master_id);
+                }
+            })
+            ->where(function($q) use ($userId) {
+                $q->where('user_id', $userId)
+                  ->orWhere('student_id', $userId);
+            })
+            ->latest('id')
+            ->first();
     }
 
     /** Semua attempts pada quiz ini */

@@ -11,9 +11,13 @@ class QuizSet extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = 'quiz_masters';
+
     protected $fillable = [
         'title',
         'slug',
+        'description',
+        'category',
         'is_active',
         'is_default',
         'time_limit_seconds',

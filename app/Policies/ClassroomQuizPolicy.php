@@ -54,8 +54,19 @@ class ClassroomQuizPolicy
 
         // Cek batas pengerjaan jika single attempt
         if ((int)$quiz->max_attempts === 1) {
-            $hasAttempt = QuizAttempt::where('quiz_set_id', $quiz->quiz_set_id)
-                ->where('user_id', $user->id)
+            $hasAttempt = QuizAttempt::where(function($q) use ($quiz) {
+                    $q->where('quiz_id', $quiz->id);
+                    if (!empty($quiz->quiz_set_id)) {
+                        $q->orWhere('quiz_set_id', $quiz->quiz_set_id);
+                    }
+                    if (!empty($quiz->quiz_master_id)) {
+                        $q->orWhere('quiz_master_id', $quiz->quiz_master_id);
+                    }
+                })
+                ->where(function($q) use ($user) {
+                    $q->where('user_id', $user->id)
+                      ->orWhere('student_id', $user->id);
+                })
                 ->exists();
             if ($hasAttempt) return false;
         }

@@ -79,27 +79,41 @@
                         <span class="fw-bold text-main small current-slide-title">{{ $slidesList[0]['title'] ?? 'Halaman 1' }}</span>
                     </div>
                     <div class="d-flex align-items-center gap-3">
+                        @if($isPdf)
+                        <div class="btn-group btn-group-sm rounded-pill shadow-xs border bg-light p-0.5" role="group">
+                            <button type="button" class="btn btn-sm btn-light rounded-pill px-2.5 text-muted zoom-out-btn" title="Perkecil (-)">
+                                <i class="fa-solid fa-magnifying-glass-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-white rounded-pill px-2.5 fw-bold text-primary zoom-fit-btn shadow-xs" title="Reset Ukuran (Pas Satu Layar Penuh)">
+                                <i class="fa-solid fa-arrows-to-eye me-1"></i>Pas Layar
+                            </button>
+                            <button type="button" class="btn btn-sm btn-light rounded-pill px-2.5 text-muted zoom-in-btn" title="Perbesar (+)">
+                                <i class="fa-solid fa-magnifying-glass-plus"></i>
+                            </button>
+                        </div>
+                        @endif
+
                         @if($checkpointQ && $checkpointSlide > 0)
                         <span class="badge bg-primary-subtle text-primary border rounded-pill px-2.5 py-1 small" title="Pertanyaan Checkpoint di Slide {{ $checkpointSlide }}">
                             <i class="fa-solid fa-lock me-1"></i> Checkpoint Halaman {{ $checkpointSlide }}
                         </span>
                         @endif
-                        <div class="progress rounded-pill bg-light" style="width:140px; height:8px;">
+                        <div class="progress rounded-pill bg-light" style="width:120px; height:8px;">
                             <div class="progress-bar bg-primary rounded-pill slide-progress-bar" style="width: {{ (1 / $totalSlides) * 100 }}%"></div>
                         </div>
                     </div>
                 </div>
 
-                {{-- Canvas Area --}}
-                <div class="p-3 p-md-4 slide-canvas-area position-relative" style="min-height:300px;">
+                {{-- Canvas Area (Comfortable View) --}}
+                <div class="p-2 p-md-3 slide-canvas-area position-relative">
                     @if($isPdf)
-                        <div class="rounded-4 overflow-hidden border shadow-sm position-relative d-flex align-items-center justify-content-center"
-                             style="min-height:540px; background:#334155 !important;">
-                            <div id="pdfLoading-{{ $post->id }}" class="text-center p-4 text-white">
+                        <div class="rounded-4 border shadow-sm position-relative d-flex flex-column align-items-center"
+                             style="height: clamp(480px, 72vh, 670px); background:#1E293B !important; overflow-y: auto; overflow-x: auto; padding: 1.25rem 0.75rem;">
+                            <div id="pdfLoading-{{ $post->id }}" class="text-center p-4 text-white my-auto">
                                 <div class="spinner-border text-primary mb-2" role="status"></div>
                                 <p class="small mb-0 text-white-50">Memuat halaman PDF materi...</p>
                             </div>
-                            <canvas id="pdfCanvas-{{ $post->id }}" class="d-none shadow rounded-3 my-2" style="max-width:100%; height:auto; display:block;"></canvas>
+                            <canvas id="pdfCanvas-{{ $post->id }}" class="d-none shadow-lg rounded-2 mx-auto" style="display:block; max-width:100%; object-fit:contain; transition: width 0.15s ease, height 0.15s ease;"></canvas>
                         </div>
                     @else
                         @foreach($slidesList as $sIdx => $slide)
@@ -266,20 +280,75 @@ document.addEventListener('DOMContentLoaded', function() {
     let pdfDocInstance = null;
     let isRendering = false;
     let pageNumPending = null;
+    let currentZoom = 1.0;
+
+    const zoomInBtn  = deck.querySelector('.zoom-in-btn');
+    const zoomOutBtn = deck.querySelector('.zoom-out-btn');
+    const zoomFitBtn = deck.querySelector('.zoom-fit-btn');
+
+    if (zoomInBtn) {
+        zoomInBtn.addEventListener('click', () => {
+            if (currentZoom < 2.2) {
+                currentZoom = Math.min(2.2, currentZoom + 0.15);
+                queueRenderPdfPage(currentSlideIdx + 1);
+            }
+        });
+    }
+    if (zoomOutBtn) {
+        zoomOutBtn.addEventListener('click', () => {
+            if (currentZoom > 0.6) {
+                currentZoom = Math.max(0.6, currentZoom - 0.15);
+                queueRenderPdfPage(currentSlideIdx + 1);
+            }
+        });
+    }
+    if (zoomFitBtn) {
+        zoomFitBtn.addEventListener('click', () => {
+            currentZoom = 1.0;
+            queueRenderPdfPage(currentSlideIdx + 1);
+        });
+    }
 
     function renderPdfPage(num) {
         if (!pdfDocInstance || !pdfCanvas) return;
         isRendering = true;
         pdfDocInstance.getPage(num).then(function(page) {
             const ctx = pdfCanvas.getContext('2d');
-            const canvasArea = deck.querySelector('.slide-canvas-area');
-            const availableWidth = Math.min((canvasArea ? canvasArea.clientWidth : 800) - 30, 950) || 780;
-            const unscaledViewport = page.getViewport({ scale: 1 });
-            const scale = (availableWidth / unscaledViewport.width) * 1.5;
-            const viewport = page.getViewport({ scale: scale });
+            const container = pdfCanvas.parentElement;
+            
+            // Dapatkan dimensi kontainer yang tersedia
+            const containerW = Math.max(300, (container ? container.clientWidth : 800) - 32);
+            const containerH = Math.max(300, (container ? container.clientHeight : 560) - 32);
+            
+            const unscaledViewport = page.getViewport({ scale: 1.0 });
+            const isPortrait = unscaledViewport.height > unscaledViewport.width;
+            
+            const scaleX = containerW / unscaledViewport.width;
+            const scaleY = containerH / unscaledViewport.height;
+
+            // Skala optimal:
+            // Untuk dokumen portrait (A4), buat teks lebih besar & nyaman dibaca dengan sedikit scroll vertikal
+            let baseFitScale;
+            if (isPortrait) {
+                baseFitScale = Math.min(scaleX * 0.82, Math.max(scaleY * 1.35, scaleX * 0.65));
+            } else {
+                baseFitScale = Math.min(scaleX, scaleY * 1.15);
+            }
+            const effectiveScale = baseFitScale * currentZoom;
+            
+            // Supersampling untuk resolusi tajam
+            const dpr = window.devicePixelRatio || 1.5;
+            const renderScale = effectiveScale * Math.max(1.5, dpr);
+            const viewport = page.getViewport({ scale: renderScale });
 
             pdfCanvas.height = viewport.height;
             pdfCanvas.width  = viewport.width;
+
+            // Atur ukuran CSS canvas
+            const cssWidth  = Math.round(unscaledViewport.width * effectiveScale);
+            const cssHeight = Math.round(unscaledViewport.height * effectiveScale);
+            pdfCanvas.style.width  = cssWidth + 'px';
+            pdfCanvas.style.height = cssHeight + 'px';
 
             const renderContext = {
                 canvasContext: ctx,
@@ -303,6 +372,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    let resizeTimer = null;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            if (pdfDocInstance) {
+                queueRenderPdfPage(currentSlideIdx + 1);
+            }
+        }, 200);
+    });
+
     if (pdfUrl && window.pdfjsLib && pdfCanvas) {
         pdfjsLib.getDocument(pdfUrl).promise.then(function(doc) {
             pdfDocInstance = doc;
@@ -320,6 +399,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (pdfDocInstance) {
             queueRenderPdfPage(idx + 1);
+            if (pdfCanvas && pdfCanvas.parentElement) {
+                pdfCanvas.parentElement.scrollTop = 0;
+            }
         }
 
         slideItems.forEach((item, sIdx) => {

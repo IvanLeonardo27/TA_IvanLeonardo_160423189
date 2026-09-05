@@ -25,8 +25,10 @@
             <i class="fa-solid fa-folder-open text-muted mb-3" style="font-size:3rem;"></i>
             <h5 class="fw-bold text-main">Belum Ada Soal Tersedia</h5>
             <p class="text-muted">Pengajar belum menambahkan soal pilihan ganda pada evaluasi ini.</p>
-            <div>
-                <button onclick="window.close()" class="btn rounded-pill px-4 text-white fw-bold" style="background:#8B5CF6;">Tutup Tab</button>
+            <div class="d-flex justify-content-center gap-2">
+                <a href="{{ route('student.classroom.show', $classroom) }}" class="btn rounded-pill px-4 text-white fw-bold" style="background:#8B5CF6;">
+                    <i class="fa-solid fa-arrow-left me-2"></i> Kembali ke Ruang Kelas
+                </a>
             </div>
         </div>
         @else

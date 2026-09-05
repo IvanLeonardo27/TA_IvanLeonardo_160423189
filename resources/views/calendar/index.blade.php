@@ -8,7 +8,7 @@
     <div class="card border-0 rounded-4 shadow-sm mb-4 overflow-hidden text-white position-relative" 
          style="background: var(--grad-hero); border: 1px solid rgba(255,255,255,0.1) !important;">
         
-        <i class="fa-solid fa-calendar-days position-absolute end-0 bottom-0 opacity-10 pe-4 pb-2 d-none d-md-block pointer-events-none user-select-none" 
+        <i class="position-absolute end-0 bottom-0 opacity-10 pe-4 pb-2 d-none d-md-block pointer-events-none user-select-none" 
            style="font-size: 9.5rem; line-height: 0.8; z-index: 1;" aria-hidden="true"></i>
 
         <div class="card-body p-4 p-md-5 position-relative" style="z-index: 2;">

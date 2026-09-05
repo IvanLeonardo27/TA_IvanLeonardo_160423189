@@ -8,7 +8,15 @@
     @if(session('success') || session('status') === 'profile-updated' || session('status') === 'password-updated')
     <div class="alert alert-success rounded-4 border-0 mb-4 p-3.5 d-flex align-items-center gap-2.5 shadow-sm">
         <i class="fa-solid fa-circle-check fs-5 text-success"></i>
-        <div class="fw-medium text-dark">{{ session('success') ?? 'Perubahan profil berhasil disimpan!' }}</div>
+        <div class="fw-medium text-dark">
+            @if(session('status') === 'password-updated')
+                Password akun Anda berhasil diperbarui!
+            @elseif(session('status') === 'profile-updated')
+                Perubahan data profil berhasil disimpan!
+            @else
+                {{ session('success') ?? 'Perubahan profil berhasil disimpan!' }}
+            @endif
+        </div>
     </div>
     @endif
 
@@ -94,24 +102,41 @@
         </div>
     </div>
 
+    @php
+        $activeTab = 'overview';
+        if ($errors->updatePassword->isNotEmpty() || session('status') === 'password-updated') {
+            $activeTab = 'security';
+        } elseif ($errors->isNotEmpty() || session('status') === 'profile-updated') {
+            $activeTab = 'edit';
+        } elseif (request('tab') === 'security' || request('tab') === 'edit') {
+            $activeTab = request('tab');
+        }
+    @endphp
+
     {{-- Nav Tabs Navigation --}}
     <ul class="nav nav-pills custom-profile-tabs mb-4 p-1.5 rounded-4 shadow-sm bg-white border" id="profileTabs" role="tablist" style="border: 1px solid #E2E8F0 !important;">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active rounded-pill fw-bold px-4 py-2.5 d-flex align-items-center gap-2" id="overview-tab" data-bs-toggle="pill" data-bs-target="#overview" type="button" role="tab">
+            <button class="nav-link {{ $activeTab === 'overview' ? 'active' : '' }} rounded-pill fw-bold px-4 py-2.5 d-flex align-items-center gap-2" id="overview-tab" data-bs-toggle="pill" data-bs-target="#overview" type="button" role="tab" aria-controls="overview" aria-selected="{{ $activeTab === 'overview' ? 'true' : 'false' }}">
                 <i class="fa-solid fa-id-card"></i>
                 <span>Ringkasan Akun</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-pill fw-bold px-4 py-2.5 d-flex align-items-center gap-2" id="edit-tab" data-bs-toggle="pill" data-bs-target="#edit" type="button" role="tab">
+            <button class="nav-link {{ $activeTab === 'edit' ? 'active' : '' }} rounded-pill fw-bold px-4 py-2.5 d-flex align-items-center gap-2" id="edit-tab" data-bs-toggle="pill" data-bs-target="#edit" type="button" role="tab" aria-controls="edit" aria-selected="{{ $activeTab === 'edit' ? 'true' : 'false' }}">
                 <i class="fa-solid fa-user-pen"></i>
                 <span>Perbarui Data Profil</span>
+                @if($errors->isNotEmpty() && $errors->updatePassword->isEmpty())
+                    <span class="badge rounded-pill bg-danger text-white px-2 py-0.5 small" style="font-size: 0.7rem;">Error</span>
+                @endif
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link rounded-pill fw-bold px-4 py-2.5 d-flex align-items-center gap-2" id="security-tab" data-bs-toggle="pill" data-bs-target="#security" type="button" role="tab">
+            <button class="nav-link {{ $activeTab === 'security' ? 'active' : '' }} rounded-pill fw-bold px-4 py-2.5 d-flex align-items-center gap-2" id="security-tab" data-bs-toggle="pill" data-bs-target="#security" type="button" role="tab" aria-controls="security" aria-selected="{{ $activeTab === 'security' ? 'true' : 'false' }}">
                 <i class="fa-solid fa-shield-halved"></i>
                 <span>Keamanan & Password</span>
+                @if($errors->updatePassword->isNotEmpty())
+                    <span class="badge rounded-pill bg-danger text-white px-2 py-0.5 small" style="font-size: 0.7rem;">Error</span>
+                @endif
             </button>
         </li>
     </ul>
@@ -120,7 +145,7 @@
     <div class="tab-content" id="profileTabsContent">
         
         {{-- ======================== TAB 1: OVERVIEW ======================== --}}
-        <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+        <div class="tab-pane fade {{ $activeTab === 'overview' ? 'show active' : '' }}" id="overview" role="tabpanel" aria-labelledby="overview-tab">
             <div class="row g-4">
                 {{-- Kolom Kiri: Detail Informasi Akun --}}
                 <div class="col-lg-7">
@@ -335,7 +360,7 @@
         </div>
 
         {{-- ======================== TAB 2: EDIT PROFILE ======================== --}}
-        <div class="tab-pane fade" id="edit" role="tabpanel" aria-labelledby="edit-tab">
+        <div class="tab-pane fade {{ $activeTab === 'edit' ? 'show active' : '' }}" id="edit" role="tabpanel" aria-labelledby="edit-tab">
             <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5" style="background:#ffffff; border:1px solid #E2E8F0 !important;">
                 <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-4">
                     <div>
@@ -454,7 +479,7 @@
         </div>
 
         {{-- ======================== TAB 3: SECURITY & PASSWORD ======================== --}}
-        <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
+        <div class="tab-pane fade {{ $activeTab === 'security' ? 'show active' : '' }}" id="security" role="tabpanel" aria-labelledby="security-tab">
             <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5" style="background:#ffffff; border:1px solid #E2E8F0 !important;">
                 <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-4">
                     <div>
@@ -532,3 +557,30 @@
 }
 </style>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // 1. If URL has a hash matching a tab, open that tab
+    const hash = window.location.hash;
+    if (hash && (hash === '#overview' || hash === '#edit' || hash === '#security')) {
+        const triggerBtn = document.querySelector(`button[data-bs-target="${hash}"]`);
+        if (triggerBtn) {
+            const tab = bootstrap.Tab.getOrCreateInstance(triggerBtn);
+            tab.show();
+        }
+    }
+
+    // 2. Sync URL hash on tab switch so reload keeps the same tab
+    const tabButtons = document.querySelectorAll('#profileTabs button[data-bs-toggle="pill"]');
+    tabButtons.forEach(btn => {
+        btn.addEventListener('shown.bs.tab', function (e) {
+            const target = e.target.getAttribute('data-bs-target');
+            if (target && history.replaceState) {
+                history.replaceState(null, null, target);
+            }
+        });
+    });
+});
+</script>
+@endpush

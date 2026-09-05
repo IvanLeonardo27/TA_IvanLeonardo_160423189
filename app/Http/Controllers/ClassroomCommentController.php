@@ -21,6 +21,7 @@ class ClassroomCommentController extends Controller
             'post_id' => $post->id,
             'user_id' => Auth::id(),
             'comment' => $request->comment,
+            'body'    => $request->comment,
         ]);
 
         return back()->with('success', 'Komentar berhasil ditambahkan.');

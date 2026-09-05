@@ -16,9 +16,11 @@ class QuizQuestion extends Model
         'quiz_id',
         'quiz_set_id',
         'question',
+        'question_text',
         'question_type',
         'options',
         'correct_index',
+        'correct_answer',
         'is_active',
         'status',
         'difficulty',
@@ -29,6 +31,24 @@ class QuizQuestion extends Model
         'reviewed_by',
         'published_by',
     ];
+
+    public function getQuestionAttribute(): string
+    {
+        return $this->attributes['question'] ?? ($this->attributes['question_text'] ?? '');
+    }
+
+    public function getQuestionTextAttribute(): string
+    {
+        return $this->attributes['question_text'] ?? ($this->attributes['question'] ?? '');
+    }
+
+    public function getCorrectIndexAttribute(): int
+    {
+        if (isset($this->attributes['correct_index']) && $this->attributes['correct_index'] !== null) {
+            return (int) $this->attributes['correct_index'];
+        }
+        return isset($this->attributes['correct_answer']) ? (int) $this->attributes['correct_answer'] : 0;
+    }
 
     protected $casts = [
         'options'       => 'array',
@@ -43,9 +63,14 @@ class QuizQuestion extends Model
         return $this->belongsTo(QuizSet::class, 'quiz_set_id');
     }
 
+    public function quizMaster(): BelongsTo
+    {
+        return $this->belongsTo(QuizSet::class, 'quiz_set_id');
+    }
+
     public function quiz(): BelongsTo
     {
-        return $this->belongsTo(Quiz::class, 'quiz_id');
+        return $this->belongsTo(ClassroomQuiz::class, 'quiz_id');
     }
 
     public function questionOptions(): HasMany

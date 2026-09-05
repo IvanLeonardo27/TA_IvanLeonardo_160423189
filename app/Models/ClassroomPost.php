@@ -13,14 +13,23 @@ class ClassroomPost extends Model
 {
     use SoftDeletes;
     protected $fillable = [
-        'classroom_id', 'author_id', 'type', 'title', 'body', 'is_pinned', 'week_number', 'is_published',
+        'classroom_id', 'author_id', 'type', 'title', 'body', 'link_url', 'week_number', 'is_published',
     ];
 
     protected $casts = [
-        'is_pinned' => 'boolean',
         'week_number' => 'integer',
         'is_published' => 'boolean',
     ];
+
+    public function getUrlAttribute(): ?string
+    {
+        return $this->link_url;
+    }
+
+    public function setUrlAttribute($value): void
+    {
+        $this->attributes['link_url'] = $value;
+    }
 
     public function scopePublished($query)
     {
@@ -87,6 +96,7 @@ class ClassroomPost extends Model
             'assignment'   => '#EF4444',
             'quiz'         => '#8B5CF6',
             'announcement' => '#10B981',
+            'url'          => '#0284C7',
             default        => '#6B7280',
         };
     }
@@ -98,8 +108,28 @@ class ClassroomPost extends Model
             'assignment'   => 'clipboard-list',
             'quiz'         => 'pen-to-square',
             'announcement' => 'bullhorn',
+            'url'          => 'link',
             default        => 'info-circle',
         };
+    }
+
+    public function getTypeLabelAttribute(): string
+    {
+        return match($this->type) {
+            'material'     => 'Materi',
+            'assignment'   => 'Tugas',
+            'quiz'         => 'Evaluasi / Quiz',
+            'announcement' => 'Pengumuman',
+            'url'          => 'Tautan URL',
+            default        => ucfirst($this->type ?? 'Postingan'),
+        };
+    }
+
+    public function getLinkDomainAttribute(): string
+    {
+        if (empty($this->link_url)) return '';
+        $host = parse_url($this->link_url, PHP_URL_HOST);
+        return $host ? preg_replace('/^www\./', '', $host) : '';
     }
 
     /** Mendapatkan daftar slide materi jika diposting dalam format slide / PPT */

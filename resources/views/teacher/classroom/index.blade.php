@@ -26,9 +26,9 @@
     <lottie-player src="https://assets8.lottiefiles.com/packages/lf20_q7uarxsb.json" background="transparent" speed="1" style="width:200px;height:200px;margin:0 auto;" loop autoplay></lottie-player>
     <h4 class="fw-bold text-main mt-3">Belum Ada Kelas</h4>
     <p class="text-muted">Mulai buat kelas pertama Anda dan undang siswa untuk bergabung!</p>
-    <a href="{{ route('teacher.classroom.create') }}" class="btn btn-primary rounded-pill px-5 mt-2 btn-bouncy shadow">
+    <!-- <a href="{{ route('teacher.classroom.create') }}" class="btn btn-primary rounded-pill px-5 mt-2 btn-bouncy shadow">
         <i class="fa-solid fa-plus me-2"></i>Buat Kelas Sekarang
-    </a>
+    </a> -->
 </div>
 @else
 <div class="row g-4">
@@ -36,7 +36,7 @@
     <div class="col-xl-4 col-md-6 animate__animated animate__zoomIn" style="animation-delay: {{ $i * 0.08 }}s">
         <div class="card border-0 shadow-sm h-100 overflow-hidden" style="border-radius: 20px; transition: transform 0.25s, box-shadow 0.25s;">
             {{-- Banner Kelas --}}
-            <div class="position-relative text-white p-4" style="background: {{ $classroom->banner_color }}; min-height: 140px; border-radius: 20px 20px 0 0;">
+            <div class="position-relative text-white p-4" style="background: linear-gradient(135deg, {{ $classroom->banner_color }} 0%, color-mix(in srgb, {{ $classroom->banner_color }} 70%, #000) 100%); min-height: 140px; border-radius: 20px 20px 0 0;">
                 {{-- Background Icon Dekoratif --}}
                 <i class="fa-solid fa-{{ $classroom->banner_icon }} position-absolute opacity-10"
                    style="font-size:9rem; right:-15px; bottom:-25px; z-index:0;"></i>

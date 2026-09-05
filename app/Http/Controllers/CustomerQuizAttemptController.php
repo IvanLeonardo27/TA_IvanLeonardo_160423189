@@ -13,7 +13,7 @@ class CustomerQuizAttemptController extends Controller
     public function __invoke(Request $request)
     {
         $data = $request->validate([
-            'quiz_set_id' => ['required', 'integer', 'exists:quiz_sets,id'],
+            'quiz_set_id' => ['required', 'integer', 'exists:quiz_masters,id'],
             'player_name' => ['nullable', 'string', 'max:80'],
             'score' => ['required', 'integer', 'min:0', 'max:100'],
             'answers' => ['nullable', 'array'],

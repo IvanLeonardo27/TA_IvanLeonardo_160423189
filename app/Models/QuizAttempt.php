@@ -59,9 +59,14 @@ class QuizAttempt extends Model
         return $this->belongsTo(QuizSet::class, 'quiz_set_id');
     }
 
+    public function quizMaster(): BelongsTo
+    {
+        return $this->belongsTo(QuizSet::class, 'quiz_set_id');
+    }
+
     public function quiz(): BelongsTo
     {
-        return $this->belongsTo(Quiz::class, 'quiz_id');
+        return $this->belongsTo(ClassroomQuiz::class, 'quiz_id');
     }
 
     public function user(): BelongsTo

@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 
 class ClassroomController extends Controller
 {
@@ -101,7 +102,47 @@ class ClassroomController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'email', 'user_code']);
 
-        return view('teacher.classroom.show', compact('classroom', 'posts', 'students', 'members', 'availableStudents'));
+        // Ambil riwayat pelajar yang telah dikeluarkan (soft-deleted dengan status out_at)
+        $formerStudents = $classroom->belongsToMany(User::class, 'classroom_members', 'classroom_id', 'user_id')
+            ->wherePivot('role', 'student')
+            ->wherePivotNotNull('out_at')
+            ->withPivot('joined_at', 'out_at')
+            ->orderByPivot('out_at', 'desc')
+            ->get();
+
+        return view('teacher.classroom.show', compact('classroom', 'posts', 'students', 'members', 'availableStudents', 'formerStudents'));
+    }
+
+    /** Halaman terpisah pengelolaan anggota kelas */
+    public function members(Classroom $classroom)
+    {
+        Gate::authorize('view', $classroom);
+
+        $students = $classroom->students()->get();
+        $members  = $classroom->members()->get();
+
+        // Ambil seluruh pelajar terdaftar di sistem yang belum bergabung di kelas ini (atau out_at != null)
+        $availableStudents = User::where(function ($q) {
+                $q->where('role_id', 3)
+                  ->orWhereHas('role', fn($r) => $r->where('name', 'student'));
+            })
+            ->where('status', 'active')
+            ->whereDoesntHave('classroomMemberships', function ($q) use ($classroom) {
+                $q->where('classroom_id', $classroom->id)
+                  ->whereNull('out_at');
+            })
+            ->orderBy('name')
+            ->get(['id', 'name', 'email', 'user_code']);
+
+        // Ambil riwayat pelajar yang telah dikeluarkan (soft-deleted dengan status out_at)
+        $formerStudents = $classroom->belongsToMany(User::class, 'classroom_members', 'classroom_id', 'user_id')
+            ->wherePivot('role', 'student')
+            ->wherePivotNotNull('out_at')
+            ->withPivot('joined_at', 'out_at')
+            ->orderByPivot('out_at', 'desc')
+            ->get();
+
+        return view('teacher.classroom.members', compact('classroom', 'students', 'members', 'availableStudents', 'formerStudents'));
     }
 
     /** Form edit kelas */
@@ -127,7 +168,7 @@ class ClassroomController extends Controller
 
         $classroom->update($validated);
 
-        return back()->with('success', 'Kelas berhasil diperbarui!');
+        return redirect()->route('teacher.classroom.show', $classroom)->with('success', 'Pengaturan kelas berhasil diperbarui!');
     }
 
     /** Hapus kelas */
@@ -213,7 +254,7 @@ class ClassroomController extends Controller
         return back()->with('info', 'Semua pelajar yang dipilih sudah terdaftar di kelas ini.');
     }
 
-    /** Hapus anggota dari kelas (Catat out_at) */
+    /** Hapus anggota / Kick pelajar dari kelas (Catat out_at sebagai Soft Delete) */
     public function removeMember(Classroom $classroom, User $user)
     {
         Gate::authorize('manageMembers', $classroom);
@@ -225,9 +266,19 @@ class ClassroomController extends Controller
 
         if ($member) {
             $member->update(['out_at' => now()]);
+
+            \App\Models\ActivityLog::log(
+                Auth::user(),
+                'Mengeluarkan Pelajar dari Kelas',
+                'classroom',
+                "Mengeluarkan (kick) pelajar '{$user->name}' dari kelas '{$classroom->name}'. Data histori nilai & tugas tetap tersimpan aman (out_at).",
+                $classroom->name,
+                'fa-solid fa-user-xmark',
+                'bg-danger'
+            );
         }
 
-        return back()->with('success', 'Anggota berhasil dikeluarkan dari kelas.');
+        return back()->with('success', "Pelajar {$user->name} berhasil dikeluarkan (di-kick) dari kelas. Seluruh histori nilai dan pengerjaan tetap tersimpan di database (out_at).");
     }
 
     /** Nilai submission siswa */
@@ -240,7 +291,11 @@ class ClassroomController extends Controller
             'teacher_feedback' => 'nullable|string',
         ]);
 
-        $submission->update([...$validated, 'status' => 'graded']);
+        $submission->update([
+            ...$validated,
+            'status'    => 'graded',
+            'graded_at' => now(),
+        ]);
 
         return back()->with('success', 'Nilai berhasil disimpan!');
     }
@@ -288,5 +343,69 @@ class ClassroomController extends Controller
         }
 
         return back()->with('success', 'Judul minggu berhasil diperbarui!');
+    }
+
+    /** Tambah Minggu (Week) Baru Secara Manual */
+    public function addWeek(Request $request, Classroom $classroom)
+    {
+        Gate::authorize('update', $classroom);
+
+        $customTitles = $classroom->week_titles ?? [];
+        $maxCustomWeek = count($customTitles) > 0 ? max(array_keys($customTitles)) : 0;
+        $maxPostWeek = $classroom->posts()->max('week_number') ?? 0;
+        $currentMax = max(4, $maxCustomWeek, $maxPostWeek);
+        $nextWeek = $currentMax + 1;
+
+        $title = $request->input('title');
+        $customTitles[$nextWeek] = $title ? trim($title) : "Week {$nextWeek}";
+
+        $classroom->update(['week_titles' => $customTitles]);
+
+        return back()->with('success', "Minggu baru (Week {$nextWeek}) berhasil ditambahkan!");
+    }
+
+    /** Hapus Minggu (Week) Beserta Seluruh Isinya Secara Permanen (Tanpa Soft Deletes) */
+    public function destroyWeek(Request $request, Classroom $classroom, int $week)
+    {
+        Gate::authorize('update', $classroom);
+
+        $weekNumber = (int) $week;
+
+        // Ambil seluruh postingan di minggu ini (materi, tugas, kuis, tautan)
+        // Termasuk yang mungkin ter-soft-delete jika ada, kita forceDelete
+        $postsInWeek = $classroom->posts()->where('week_number', $weekNumber)->withTrashed()->get();
+
+        foreach ($postsInWeek as $post) {
+            // Hapus file attachments dari storage public
+            foreach ($post->attachments as $attachment) {
+                Storage::disk('public')->delete($attachment->file_path);
+            }
+            // Hapus secara langsung permanen tanpa soft deletes
+            $post->forceDelete();
+        }
+
+        // Susun ulang week_titles dan shift minggu-minggu berikutnya
+        $customTitles = $classroom->week_titles ?? [];
+        $newTitles = [];
+
+        foreach ($customTitles as $k => $title) {
+            $k = (int) $k;
+            if ($k < $weekNumber) {
+                $newTitles[$k] = $title;
+            } elseif ($k > $weekNumber) {
+                // Geser nomor minggu ke bawah
+                $newTitles[$k - 1] = $title;
+            }
+            // $k === $weekNumber dilewati (terhapus)
+        }
+
+        // Perbarui nomor minggu postingan yang lebih besar dari $weekNumber agar tetap konsisten
+        $classroom->posts()
+            ->where('week_number', '>', $weekNumber)
+            ->decrement('week_number');
+
+        $classroom->update(['week_titles' => $newTitles]);
+
+        return back()->with('success', "Week {$weekNumber} beserta seluruh materi dan postingan di dalamnya berhasil dihapus secara langsung.");
     }
 }

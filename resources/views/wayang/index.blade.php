@@ -60,16 +60,16 @@
     {{-- Kategori Filter Pills --}}
     <div class="d-flex align-items-center gap-2 overflow-auto pb-3 mb-4 custom-scroll flex-nowrap">
         <a href="{{ route('wayang.index', array_filter(['search' => $search, 'allegiance' => $allegiance])) }}" 
-           class="btn rounded-pill px-3.5 py-2 btn-sm fw-bold flex-shrink-0 {{ !$categoryId ? 'btn-primary text-white shadow-sm' : 'btn-light border text-muted' }}" 
-           style="{{ !$categoryId ? 'background: #16402E; border-color: #16402E;' : '' }}">
+           class="btn rounded-pill px-3.5 py-2 btn-sm fw-bold flex-shrink-0 {{ !$categoryId ? 'text-white shadow-sm' : '' }}" 
+           style="{{ !$categoryId ? 'background: #16402E; border: 1px solid #16402E;' : 'background: #FFFFFF; color: #1E293B; border: 1px solid #CBD5E1;' }}">
             <i class="fa-solid fa-border-all me-1"></i> Semua Kategori ({{ $totalCharacters }})
         </a>
 
         @foreach($categories as $cat)
         <a href="{{ route('wayang.index', array_filter(['category' => $cat->id, 'search' => $search, 'allegiance' => $allegiance])) }}" 
-           class="btn rounded-pill px-3.5 py-2 btn-sm fw-bold flex-shrink-0 {{ $categoryId == $cat->id ? 'btn-primary text-white shadow-sm' : 'btn-light border text-muted' }}"
-           style="{{ $categoryId == $cat->id ? 'background: #16402E; border-color: #16402E;' : '' }}">
-            {{ $cat->name }} <span class="badge rounded-pill ms-1 {{ $categoryId == $cat->id ? 'bg-white text-dark' : 'bg-secondary bg-opacity-10 text-muted' }}">{{ $cat->characters_count }}</span>
+           class="btn rounded-pill px-3.5 py-2 btn-sm fw-bold flex-shrink-0 {{ $categoryId == $cat->id ? 'text-white shadow-sm' : '' }}"
+           style="{{ $categoryId == $cat->id ? 'background: #16402E; border: 1px solid #16402E;' : 'background: #FFFFFF; color: #1E293B; border: 1px solid #CBD5E1;' }}">
+            {{ $cat->name }} <span class="badge rounded-pill ms-1" style="{{ $categoryId == $cat->id ? 'background: rgba(255,255,255,0.25); color: #ffffff;' : 'background: #F1F5F9; color: #334155;' }}">{{ $cat->characters_count }}</span>
         </a>
         @endforeach
     </div>
@@ -79,11 +79,11 @@
         <div>
             <h5 class="fw-bold text-dark mb-0">
                 @if($selectedCategory)
-                    Kategori: <span class="text-primary">{{ $selectedCategory->name }}</span>
+                    Kategori: <span style="color: #16402E;">{{ $selectedCategory->name }}</span>
                 @else
                     Daftar Semua Tokoh
                 @endif
-                <small class="text-muted fw-normal fs-6">({{ $characters->total() }} tokoh ditemukan)</small>
+                <small class="fw-medium fs-6 ms-1" style="color: #64748B;">({{ $characters->total() }} tokoh ditemukan)</small>
             </h5>
         </div>
 
@@ -95,14 +95,16 @@
             </a>
             @endif
 
-            <span class="small fw-bold text-muted"><i class="fa-solid fa-flag me-1"></i> Pihak:</span>
+            <span class="small fw-bold" style="color: #475569;"><i class="fa-solid fa-flag me-1 text-secondary"></i> Pihak:</span>
             <a href="{{ route('wayang.index', array_filter(['category' => $categoryId, 'search' => $search])) }}" 
-               class="badge rounded-pill px-3 py-1.5 text-decoration-none {{ !$allegiance ? 'bg-dark text-white' : 'bg-light text-muted border' }}">
+               class="badge rounded-pill px-3 py-1.5 text-decoration-none fw-semibold shadow-xs"
+               style="{{ !$allegiance ? 'background: #16402E; color: #ffffff; border: 1px solid #16402E;' : 'background: #FFFFFF; color: #334155; border: 1px solid #CBD5E1;' }}">
                 Semua
             </a>
             @foreach($allegiances as $alg)
             <a href="{{ route('wayang.index', array_filter(['allegiance' => $alg, 'category' => $categoryId, 'search' => $search])) }}" 
-               class="badge rounded-pill px-3 py-1.5 text-decoration-none {{ $allegiance == $alg ? 'bg-primary text-white shadow-xs' : 'bg-light text-muted border' }}">
+               class="badge rounded-pill px-3 py-1.5 text-decoration-none fw-semibold shadow-xs"
+               style="{{ $allegiance == $alg ? 'background: #16402E; color: #ffffff; border: 1px solid #16402E;' : 'background: #FFFFFF; color: #334155; border: 1px solid #CBD5E1;' }}">
                 {{ $alg }}
             </a>
             @endforeach
@@ -136,17 +138,25 @@
     <div class="row g-4 mb-4">
         @foreach($characters as $char)
         @php
-            // Badge color based on category/allegiance
-            $badgeColor = match($char->category_id) {
-                1 => 'bg-success-subtle text-success border-success',
-                2 => 'bg-danger-subtle text-danger border-danger',
-                3 => 'bg-warning-subtle text-warning-emphasis border-warning',
-                4 => 'bg-primary-subtle text-primary border-primary',
-                5 => 'bg-danger-subtle text-danger border-danger',
-                6 => 'bg-purple-subtle text-purple border',
-                7 => 'bg-info-subtle text-info-emphasis border-info',
-                default => 'bg-secondary-subtle text-secondary border-secondary',
+            // High-contrast vibrant badge colors for each category
+            $catStyle = match($char->category_id) {
+                1 => ['bg' => '#E8F5E9', 'color' => '#1B5E20', 'border' => '#A5D6A7'], // Pandawa (Hijau Tua)
+                2 => ['bg' => '#FFEBEE', 'color' => '#B71C1C', 'border' => '#EF9A9A'], // Kurawa (Merah Tua)
+                3 => ['bg' => '#FEF3C7', 'color' => '#92400E', 'border' => '#FDE68A'], // Punakawan (Amber Tua)
+                4 => ['bg' => '#E0F2FE', 'color' => '#0369A1', 'border' => '#BAE6FD'], // Ksatria & Keturunan (Biru Tua)
+                5 => ['bg' => '#FCE7F3', 'color' => '#9D174D', 'border' => '#FBCFE8'], // Tokoh Wanita (Pink Tua)
+                6 => ['bg' => '#EDE9FE', 'color' => '#5B21B6', 'border' => '#DDD6FE'], // Tokoh Kerajaan (Ungu Tua)
+                7 => ['bg' => '#ECFDF5', 'color' => '#065F46', 'border' => '#A7F3D0'], // Resi dan Guru (Teal Tua)
+                default => ['bg' => '#F1F5F9', 'color' => '#1E293B', 'border' => '#CBD5E1'],
             };
+
+            // High-contrast badge styling for allegiances
+            $algStyle = match(true) {
+                str_contains($char->allegiance, 'Pandawa') => ['bg' => '#ECFDF5', 'color' => '#065F46', 'border' => '#A7F3D0', 'icon' => 'text-success'],
+                str_contains($char->allegiance, 'Kurawa') => ['bg' => '#FEF2F2', 'color' => '#991B1B', 'border' => '#FECACA', 'icon' => 'text-danger'],
+                default => ['bg' => '#F8FAFC', 'color' => '#1E293B', 'border' => '#CBD5E1', 'icon' => 'text-secondary'],
+            };
+
             $isBookmarked = in_array($char->id, $userWayangBookmarkIds);
         @endphp
         <div class="col-md-6 col-lg-4 col-xl-3">
@@ -155,7 +165,8 @@
                 
                 {{-- Character Header & Avatar --}}
                 <div class="p-4 text-center position-relative" style="background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);">
-                    <span class="badge rounded-pill px-2.5 py-1 position-absolute top-0 start-0 m-3 border {{ $badgeColor }}" style="font-size: 0.72rem;">
+                    <span class="badge rounded-pill px-2.5 py-1 position-absolute top-0 start-0 m-3 shadow-xs" 
+                          style="font-size: 0.74rem; font-weight: 700; background: {{ $catStyle['bg'] }}; color: {{ $catStyle['color'] }}; border: 1px solid {{ $catStyle['border'] }}; letter-spacing: 0.2px;">
                         {{ $char->category->name }}
                     </span>
 
@@ -173,18 +184,18 @@
                     <div class="my-3 d-inline-block position-relative">
                         <img src="{{ asset('storage/' . $char->image_path) }}" 
                              alt="{{ $char->name }}" 
-                             class="rounded-4 shadow-sm" 
-                             style="width: 130px; height: 130px; object-fit: cover; border: 3px solid #ffffff;"
+                             class="rounded-4 shadow-sm bg-white p-1" 
+                             style="width: 130px; height: 130px; object-fit: contain; border: 3px solid #ffffff;"
                              onerror="this.onerror=null; this.src='{{ asset('storage/wayang/default.svg') }}';">
                     </div>
 
-                    <h5 class="fw-bold text-dark mb-1" style="font-size: 1.15rem;">{{ $char->name }}</h5>
+                    <h5 class="fw-bold mb-1" style="font-size: 1.15rem; color: #0F172A;">{{ $char->name }}</h5>
                     @if($char->other_names && $char->other_names !== 'Tidak ada nama lain yang umum')
-                    <small class="text-muted d-block text-truncate px-2" title="{{ $char->other_names }}" style="font-size: 0.78rem;">
-                        Alias: {{ Str::limit($char->other_names, 30) }}
+                    <small class="d-block text-truncate px-2" title="{{ $char->other_names }}" style="font-size: 0.8rem; color: #475569; font-weight: 500;">
+                        <span class="fw-bold" style="color: #1E293B;">Alias:</span> {{ Str::limit($char->other_names, 30) }}
                     </small>
                     @else
-                    <small class="text-muted d-block" style="font-size: 0.78rem;">
+                    <small class="d-block" style="font-size: 0.8rem; color: #475569; font-weight: 500;">
                         {{ $char->gender }}
                     </small>
                     @endif
@@ -194,30 +205,32 @@
                 <div class="card-body p-3.5 d-flex flex-column justify-content-between">
                     <div>
                         <div class="mb-2">
-                            <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1 fw-semibold" style="font-size: 0.72rem;">
-                                <i class="fa-solid fa-flag text-primary me-1"></i> {{ $char->allegiance }}
+                            <span class="badge rounded-pill px-2.5 py-1" 
+                                  style="font-size: 0.74rem; font-weight: 600; background: {{ $algStyle['bg'] }}; color: {{ $algStyle['color'] }}; border: 1px solid {{ $algStyle['border'] }};">
+                                <i class="fa-solid fa-flag me-1.5 {{ $algStyle['icon'] }}"></i> {{ $char->allegiance }}
                             </span>
                         </div>
 
-                        <p class="text-muted small mb-3" style="font-size: 0.82rem; line-height: 1.4; min-height: 48px;">
-                            {{ Str::limit($char->role ?? $char->description, 75) }}
+                        <p class="mb-3" style="font-size: 0.86rem; line-height: 1.55; min-height: 48px; color: #334155; font-weight: 450;">
+                            {{ Str::limit($char->role ?? $char->description, 80) }}
                         </p>
 
                         @if($char->weapon && $char->weapon !== 'Tidak memiliki senjata khusus' && $char->weapon !== 'Tidak disebutkan secara khusus')
-                        <div class="p-2 rounded-3 bg-light border small mb-3 text-truncate" style="font-size: 0.75rem;" title="{{ $char->weapon }}">
-                            <strong class="text-dark"><i class="fa-solid fa-shield-halved text-secondary me-1"></i> Senjata:</strong> 
-                            <span class="text-muted">{{ $char->weapon }}</span>
+                        <div class="p-2 px-2.5 rounded-3 border small mb-3 text-truncate" style="font-size: 0.78rem; background: #F8FAFC; border-color: #E2E8F0 !important;" title="{{ $char->weapon }}">
+                            <strong style="color: #0F172A;"><i class="fa-solid fa-shield-halved me-1.5" style="color: #B45309;"></i> Senjata:</strong> 
+                            <span style="color: #334155; font-weight: 500;">{{ $char->weapon }}</span>
                         </div>
                         @endif
                     </div>
 
                     {{-- Actions --}}
                     <div class="d-flex gap-2 pt-2 border-top">
-                        <button type="button" class="btn btn-light border btn-sm rounded-pill flex-grow-1 fw-semibold text-muted shadow-xs" 
+                        <button type="button" class="btn btn-sm rounded-pill flex-grow-1 fw-bold shadow-xs btn-intip" 
+                                style="background: #F8FAFC; color: #16402E; border: 1.5px solid #CBD5E1; font-size: 0.82rem; transition: all 0.2s ease;"
                                 data-bs-toggle="modal" data-bs-target="#quickModal{{ $char->id }}">
-                            <i class="fa-regular fa-eye me-1"></i> Intip
+                            <i class="fa-regular fa-eye me-1 text-success"></i> Intip
                         </button>
-                        <a href="{{ route('wayang.show', $char) }}" class="btn btn-primary btn-sm rounded-pill flex-grow-1 fw-bold btn-bouncy shadow-xs" style="background: #16402E; border-color: #16402E;">
+                        <a href="{{ route('wayang.show', $char) }}" class="btn btn-primary btn-sm rounded-pill flex-grow-1 fw-bold btn-bouncy shadow-xs" style="background: #16402E; border-color: #16402E; color: #FFFFFF; font-size: 0.82rem;">
                             Selengkapnya <i class="fa-solid fa-arrow-right ms-1"></i>
                         </a>
                     </div>
@@ -247,12 +260,20 @@
                     <div class="modal-header p-4 text-white" style="background: linear-gradient(135deg, #16402E 0%, #1F523D 100%);">
                         <div class="d-flex align-items-center gap-3">
                             <img src="{{ asset('storage/' . $char->image_path) }}" 
-                                 class="rounded-circle border border-2 border-white shadow-sm" 
-                                 width="50" height="50" style="object-fit: cover;"
+                                 class="rounded-circle border border-2 border-white shadow-sm bg-white p-1" 
+                                 width="52" height="52" style="object-fit: contain;"
                                  onerror="this.src='{{ asset('storage/wayang/default.svg') }}';">
                             <div>
-                                <h5 class="modal-title fw-bold text-white mb-0">{{ $char->name }}</h5>
-                                <small class="text-white-50">{{ $char->category->name }} • {{ $char->allegiance }}</small>
+                                <h5 class="modal-title fw-bold text-white mb-0" style="font-size: 1.3rem;">{{ $char->name }}</h5>
+                                <div class="text-white-50 mt-1 d-flex align-items-center gap-2 flex-wrap" style="font-size: 0.82rem;">
+                                    <span class="badge rounded-pill px-2.5 py-0.5" style="background: {{ $catStyle['bg'] }}; color: {{ $catStyle['color'] }}; font-weight: 700;">
+                                        {{ $char->category->name }}
+                                    </span>
+                                    <span class="text-white opacity-75">•</span>
+                                    <span class="badge rounded-pill px-2.5 py-0.5" style="background: rgba(255,255,255,0.2); color: #FFFFFF; font-weight: 600;">
+                                        <i class="fa-solid fa-flag me-1 text-warning"></i> {{ $char->allegiance }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -261,33 +282,51 @@
                     <div class="modal-body p-4 bg-white">
                         <div class="row g-3 mb-3">
                             <div class="col-sm-6">
-                                <div class="p-3 bg-light rounded-4 border">
-                                    <small class="text-muted fw-bold d-block mb-1">Peran & Kedudukan</small>
-                                    <div class="text-dark small fw-semibold">{{ $char->role }}</div>
+                                <div class="p-3.5 rounded-4 border h-100" style="background: #F8FAFC; border-color: #E2E8F0 !important; border-top: 3px solid #16402E !important;">
+                                    <small class="fw-bold d-block mb-1.5" style="color: #16402E; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        <i class="fa-solid fa-user-tie me-1.5"></i> Peran & Kedudukan
+                                    </small>
+                                    <div style="color: #0F172A; font-size: 0.92rem; font-weight: 600; line-height: 1.5;">
+                                        {{ $char->role }}
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <div class="p-3 bg-light rounded-4 border">
-                                    <small class="text-muted fw-bold d-block mb-1">Sifat & Karakter Utama</small>
-                                    <div class="text-dark small fw-semibold">{{ $char->character_traits }}</div>
+                                <div class="p-3.5 rounded-4 border h-100" style="background: #F8FAFC; border-color: #E2E8F0 !important; border-top: 3px solid #C9A66B !important;">
+                                    <small class="fw-bold d-block mb-1.5" style="color: #854D0E; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        <i class="fa-solid fa-heart-pulse me-1.5 text-danger"></i> Sifat & Karakter Utama
+                                    </small>
+                                    <div style="color: #0F172A; font-size: 0.92rem; font-weight: 600; line-height: 1.5;">
+                                        {{ $char->character_traits }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <h6 class="fw-bold text-dark mb-1"><i class="fa-solid fa-align-left text-primary me-1.5"></i> Ringkasan Tokoh</h6>
-                            <p class="text-muted small mb-0" style="line-height: 1.5;">{{ $char->description }}</p>
+                        <div class="p-3.5 rounded-4 border mb-3" style="background: #ffffff; border-color: #E2E8F0 !important;">
+                            <h6 class="fw-bold mb-2" style="color: #0F172A; font-size: 0.95rem;">
+                                <i class="fa-solid fa-align-left text-primary me-2"></i> Ringkasan Tokoh
+                            </h6>
+                            <p class="mb-0" style="color: #1E293B; font-size: 0.92rem; line-height: 1.65; font-weight: 450;">
+                                {{ $char->description }}
+                            </p>
                         </div>
 
-                        <div class="p-3 rounded-4 bg-light border">
-                            <h6 class="fw-bold text-dark mb-1"><i class="fa-solid fa-book-open-reader text-success me-1.5"></i> Cuplikan Cerita</h6>
-                            <p class="text-muted small mb-0" style="line-height: 1.5;">{{ $char->story }}</p>
+                        <div class="p-3.5 rounded-4 border" style="background: #F8FAFC; border-left: 4px solid #16402E !important; border-color: #E2E8F0 !important;">
+                            <h6 class="fw-bold mb-2" style="color: #0F172A; font-size: 0.95rem;">
+                                <i class="fa-solid fa-book-open-reader text-success me-2"></i> Cuplikan Cerita
+                            </h6>
+                            <p class="mb-0" style="color: #1E293B; font-size: 0.92rem; line-height: 1.7; font-weight: 450; text-align: justify;">
+                                {{ $char->story }}
+                            </p>
                         </div>
                     </div>
 
                     <div class="modal-footer bg-light border-top p-3 d-flex justify-content-between">
-                        <button type="button" class="btn btn-secondary rounded-pill px-4 btn-sm" data-bs-dismiss="modal">Tutup</button>
-                        <a href="{{ route('wayang.show', $char) }}" class="btn btn-primary rounded-pill px-4 btn-sm fw-bold" style="background:#16402E; border-color:#16402E;">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4 btn-sm fw-semibold" data-bs-dismiss="modal">
+                            Tutup
+                        </button>
+                        <a href="{{ route('wayang.show', $char) }}" class="btn btn-primary rounded-pill px-4 btn-sm fw-bold shadow-xs" style="background:#16402E; border-color:#16402E; color: #FFFFFF;">
                             Buka Halaman Detail Penuh <i class="fa-solid fa-arrow-right ms-1"></i>
                         </a>
                     </div>
@@ -308,6 +347,11 @@
 .wayang-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 25px rgba(22, 64, 46, 0.12) !important;
+}
+.btn-intip:hover {
+    background-color: #E2E8F0 !important;
+    color: #0F172A !important;
+    border-color: #94A3B8 !important;
 }
 .custom-scroll::-webkit-scrollbar {
     height: 6px;

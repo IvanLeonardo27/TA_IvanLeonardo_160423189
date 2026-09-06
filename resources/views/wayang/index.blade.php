@@ -28,17 +28,20 @@
                             <input type="hidden" name="allegiance" value="{{ $allegiance }}">
                         @endif
                         <div class="input-group input-group-lg shadow-sm rounded-pill bg-white p-1 flex-grow-1">
-                            <span class="input-group-text bg-transparent border-0 ps-3 text-muted">
+                            <span class="input-group-text bg-transparent border-0 ps-3 pe-2 text-muted">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </span>
-                            <input type="text" name="search" id="wayangSearchInput" class="form-control border-0 bg-transparent py-2.5 text-dark fw-semibold" 
-                                   placeholder="Cari tokoh wayang (contoh: Arjuna, Bima, Gatotkaca)..." 
-                                   value="{{ $search }}" style="font-size: 0.95rem;"
+                            <input type="text" name="search" id="wayangSearchInput" class="form-control border-0 bg-transparent py-2.5 ps-1 text-dark fw-semibold" 
+                                   placeholder="Cari tokoh wayang..." 
+                                   value="{{ $search }}" style="font-size: 0.92rem;"
                                    autocomplete="off">
-                            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold btn-bouncy" style="background:#C9A66B; border:none; color:#16402E;">
+                            <button type="submit" class="btn btn-primary rounded-pill px-3 px-sm-4 fw-bold btn-bouncy" style="background:#C9A66B; border:none; color:#16402E;">
                                 Cari
                             </button>
                         </div>
+                        <small class="text-white-50 w-100 mt-1.5 ms-2 d-flex align-items-center gap-1.5" style="font-size: 0.82rem;">
+                            <i class="fa-solid fa-circle-info text-warning me-1"></i> Contoh: Arjuna, Bima, Gatotkaca, Semar, Srikandi
+                        </small>
                         @if($search || $categoryId || $allegiance)
                         <a href="{{ route('wayang.index') }}" class="btn btn-outline-light rounded-pill px-3 py-2 d-flex align-items-center gap-1.5 shadow-xs" style="font-size: 0.88rem;">
                             <i class="fa-solid fa-rotate-left"></i> Reset
@@ -312,11 +315,11 @@
                             </p>
                         </div>
 
-                        <div class="p-3.5 rounded-4 border" style="background: #F8FAFC; border-left: 4px solid #16402E !important; border-color: #E2E8F0 !important;">
+                        <div class="p-3.5 ps-4 rounded-4 border" style="background: #F8FAFC; border-left: 4.5px solid #16402E !important; border-color: #E2E8F0 !important;">
                             <h6 class="fw-bold mb-2" style="color: #0F172A; font-size: 0.95rem;">
                                 <i class="fa-solid fa-book-open-reader text-success me-2"></i> Cuplikan Cerita
                             </h6>
-                            <p class="mb-0" style="color: #1E293B; font-size: 0.92rem; line-height: 1.7; font-weight: 450; text-align: justify;">
+                            <p class="mb-0" style="color: #1E293B; font-size: 0.92rem; line-height: 1.7; font-weight: 450;">
                                 {{ $char->story }}
                             </p>
                         </div>

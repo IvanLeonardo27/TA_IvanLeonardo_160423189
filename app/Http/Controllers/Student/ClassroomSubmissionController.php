@@ -82,6 +82,6 @@ class ClassroomSubmissionController extends Controller
 
         $submission->delete();
 
-        return back()->with('success', 'Pengumpulan tugas berhasil dibatalkan.');
+        return back()->with('success', 'Pengumpulan tugas berhasil ditarik kembali.');
     }
 }

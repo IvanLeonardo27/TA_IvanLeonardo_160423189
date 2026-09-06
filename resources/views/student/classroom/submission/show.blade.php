@@ -112,6 +112,14 @@
                 </h5>
                 <p class="text-muted mb-4 small">Format yang diterima: PDF, DOCX, JPG, PNG – Maks. 20MB</p>
 
+                {{-- Form Tarik Kembali (Dipisahkan agar tidak nested form) --}}
+                @if($submission)
+                <form id="unsubmitForm" action="{{ route('student.classroom.submission.destroy', $assignment) }}" method="POST" class="d-none">
+                    @csrf
+                    @method('DELETE')
+                </form>
+                @endif
+
                 <form action="{{ route('student.classroom.submission.store', $assignment) }}" method="POST" enctype="multipart/form-data" id="submitForm">
                     @csrf
 
@@ -145,13 +153,10 @@
 
                     <div class="d-flex gap-3">
                         @if($submission)
-                        <form action="{{ route('student.classroom.submission.destroy', $assignment) }}" method="POST"
-                              onsubmit="return confirm('Tarik pengumpulan tugas ini?')">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="btn btn-outline-danger rounded-pill px-4">
-                                <i class="fa-solid fa-rotate-left me-2"></i>Tarik Kembali
-                            </button>
-                        </form>
+                        <button type="button" class="btn btn-outline-danger rounded-pill px-4"
+                                onclick="if(confirm('Tarik pengumpulan tugas ini? File yang telah diunggah akan dihapus dan status tugas menjadi belum dikumpulkan.')) { document.getElementById('unsubmitForm').submit(); }">
+                            <i class="fa-solid fa-rotate-left me-2"></i>Tarik Kembali
+                        </button>
                         @endif
                         <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold btn-bouncy shadow flex-grow-1">
                             <i class="fa-solid fa-paper-plane me-2"></i>

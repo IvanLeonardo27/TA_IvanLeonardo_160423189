@@ -70,7 +70,7 @@
             </div>
             
             <div class="table-responsive">
-                <table class="table table-hover align-middle border-bottom">
+                <table class="table table-hover align-middle border-bottom text-nowrap" style="min-width: 520px;">
                     <thead class="table-light text-muted">
                         <tr>
                             <th class="fw-semibold">Nama Siswa</th>

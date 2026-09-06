@@ -53,7 +53,7 @@
                 <input type="text" 
                        id="aksaraSearchInput" 
                        class="form-control border-0 py-3 ps-2 pe-4 bg-transparent" 
-                       placeholder="Cari aksara (nama atau latin)..." 
+                       placeholder="Cari aksara atau latin..." 
                        aria-label="Cari aksara"
                        autocomplete="off">
                 <button type="button" id="clearAksaraSearchBtn" class="btn bg-transparent border-0 pe-4 text-muted d-none" title="Bersihkan">

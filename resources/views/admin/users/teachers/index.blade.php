@@ -16,12 +16,12 @@
                     <p class="text-white-50 small mb-0">Manajemen guru terdaftar dengan kode akun unik (format: <code style="background: rgba(255,255,255,0.2); color: #ffffff !important; padding: 3px 8px; border-radius: 6px;">277YYXX</code>).</p>
                 </div>
             </div>
-            <div class="d-flex align-items-center gap-2.5 flex-wrap">
-                <div class="d-inline-flex align-items-center gap-2 px-4 py-2.5 rounded-pill fw-semibold shadow-xs" 
+            <div class="d-flex align-items-center gap-3 flex-wrap w-100 w-md-auto mt-2 mt-md-0">
+                <div class="d-inline-flex align-items-center justify-content-center gap-2 px-4 py-2.5 rounded-pill fw-semibold shadow-xs w-100 w-sm-auto text-center" 
                      style="background: rgba(255, 255, 255, 0.2); color: #ffffff !important; font-size: 0.88rem; border: 1.5px solid rgba(255, 255, 255, 0.35);">
                     <i class="fa-solid fa-users me-1 text-white"></i> {{ $totalTeachers }} Total Pengajar ({{ $activeTeachers }} Aktif)
                 </div>
-                <a href="{{ route('admin.users.teachers.create') }}" class="btn btn-light rounded-pill px-4 py-2.5 fw-bold btn-bouncy shadow-sm" style="color: #16402E !important; font-size: 0.9rem;">
+                <a href="{{ route('admin.users.teachers.create') }}" class="btn btn-light rounded-pill px-4 py-2.5 fw-bold btn-bouncy shadow-sm w-100 w-sm-auto text-center" style="color: #16402E !important; font-size: 0.9rem;">
                     <i class="fa-solid fa-user-plus me-1.5"></i> Tambah Pengajar
                 </a>
             </div>
@@ -38,14 +38,14 @@
     {{-- Filter & Search Card --}}
     <div class="card border-0 shadow-sm rounded-4 mb-4" style="background:#ffffff; border: 1px solid #E2E8F0 !important;">
         <div class="card-body p-3.5">
-            <form action="{{ route('admin.users.teachers.index') }}" method="GET" class="row g-2.5 align-items-center">
+            <form action="{{ route('admin.users.teachers.index') }}" method="GET" class="row g-3 align-items-center">
                 <div class="col-md-5">
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0 rounded-start-pill ps-3 text-muted">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </span>
                         <input type="text" name="search" class="form-control bg-light border-start-0 rounded-end-pill py-2 text-dark" 
-                               placeholder="Cari nama, email, atau kode pengajar (277...)..." value="{{ request('search') }}">
+                               placeholder="Cari nama, email, kode..." value="{{ request('search') }}">
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -56,14 +56,16 @@
                     </select>
                 </div>
                 <div class="col-md-4 text-md-end">
-                    <button type="submit" class="btn btn-dark rounded-pill px-3.5 py-2 btn-sm fw-semibold">
-                        <i class="fa-solid fa-filter me-1"></i> Terapkan Filter
-                    </button>
-                    @if(request()->hasAny(['search', 'status']) && (request('search') || request('status')))
-                    <a href="{{ route('admin.users.teachers.index') }}" class="btn btn-outline-secondary rounded-pill px-3.5 py-2 btn-sm ms-1">
-                        <i class="fa-solid fa-rotate-left me-1"></i> Reset
-                    </a>
-                    @endif
+                    <div class="d-flex align-items-center gap-2 justify-content-md-end flex-wrap">
+                        <button type="submit" class="btn btn-dark rounded-pill px-3.5 py-2 btn-sm fw-semibold">
+                            <i class="fa-solid fa-filter me-1"></i> Terapkan Filter
+                        </button>
+                        @if(request()->hasAny(['search', 'status']) && (request('search') || request('status')))
+                        <a href="{{ route('admin.users.teachers.index') }}" class="btn btn-outline-secondary rounded-pill px-3.5 py-2 btn-sm">
+                            <i class="fa-solid fa-rotate-left me-1"></i> Reset
+                        </a>
+                        @endif
+                    </div>
                 </div>
             </form>
         </div>
@@ -71,8 +73,8 @@
 
     {{-- Table Card --}}
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden" style="background:#ffffff; border: 1px solid #E2E8F0 !important;">
-        <div class="table-responsive table-responsive-card">
-            <table class="table table-hover align-middle mb-0" style="font-size:0.92rem;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 text-nowrap" style="font-size:0.92rem; min-width: 820px;">
                 <thead class="bg-light border-bottom">
                     <tr>
                         <th class="ps-4 py-3.5 fw-bold text-dark">Kode Pengajar</th>

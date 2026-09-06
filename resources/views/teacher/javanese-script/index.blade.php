@@ -52,7 +52,7 @@
                 <div class="col-md-5">
                     <div class="input-group">
                         <span class="input-group-text bg-light border-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-                        <input type="text" name="search" class="form-control bg-light border-0" placeholder="Cari nama, latin, atau pelafalan..." value="{{ request('search') }}">
+                        <input type="text" name="search" class="form-control bg-light border-0" placeholder="Cari nama atau latin..." value="{{ request('search') }}">
                     </div>
                 </div>
                 <div class="col-md-4">

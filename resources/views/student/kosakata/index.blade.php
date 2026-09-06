@@ -23,7 +23,7 @@
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </span>
                             <input type="text" name="search" class="form-control border-0 ps-1 py-2"
-                                   placeholder="Cari kata (Indonesia / Ngoko / Krama)..."
+                                   placeholder="Cari kata (Indonesia / Jawa)..."
                                    value="{{ request('search') }}" id="searchInput" style="box-shadow: none;" autocomplete="off">
                         </div>
                     </div>

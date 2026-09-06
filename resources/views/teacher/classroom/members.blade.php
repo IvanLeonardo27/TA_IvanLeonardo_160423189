@@ -258,7 +258,7 @@
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </span>
                         <input type="text" id="memberSearchInput" class="form-control bg-white border-start-0 rounded-end-pill py-2 pe-3 shadow-none"
-                               placeholder="Cari pelajar berdasarkan nama, email, atau NIS..." onkeyup="filterMemberCards()">
+                               placeholder="Cari nama, email, NIS..." onkeyup="filterMemberCards()">
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-2 flex-wrap">

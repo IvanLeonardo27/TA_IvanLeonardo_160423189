@@ -59,7 +59,7 @@
     {{-- Filter & Search Card --}}
     <div class="card border-0 shadow-sm rounded-4 mb-4" style="background:#ffffff; border: 1px solid #E2E8F0 !important;">
         <div class="card-body p-3.5">
-            <form action="{{ route('admin.activities.index') }}" method="GET" class="row g-2.5 align-items-center">
+            <form action="{{ route('admin.activities.index') }}" method="GET" class="row g-3 align-items-center">
                 {{-- Search Input --}}
                 <div class="col-lg-5 col-md-6">
                     <div class="input-group">
@@ -69,7 +69,7 @@
                         <input type="text" 
                                name="search" 
                                class="form-control bg-light border-start-0 rounded-end-pill py-2" 
-                               placeholder="Cari nama, email, kode (277...), atau aktivitas..." 
+                               placeholder="Cari nama, email, aktivitas..." 
                                value="{{ request('search') }}">
                     </div>
                 </div>
@@ -100,7 +100,7 @@
 
                 {{-- Submit & Reset Buttons --}}
                 <div class="col-lg-1 col-md-4 text-end">
-                    <div class="d-flex gap-1">
+                    <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-dark rounded-pill py-2 px-3 fw-semibold w-100" title="Cari / Terapkan Filter">
                             <i class="fa-solid fa-filter"></i>
                         </button>

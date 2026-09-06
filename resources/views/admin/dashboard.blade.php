@@ -21,10 +21,10 @@
                 </p>
             </div>
             <div class="d-flex align-items-center gap-3 flex-wrap">
-                <a href="{{ route('admin.users.teachers.create') }}" class="btn btn-primary rounded-pill fw-bold btn-bouncy shadow-sm" style="padding: 10px 22px; font-size: 0.9rem;">
+                <a href="{{ route('admin.users.teachers.create') }}" data-tour="admin-btn-tambah-pengajar" class="btn btn-primary rounded-pill fw-bold btn-bouncy shadow-sm" style="padding: 10px 22px; font-size: 0.9rem;">
                     <i class="fa-solid fa-user-plus me-1.5"></i> Tambah Pengajar
                 </a>
-                <a href="{{ route('admin.users.students.create') }}" class="btn btn-light rounded-pill fw-bold btn-bouncy shadow-sm" style="color: #0F172A !important; padding: 10px 22px; font-size: 0.9rem;">
+                <a href="{{ route('admin.users.students.create') }}" data-tour="admin-btn-tambah-pelajar" class="btn btn-light rounded-pill fw-bold btn-bouncy shadow-sm" style="color: #0F172A !important; padding: 10px 22px; font-size: 0.9rem;">
                     <i class="fa-solid fa-graduation-cap me-1.5 text-primary"></i> Tambah Pelajar
                 </a>
             </div>
@@ -110,7 +110,7 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0" style="font-size:0.9rem;">
+                    <table class="table table-hover align-middle mb-0 text-nowrap" style="font-size:0.9rem; min-width: 520px;">
                         <thead class="bg-light border-bottom">
                             <tr>
                                 <th class="fw-bold text-dark py-3 ps-3">Kode</th>
@@ -164,7 +164,7 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0" style="font-size:0.9rem;">
+                    <table class="table table-hover align-middle mb-0 text-nowrap" style="font-size:0.9rem; min-width: 540px;">
                         <thead class="bg-light border-bottom">
                             <tr>
                                 <th class="fw-bold text-dark py-3 ps-3">Kode</th>

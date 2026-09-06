@@ -73,7 +73,7 @@
             </div>
             @else
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover align-middle mb-0 text-nowrap" style="min-width: 650px;">
                     <thead class="bg-light">
                         <tr class="text-muted small">
                             <th class="py-3 px-3">#</th>

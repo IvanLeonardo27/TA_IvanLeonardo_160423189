@@ -5,13 +5,13 @@
 @section('content')
 <div class="container-fluid py-4" style="max-width: 1100px;">
     {{-- Header & Navigasi Kembali --}}
-    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
-        <a href="{{ route('student.classroom.show', $classroom) }}" class="btn btn-outline-secondary rounded-pill px-3 py-2 btn-sm fw-semibold shadow-xs">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2.5 mb-4">
+        <a href="{{ route('student.classroom.show', $classroom) }}" class="btn btn-outline-secondary rounded-pill px-3.5 py-2 btn-sm fw-semibold shadow-xs">
             <i class="fa-solid fa-arrow-left me-1"></i> Kembali ke Kelas
         </a>
-        <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-primary rounded-pill px-3 py-1.5 fw-bold"><i class="fa-solid fa-book-open me-1"></i> Materi Pembelajaran</span>
-            <span class="badge bg-light text-muted border rounded-pill px-3 py-1.5">{{ $classroom->name }}</span>
+        <div class="d-flex align-items-center flex-wrap gap-2">
+            <span class="badge bg-primary rounded-pill px-3 py-1.5 fw-bold text-nowrap"><i class="fa-solid fa-book-open me-1"></i> Materi Pembelajaran</span>
+            <span class="badge bg-light text-muted border rounded-pill px-3 py-1.5 text-wrap text-start" style="max-width: 100%;"><i class="fa-solid fa-chalkboard me-1"></i> {{ $classroom->name }}</span>
         </div>
     </div>
 
@@ -71,20 +71,20 @@
                  style="background:#F8FAFC; border:1.5px solid #E2E8F0 !important;">
                 
                 {{-- Slide Reader Header --}}
-                <div class="bg-white px-4 py-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="bg-white px-3 px-md-4 py-2.5 py-md-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge bg-primary text-white rounded-pill px-3 py-1.5 fw-bold slide-counter-badge">
                             Slide <span class="current-slide-num">1</span> / {{ $totalSlides }}
                         </span>
-                        <span class="fw-bold text-main small current-slide-title">{{ $slidesList[0]['title'] ?? 'Halaman 1' }}</span>
+                        <span class="fw-bold text-main small current-slide-title d-none d-sm-inline">{{ $slidesList[0]['title'] ?? 'Halaman 1' }}</span>
                     </div>
-                    <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-2 gap-md-3">
                         @if($isPdf)
                         <div class="btn-group btn-group-sm rounded-pill shadow-xs border bg-light p-0.5" role="group">
                             <button type="button" class="btn btn-sm btn-light rounded-pill px-2.5 text-muted zoom-out-btn" title="Perkecil (-)">
                                 <i class="fa-solid fa-magnifying-glass-minus"></i>
                             </button>
-                            <button type="button" class="btn btn-sm btn-white rounded-pill px-2.5 fw-bold text-primary zoom-fit-btn shadow-xs" title="Reset Ukuran (Pas Satu Layar Penuh)">
+                            <button type="button" class="btn btn-sm btn-white rounded-pill px-2.5 fw-bold text-primary zoom-fit-btn shadow-xs text-nowrap" title="Reset Ukuran (Pas Satu Layar Penuh)">
                                 <i class="fa-solid fa-arrows-to-eye me-1"></i>Pas Layar
                             </button>
                             <button type="button" class="btn btn-sm btn-light rounded-pill px-2.5 text-muted zoom-in-btn" title="Perbesar (+)">
@@ -98,17 +98,17 @@
                             <i class="fa-solid fa-lock me-1"></i> Checkpoint Halaman {{ $checkpointSlide }}
                         </span>
                         @endif
-                        <div class="progress rounded-pill bg-light" style="width:120px; height:8px;">
+                        <div class="progress rounded-pill bg-light d-none d-sm-block" style="width:120px; height:8px;">
                             <div class="progress-bar bg-primary rounded-pill slide-progress-bar" style="width: {{ (1 / $totalSlides) * 100 }}%"></div>
                         </div>
                     </div>
                 </div>
 
                 {{-- Canvas Area (Comfortable View) --}}
-                <div class="p-2 p-md-3 slide-canvas-area position-relative">
+                <div class="p-1 p-md-3 slide-canvas-area position-relative">
                     @if($isPdf)
-                        <div class="rounded-4 border shadow-sm position-relative d-flex flex-column align-items-center"
-                             style="height: clamp(480px, 72vh, 670px); background:#1E293B !important; overflow-y: auto; overflow-x: auto; padding: 1.25rem 0.75rem;">
+                        <div class="rounded-4 border shadow-sm position-relative d-flex flex-column align-items-center pdf-scroll-wrapper"
+                             style="height: clamp(460px, 72vh, 680px); background:#1E293B !important; overflow-y: auto; overflow-x: auto; padding: 0.5rem 0.25rem;">
                             <div id="pdfLoading-{{ $post->id }}" class="text-center p-4 text-white my-auto">
                                 <div class="spinner-border text-primary mb-2" role="status"></div>
                                 <p class="small mb-0 text-white-50">Memuat halaman PDF materi...</p>
@@ -128,20 +128,27 @@
                 </div>
 
                 {{-- Slide Navigation Footer --}}
-                <div class="bg-white px-4 py-3 border-top d-flex align-items-center justify-content-between">
-                    <button type="button" class="btn btn-light rounded-pill px-4 py-2 fw-semibold text-muted prev-slide-btn" disabled>
-                        <i class="fa-solid fa-chevron-left me-1"></i> Sebelumnya
+                <div class="bg-white px-3 px-md-4 py-2.5 py-md-3 border-top d-flex align-items-center justify-content-between gap-2">
+                    <button type="button" class="btn btn-light rounded-pill px-3 px-md-4 py-2 fw-semibold text-muted prev-slide-btn" disabled>
+                        <i class="fa-solid fa-chevron-left me-1"></i> <span class="d-none d-sm-inline">Sebelumnya</span>
                     </button>
 
-                    {{-- Dots --}}
-                    <div class="d-flex gap-1.5 align-items-center slide-dots-container">
+                    {{-- Current Page Badge for Mobile --}}
+                    <div class="d-md-none text-center">
+                        <span class="badge bg-light text-dark border rounded-pill px-3 py-1.5 fw-semibold" style="font-size:0.82rem;">
+                            <span class="mobile-current-slide-num">1</span> / {{ $totalSlides }}
+                        </span>
+                    </div>
+
+                    {{-- Dots for Tablet/Desktop --}}
+                    <div class="d-none d-md-flex gap-1.5 align-items-center slide-dots-container">
                         @for($d=0; $d < min(15, $totalSlides); $d++)
                         <span class="rounded-pill slide-dot {{ $d === 0 ? 'active' : '' }}"
                               style="width:{{ $d === 0 ? '22px' : '8px' }}; height:8px; background:{{ $d === 0 ? '#3B82F6' : '#CBD5E1' }}; transition:.3s;"></span>
                         @endfor
                     </div>
 
-                    <button type="button" class="btn btn-primary rounded-pill px-4 py-2 fw-bold btn-bouncy next-slide-btn">
+                    <button type="button" class="btn btn-primary rounded-pill px-3 px-md-4 py-2 fw-bold btn-bouncy next-slide-btn">
                         <span class="next-btn-text">Selanjutnya</span> <i class="fa-solid fa-chevron-right ms-1 next-btn-icon"></i>
                     </button>
                 </div>
@@ -210,7 +217,7 @@
         <form action="{{ route('classroom.comment.store', $post) }}" method="POST" class="d-flex gap-2 align-items-center mb-4">
             @csrf
             <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&size=36" class="rounded-circle" width="36" height="36" style="flex-shrink:0;">
-            <input type="text" name="comment" class="form-control rounded-pill border-0 bg-light px-4 py-2.5" placeholder="Tuliskan pertanyaan atau komentar terkait materi ini..." required>
+            <input type="text" name="comment" class="form-control rounded-pill border-0 bg-light px-4 py-2.5" placeholder="Tulis komentar materi..." required>
             <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold btn-bouncy shadow-sm d-flex align-items-center gap-1.5" style="height:44px;">
                 <i class="fa-solid fa-paper-plane fa-xs"></i> <span>Kirim</span>
             </button>
@@ -317,7 +324,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const container = pdfCanvas.parentElement;
             
             // Dapatkan dimensi kontainer yang tersedia
-            const containerW = Math.max(300, (container ? container.clientWidth : 800) - 32);
+            const isMobile = window.innerWidth < 768;
+            const horizontalPadding = isMobile ? 8 : 32;
+            const containerW = Math.max(260, (container ? container.clientWidth : 800) - horizontalPadding);
             const containerH = Math.max(300, (container ? container.clientHeight : 560) - 32);
             
             const unscaledViewport = page.getViewport({ scale: 1.0 });
@@ -327,10 +336,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const scaleY = containerH / unscaledViewport.height;
 
             // Skala optimal:
-            // Untuk dokumen portrait (A4), buat teks lebih besar & nyaman dibaca dengan sedikit scroll vertikal
+            // Di layar HP (mobile), paskan lebar PDF 100% ke lebar layar agar tidak kekecilan atau terpotong
             let baseFitScale;
-            if (isPortrait) {
-                baseFitScale = Math.min(scaleX * 0.82, Math.max(scaleY * 1.35, scaleX * 0.65));
+            if (isMobile) {
+                baseFitScale = scaleX;
+            } else if (isPortrait) {
+                baseFitScale = Math.min(scaleX * 0.92, Math.max(scaleY * 1.25, scaleX * 0.75));
             } else {
                 baseFitScale = Math.min(scaleX, scaleY * 1.15);
             }
@@ -409,6 +420,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         if (numBadge) numBadge.textContent = idx + 1;
+        const mobileNumBadge = deck.querySelector('.mobile-current-slide-num');
+        if (mobileNumBadge) mobileNumBadge.textContent = idx + 1;
         if (titleBadge) titleBadge.textContent = `Halaman ${idx + 1}`;
 
         const progressPct = ((idx + 1) / totalSlides) * 100;

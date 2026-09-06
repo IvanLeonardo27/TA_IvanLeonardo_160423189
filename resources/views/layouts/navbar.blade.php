@@ -31,7 +31,7 @@
                 @endphp
 
                 <!-- Notifications -->
-                <div class="dropdown me-3">
+                <div class="dropdown me-3 notif-dropdown-container">
                     <button class="btn btn-light position-relative border-0 rounded-circle shadow-xs d-flex align-items-center justify-content-center" 
                             type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false" 
                             style="width: 42px; height: 42px; background: #F8FAFC;">
@@ -43,7 +43,7 @@
                         @endif
                     </button>
                     
-                    <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-0 mt-2 overflow-hidden" 
+                    <div class="dropdown-menu dropdown-menu-end notif-dropdown-menu shadow-lg border-0 rounded-4 p-0 mt-2 overflow-hidden" 
                          aria-labelledby="notificationDropdown" style="width: 360px; max-width: 90vw; border: 1px solid #E2E8F0 !important;">
                         
                         {{-- Header --}}

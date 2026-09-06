@@ -40,7 +40,7 @@
                                         <i class="fa-solid fa-magnifying-glass text-muted"></i>
                                     </span>
                                     <input type="text" id="searchStudentInput" class="form-control bg-light border-0 py-2"
-                                           placeholder="Cari nama, NIS, atau email..." onkeyup="filterStudentsList()">
+                                           placeholder="Cari nama, NIS, email..." onkeyup="filterStudentsList()">
                                 </div>
                             </div>
                             <div class="col-md-5 d-flex align-items-center justify-content-between justify-content-md-end gap-3">

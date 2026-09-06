@@ -9,7 +9,7 @@
         <h2 class="fw-bold text-main mb-1">{{ auth()->user()->isAdmin() ? 'Kelola Seluruh Ruang Kelas' : 'Kelas Saya' }}</h2>
         <p class="text-muted mb-0">{{ auth()->user()->isAdmin() ? 'Pantau, buka, edit, atau hapus seluruh ruang kelas yang dibuat oleh setiap pengajar' : 'Kelola semua kelas yang Anda ajar' }}</p>
     </div>
-    <a href="{{ route('teacher.classroom.create') }}" class="btn btn-primary rounded-pill px-4 shadow btn-bouncy">
+    <a href="{{ route('teacher.classroom.create') }}" data-tour="teacher-btn-buat-kelas" class="btn btn-primary rounded-pill px-4 shadow btn-bouncy w-100 w-sm-auto text-center">
         <i class="fa-solid fa-plus me-2"></i>Buat Kelas Baru
     </a>
 </div>

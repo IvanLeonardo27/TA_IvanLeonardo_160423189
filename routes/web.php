@@ -52,6 +52,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/classroom/comments/{comment}', [ClassroomCommentController::class, 'destroy'])->name('classroom.comment.destroy');
     Route::get('/calendar', [\App\Http\Controllers\CalendarController::class, 'index'])->name('calendar.index');
     Route::get('/calendar/export-ics', [\App\Http\Controllers\CalendarController::class, 'exportIcs'])->name('calendar.export_ics');
+    Route::post('/calendar/events', [\App\Http\Controllers\CalendarController::class, 'storeEvent'])->name('calendar.events.store');
+    Route::put('/calendar/events/{event}', [\App\Http\Controllers\CalendarController::class, 'updateEvent'])->name('calendar.events.update');
+    Route::delete('/calendar/events/{event}', [\App\Http\Controllers\CalendarController::class, 'destroyEvent'])->name('calendar.events.destroy');
     
     // Bookmark Materi
     Route::post('/student/bookmarks/toggle', [\App\Http\Controllers\Student\BookmarkController::class, 'toggle'])->name('student.bookmarks.toggle');
@@ -164,6 +167,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard.index');
+    Route::get('/calendar', [\App\Http\Controllers\CalendarController::class, 'index'])->name('calendar');
 
     // Manajemen Akun Pengajar (Teachers)
     Route::get('/users/teachers', [\App\Http\Controllers\Admin\UserController::class, 'indexTeachers'])->name('users.teachers.index');

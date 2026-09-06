@@ -44,6 +44,7 @@
             
             <div class="col-lg-4 text-lg-end d-flex flex-column flex-sm-row flex-lg-column gap-2 justify-content-lg-end position-relative" style="z-index: 5;">
                 <button class="btn btn-accent rounded-pill px-4 py-2.5 shadow-sm fw-bold btn-bouncy" 
+                        data-tour="student-btn-gabung-kelas"
                         data-bs-toggle="modal" data-bs-target="#joinModal">
                     <i class="fa-solid fa-plus-circle me-2" aria-hidden="true"></i>Gabung Kelas Anyar
                 </button>
@@ -141,18 +142,18 @@
 </div>
 
 {{-- 3. Section Header: Ruang Kelas Saya --}}
-<div class="d-flex align-items-center justify-content-between gap-2 gap-sm-3 mt-5 mb-4 pt-2 pb-1">
-    <div class="d-flex align-items-center gap-3 min-w-0">
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mt-5 mb-4 pt-2 pb-1">
+    <div class="d-flex align-items-center gap-2 gap-sm-3 min-w-0">
         <h5 class="fw-bold text-main mb-0" style="font-size: clamp(1.05rem, 3.6vw, 1.35rem); letter-spacing: -0.01em;">
             Ruang Kelas Panjenengan
         </h5>
-        <span class="badge bg-primary text-white rounded-pill px-3 py-1.5 flex-shrink-0 shadow-xs ms-1" style="font-size: 0.76rem; font-weight: 600;">
+        <span class="badge bg-primary text-white rounded-pill px-2.5 py-1 px-sm-3 py-sm-1.5 flex-shrink-0 shadow-xs ms-1" style="font-size: 0.76rem; font-weight: 600;">
             {{ $classrooms->count() }} Kelas
         </span>
     </div>
     
-    <div class="flex-shrink-0 ms-2">
-        <button class="btn btn-outline-primary rounded-pill px-3.5 py-2 shadow-xs fw-semibold text-nowrap d-inline-flex align-items-center gap-2 btn-bouncy" 
+    <div class="w-100 w-sm-auto">
+        <button class="btn btn-outline-primary rounded-pill px-3.5 py-2 shadow-xs fw-semibold text-nowrap d-inline-flex align-items-center justify-content-center gap-2 btn-bouncy w-100 w-sm-auto" 
                 style="font-size: 0.85rem;"
                 data-bs-toggle="modal" data-bs-target="#joinModal">
             <i class="fa-solid fa-plus-circle" aria-hidden="true"></i>

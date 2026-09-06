@@ -1,4 +1,4 @@
-<nav class="sidebar d-flex flex-column justify-content-between p-3" style="position: relative;">
+<nav class="sidebar d-flex flex-column justify-content-between p-3" id="sidebar">
     <!-- Tombol Close untuk Mobile -->
     <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Tutup menu">
         <i class="fa-solid fa-xmark" aria-hidden="true"></i>
@@ -41,6 +41,11 @@
                 <li class="nav-item mb-1" data-tour="sidebar-kelola-kelas">
                     <a href="{{ route('teacher.classroom.index') }}" class="nav-link {{ request()->routeIs('teacher.classroom*') ? 'active' : '' }}">
                         <i class="fa-solid fa-school text-success"></i> Kelola Ruang Kelas
+                    </a>
+                </li>
+                <li class="nav-item mb-1" data-tour="sidebar-kalender">
+                    <a href="{{ route('admin.calendar') }}" class="nav-link {{ request()->routeIs('admin.calendar*') || request()->routeIs('calendar.*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-calendar-days text-primary"></i> Kalender
                     </a>
                 </li>
                 <hr class="my-2 text-muted">
@@ -169,7 +174,7 @@
     </ul>
     </div>
 
-    <div class="dropdown pt-2 border-top border-light-subtle">
+    <div class="dropdown sidebar-user-dropdown pt-2 border-top border-light-subtle">
 
         @auth
         <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle px-3 py-2 text-main" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">

@@ -142,7 +142,7 @@
 
                 {{-- Senjata Pusaka / Kesaktian --}}
                 @if($character->weapon && $character->weapon !== 'Tidak memiliki senjata khusus' && $character->weapon !== 'Tidak disebutkan secara khusus')
-                <div class="p-3.5 rounded-4" style="background: #F8FAFC; border-left: 4px solid #64748B !important;">
+                <div class="p-3.5 ps-4 rounded-4" style="background: #F8FAFC; border-left: 4.5px solid #64748B !important;">
                     <h6 class="fw-bold text-dark mb-1.5 small d-flex align-items-center gap-2">
                         <i class="fa-solid fa-shield-halved text-secondary"></i> Senjata & Kesaktian Pusaka:
                     </h6>
@@ -158,8 +158,8 @@
                 <h5 class="fw-bold text-dark mb-3.5 d-flex align-items-center gap-2" style="font-size: 1.15rem;">
                     <i class="fa-solid fa-book-open-reader text-success"></i> Kisah & Riwayat dalam Bharatayuda
                 </h5>
-                <div class="p-4 rounded-4" style="background: #F8FAFC; border-left: 4px solid #16402E !important;">
-                    <p class="text-dark mb-0" style="font-size: 1rem; line-height: 1.8; text-align: justify;">
+                <div class="p-4 ps-4 rounded-4" style="background: #F8FAFC; border-left: 4.5px solid #16402E !important;">
+                    <p class="text-dark mb-0" style="font-size: 1rem; line-height: 1.8;">
                         {{ $character->story }}
                     </p>
                 </div>

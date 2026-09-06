@@ -26,7 +26,7 @@
         @endif
 
         <div class="table-responsive">
-            <table class="table table-hover align-middle">
+            <table class="table table-hover align-middle text-nowrap" style="min-width: 680px;">
                 <thead class="table-light">
                     <tr>
                         <th>Nama Tembang</th>

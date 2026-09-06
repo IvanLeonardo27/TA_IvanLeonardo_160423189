@@ -304,7 +304,7 @@
 
                         {{-- Info Tugas --}}
                         @if($post->type === 'assignment' && $post->assignment)
-                        <div class="rounded-4 p-3.5 mb-3 d-flex flex-wrap justify-content-between align-items-center gap-3" style="background:#FEF2F2; border-left:5px solid #EF4444;">
+                        <div class="rounded-4 p-3.5 ps-4 mb-3 d-flex flex-wrap justify-content-between align-items-center gap-3" style="background:#FEF2F2; border-left:5px solid #EF4444;">
                             <div>
                                 <div class="fw-bold text-danger small"><i class="fa-regular fa-clock me-1"></i> Tenggat Waktu</div>
                                 <div class="fw-bold text-dark" style="font-size:0.95rem;">
@@ -325,7 +325,7 @@
 
                         {{-- Info Quiz --}}
                         @if($post->type === 'quiz' && $post->quiz)
-                        <div class="rounded-3 p-3 mb-3 d-flex gap-3 align-items-center" style="background:#F3E8FF; border-left:4px solid #8B5CF6;">
+                        <div class="rounded-3 p-3 ps-3.5 mb-3 d-flex gap-3 align-items-center" style="background:#F3E8FF; border-left:4px solid #8B5CF6;">
                             <div>
                                 <div class="fw-bold text-purple small d-flex align-items-center gap-2" style="color:#8B5CF6;">
                                     Evaluasi / Quiz Kelas
@@ -490,7 +490,7 @@
                 </div>
                 @else
                 <div class="table-responsive bg-white rounded-4 border shadow-sm">
-                    <table class="table table-hover align-middle mb-0">
+                    <table class="table table-hover align-middle mb-0 text-nowrap" style="min-width: 680px;">
                         <thead class="bg-light text-dark fw-bold border-bottom" style="font-size: 0.88rem;">
                             <tr>
                                 <th class="ps-4 py-3">Siswa</th>

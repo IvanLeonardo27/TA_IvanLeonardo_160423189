@@ -5,8 +5,8 @@
    ================================================================ */
 
 /* ================================================================
-   1. FONT AWESOME ICON FIX
-   Mencegah ikon bergeser/rusak di Android/iOS
+   1. FONT AWESOME ICON FIX & UNIVERSAL SPACING
+   Mencegah ikon bergeser/rusak di Android/iOS & jarak tulisan
    ================================================================ */
 .fa, .fas, .far, .fal, .fab, .fa-solid, .fa-regular, .fa-brands {
     display: inline-block !important;
@@ -19,6 +19,28 @@
     text-rendering: auto;
 }
 
+/* Ensure icons have proper spacing from adjacent text unless explicitly trailing/alone */
+i.fa:not(:last-child):not(.me-0),
+i.fas:not(:last-child):not(.me-0),
+i.far:not(:last-child):not(.me-0),
+i.fa-solid:not(:last-child):not(.me-0),
+i.fa-regular:not(:last-child):not(.me-0),
+i.fa-brands:not(:last-child):not(.me-0) {
+    margin-right: 0.45rem;
+}
+
+/* Trailing icons (e.g. "Berikutnya >") */
+i.fa:last-child:not(:first-child):not(.ms-0),
+i.fa-solid:last-child:not(:first-child):not(.ms-0) {
+    margin-left: 0.45rem;
+}
+
+/* In elements with flex gap, prevent duplicate spacing */
+.gap-1 > i, .gap-2 > i, .gap-3 > i, .gap-4 > i {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+}
+
 .btn .fa, .btn .fas, .btn .far, .btn .fa-solid, .btn .fa-regular {
     vertical-align: -0.125em;
     line-height: 1 !important;
@@ -29,6 +51,107 @@
     flex-shrink: 0;
     width: 1.25em;
     text-align: center;
+    margin-right: 0.5rem;
+}
+
+/* ─── FRACTIONAL BOOTSTRAP UTILITY POLYFILL ─────────────────── */
+/* Padding utilities */
+.p-0\.5 { padding: 0.125rem !important; }
+.p-1\.5 { padding: 0.375rem !important; }
+.p-2\.5 { padding: 0.75rem !important; }
+.p-3\.5 { padding: 1.15rem !important; }
+.p-4\.5 { padding: 1.75rem !important; }
+
+.px-0\.5 { padding-left: 0.125rem !important; padding-right: 0.125rem !important; }
+.px-1\.5 { padding-left: 0.375rem !important; padding-right: 0.375rem !important; }
+.px-2\.5 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+.px-3\.5 { padding-left: 1.15rem !important; padding-right: 1.15rem !important; }
+.px-4\.5 { padding-left: 1.75rem !important; padding-right: 1.75rem !important; }
+
+.py-0\.5 { padding-top: 0.125rem !important; padding-bottom: 0.125rem !important; }
+.py-1\.5 { padding-top: 0.375rem !important; padding-bottom: 0.375rem !important; }
+.py-2\.5 { padding-top: 0.75rem !important; padding-bottom: 0.75rem !important; }
+.py-3\.5 { padding-top: 1.15rem !important; padding-bottom: 1.15rem !important; }
+.py-4\.5 { padding-top: 1.75rem !important; padding-bottom: 1.75rem !important; }
+
+.ps-0\.5 { padding-left: 0.125rem !important; }
+.ps-1\.5 { padding-left: 0.375rem !important; }
+.ps-2\.5 { padding-left: 0.75rem !important; }
+.ps-3\.5 { padding-left: 1.15rem !important; }
+.ps-4\.5 { padding-left: 1.75rem !important; }
+
+.pe-0\.5 { padding-right: 0.125rem !important; }
+.pe-1\.5 { padding-right: 0.375rem !important; }
+.pe-2\.5 { padding-right: 0.75rem !important; }
+.pe-3\.5 { padding-right: 1.15rem !important; }
+.pe-4\.5 { padding-right: 1.75rem !important; }
+
+.pt-0\.5 { padding-top: 0.125rem !important; }
+.pt-1\.5 { padding-top: 0.375rem !important; }
+.pt-2\.5 { padding-top: 0.75rem !important; }
+.pt-3\.5 { padding-top: 1.15rem !important; }
+.pt-4\.5 { padding-top: 1.75rem !important; }
+
+.pb-0\.5 { padding-bottom: 0.125rem !important; }
+.pb-1\.5 { padding-bottom: 0.375rem !important; }
+.pb-2\.5 { padding-bottom: 0.75rem !important; }
+.pb-3\.5 { padding-bottom: 1.15rem !important; }
+.pb-4\.5 { padding-bottom: 1.75rem !important; }
+
+/* Responsive padding */
+@media (min-width: 768px) {
+    .p-md-3\.5 { padding: 1.25rem !important; }
+    .p-md-4\.5 { padding: 2rem !important; }
+}
+
+/* Margin utilities */
+.m-0\.5 { margin: 0.125rem !important; }
+.m-1\.5 { margin: 0.375rem !important; }
+.m-2\.5 { margin: 0.75rem !important; }
+.m-3\.5 { margin: 1.15rem !important; }
+.m-4\.5 { margin: 1.75rem !important; }
+
+.me-0\.5 { margin-right: 0.125rem !important; }
+.me-1\.5 { margin-right: 0.375rem !important; }
+.me-2\.5 { margin-right: 0.75rem !important; }
+.me-3\.5 { margin-right: 1.15rem !important; }
+.me-4\.5 { margin-right: 1.75rem !important; }
+
+.ms-0\.5 { margin-left: 0.125rem !important; }
+.ms-1\.5 { margin-left: 0.375rem !important; }
+.ms-2\.5 { margin-left: 0.75rem !important; }
+.ms-3\.5 { margin-left: 1.15rem !important; }
+.ms-4\.5 { margin-left: 1.75rem !important; }
+
+.mt-0\.5 { margin-top: 0.125rem !important; }
+.mt-1\.5 { margin-top: 0.375rem !important; }
+.mt-2\.5 { margin-top: 0.75rem !important; }
+.mt-3\.5 { margin-top: 1.15rem !important; }
+.mt-4\.5 { margin-top: 1.75rem !important; }
+
+.mb-0\.5 { margin-bottom: 0.125rem !important; }
+.mb-1\.5 { margin-bottom: 0.375rem !important; }
+.mb-2\.5 { margin-bottom: 0.75rem !important; }
+.mb-3\.5 { margin-bottom: 1.15rem !important; }
+.mb-4\.5 { margin-bottom: 1.75rem !important; }
+
+/* Gap utilities */
+.gap-0\.5 { gap: 0.125rem !important; }
+.gap-1\.5 { gap: 0.375rem !important; }
+.gap-2\.5 { gap: 0.75rem !important; }
+.gap-3\.5 { gap: 1.15rem !important; }
+.gap-4\.5 { gap: 1.75rem !important; }
+
+/* Callout / Border-Left text clearance guarantee */
+[style*="border-left"] {
+    padding-left: clamp(1.15rem, 3vw, 1.4rem) !important;
+}
+
+@media (max-width: 767.98px) {
+    p[style*="text-align: justify"],
+    .text-justify {
+        text-align: left !important;
+    }
 }
 
 /* ================================================================
@@ -112,47 +235,20 @@ body {
 .nav-link { min-height: 44px; }
 
 /* ================================================================
-   6. TABLE RESPONSIVE — CARD VIEW DI MOBILE
+   6. TABLE RESPONSIVE — SMOOTH HORIZONTAL SCROLL DI MOBILE
    ================================================================ */
+.table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+.table-responsive table {
+    word-break: normal !important;
+}
+
 @media (max-width: 767.98px) {
-    .table-responsive-card thead { display: none; }
-
-    .table-responsive-card tbody tr {
-        display: block;
-        background: #fff;
-        border-radius: 14px;
-        margin-bottom: 1rem;
-        padding: 12px 16px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-        border: 1px solid #f1f5f9;
-        position: relative;
-    }
-
-    .table-responsive-card tbody td {
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        padding: 6px 0;
-        border: none !important;
-        font-size: 0.88rem;
-        border-bottom: 1px solid #f8fafc !important;
-    }
-
-    .table-responsive-card tbody td:last-child {
-        border-bottom: none !important;
-        padding-top: 10px;
-        margin-top: 4px;
-    }
-
-    .table-responsive-card tbody td::before {
-        content: attr(data-label);
-        font-weight: 700;
-        font-size: 0.72rem;
-        color: #94a3b8;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        min-width: 85px;
-        flex-shrink: 0;
+    .table-responsive {
+        border-radius: 12px;
     }
 }
 
@@ -168,23 +264,44 @@ body {
 
     .sidebar {
         position: fixed !important;
-        left: 0;
-        top: 0;
+        left: 0 !important;
+        top: 0 !important;
+        bottom: 0 !important;
         height: 100vh !important;
         height: 100dvh !important;
         max-height: 100vh !important;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
+        max-height: 100dvh !important;
+        width: 280px !important;
+        min-width: 280px !important;
+        max-width: 280px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        overflow: hidden !important;
         -webkit-overflow-scrolling: touch !important;
         margin-left: -280px !important;
-        z-index: 1050;
+        z-index: 1050 !important;
         transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         box-shadow: 4px 0 24px rgba(0,0,0,0.15) !important;
-        padding-bottom: 40px !important;
+        padding: 1rem !important;
+        padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem)) !important;
     }
 
     .sidebar.active {
         margin-left: 0 !important;
+    }
+
+    .sidebar-top-section {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .sidebar-user-dropdown, .sidebar .dropdown {
+        flex-shrink: 0 !important;
+        margin-top: auto !important;
     }
 
     .sidebar-close-btn {
@@ -201,11 +318,67 @@ body {
 
 /* Desktop Sidebar Complete Hide when Minimized */
 @media (min-width: 992px) {
+    .wrapper {
+        display: block !important;
+        width: 100% !important;
+        min-height: 100vh !important;
+        position: relative !important;
+    }
+
+    .sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        max-height: 100vh !important;
+        max-height: 100dvh !important;
+        width: 260px !important;
+        min-width: 260px !important;
+        max-width: 260px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        overflow: hidden !important;
+        flex-shrink: 0 !important;
+        z-index: 1020 !important;
+        background: var(--bg-main) !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    .sidebar-top-section {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .sidebar-user-dropdown, .sidebar .dropdown {
+        flex-shrink: 0 !important;
+        margin-top: auto !important;
+        background: var(--bg-main) !important;
+    }
+
     .sidebar.active {
-        margin-left: -320px !important;
+        margin-left: -260px !important;
         transform: translateX(-100%) !important;
         opacity: 0 !important;
         visibility: hidden !important;
+    }
+
+    #content {
+        margin-left: 260px !important;
+        width: calc(100% - 260px) !important;
+        min-width: 0 !important;
+        min-height: 100vh !important;
+        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    .sidebar.active ~ #content {
+        margin-left: 0 !important;
+        width: 100% !important;
     }
 }
 
@@ -223,6 +396,10 @@ body {
 /* ================================================================
    8. NAVBAR RESPONSIVENESS
    ================================================================ */
+.navbar-modern {
+    position: relative;
+}
+
 @media (max-width: 575.98px) {
     .navbar-modern {
         padding: 0.5rem 0.75rem !important;
@@ -231,12 +408,24 @@ body {
     }
 
     .navbar-label-hide-sm { display: none !important; }
+}
 
-    /* Notification dropdown full width mobile */
+@media (max-width: 767.98px) {
+    .notif-dropdown-container {
+        position: static !important;
+    }
+
     .notif-dropdown-menu {
-        width: 92vw !important;
-        right: -60px !important;
-        left: auto !important;
+        position: absolute !important;
+        top: calc(100% + 8px) !important;
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+        max-width: calc(100vw - 24px) !important;
+        transform: none !important;
+        margin: 0 !important;
+        border-radius: 16px !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.2) !important;
     }
 }
 
@@ -251,6 +440,23 @@ body {
     }
 
     .form-label { font-size: 0.85rem; }
+
+    .form-control::placeholder,
+    input::placeholder {
+        font-size: 0.84rem !important;
+        opacity: 0.75;
+    }
+
+    .input-group > .form-control {
+        padding-left: 0.5rem !important;
+    }
+}
+
+@media (max-width: 400px) {
+    .form-control::placeholder,
+    input::placeholder {
+        font-size: 0.78rem !important;
+    }
 }
 
 /* ================================================================
@@ -341,13 +547,8 @@ body {
    14. DROPDOWN MENU OVERFLOW FIX
    ================================================================ */
 @media (max-width: 575.98px) {
-    .dropdown-menu {
+    .dropdown-menu:not(.notif-dropdown-menu) {
         max-width: 94vw !important;
-    }
-
-    .dropdown-menu-end {
-        right: 0 !important;
-        left: auto !important;
     }
 }
 
@@ -423,8 +624,63 @@ body.sidebar-open {
 
 img { max-width: 100%; height: auto; }
 .text-break-word { word-break: break-word; overflow-wrap: break-word; }
-table { word-break: break-word; }
+table:not(.table-responsive table) { word-break: break-word; }
+.table-responsive table { word-break: normal !important; }
 
+/* ================================================================
+   16.5 PDF & SLIDE READER RESPONSIVENESS
+   ================================================================ */
+.pdf-scroll-wrapper {
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 768px) {
+    .pdf-scroll-wrapper {
+        padding: 1.25rem 0.75rem !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .slide-reader-deck .next-slide-btn,
+    .slide-reader-deck .prev-slide-btn {
+        font-size: 0.85rem !important;
+        white-space: nowrap !important;
+    }
+
+    .slide-reader-deck canvas {
+        width: 100% !important;
+        height: auto !important;
+    }
+}
+
+/* ================================================================
+   16.6 CALENDAR GRID RESPONSIVENESS
+   Mencegah sel kalender menjadi lonjong/kapsul dan teks melebihi border
+   ================================================================ */
+.calendar-day-cell {
+    min-height: 52px;
+    padding: 4px 3px !important;
+    border-radius: 8px !important;
+    transition: all .2s ease;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+@media (min-width: 576px) {
+    .calendar-day-cell {
+        min-height: 72px;
+        padding: 6px 5px !important;
+        border-radius: 10px !important;
+    }
+}
+
+@media (min-width: 768px) {
+    .calendar-day-cell {
+        min-height: 88px;
+        padding: 8px !important;
+        border-radius: 12px !important;
+    }
+}
 
 /* ================================================================
    17. GLOBAL SCROLLBAR

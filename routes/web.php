@@ -51,6 +51,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/classroom/posts/{post}/comments', [ClassroomCommentController::class, 'store'])->name('classroom.comment.store');
     Route::delete('/classroom/comments/{comment}', [ClassroomCommentController::class, 'destroy'])->name('classroom.comment.destroy');
     Route::get('/calendar', [\App\Http\Controllers\CalendarController::class, 'index'])->name('calendar.index');
+    Route::get('/calendar/export-pdf', [\App\Http\Controllers\CalendarController::class, 'exportPdf'])->name('calendar.export_pdf');
     Route::get('/calendar/export-ics', [\App\Http\Controllers\CalendarController::class, 'exportIcs'])->name('calendar.export_ics');
     Route::post('/calendar/events', [\App\Http\Controllers\CalendarController::class, 'storeEvent'])->name('calendar.events.store');
     Route::put('/calendar/events/{event}', [\App\Http\Controllers\CalendarController::class, 'updateEvent'])->name('calendar.events.update');

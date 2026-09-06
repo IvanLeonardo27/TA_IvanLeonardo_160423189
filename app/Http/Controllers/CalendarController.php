@@ -10,6 +10,7 @@ use App\Models\ClassroomQuiz;
 use App\Models\QuizAttempt;
 use App\Models\UserCalendarEvent;
 use App\Services\IndonesianHolidayService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -395,6 +396,160 @@ class CalendarController extends Controller
             'Content-Type'        => 'text/calendar; charset=utf-8',
             'Content-Disposition' => 'attachment; filename="jadwal_basakula.ics"',
         ]);
+    }
+
+    /**
+     * Ekspor Kalender Pembelajaran & Rincian Agenda ke Format Dokumen PDF (A4 Landscape)
+     */
+    public function exportPdf(Request $request)
+    {
+        $user      = Auth::user();
+        $isAdmin   = $user->isAdmin();
+        $isTeacher = $user->isTeacher();
+
+        $month = $request->integer('month', now()->month);
+        $year  = $request->integer('year', now()->year);
+
+        if ($month < 1 || $month > 12) {
+            $month = now()->month;
+        }
+        if ($year < 1900 || $year > 2100) {
+            $year = now()->year;
+        }
+
+        $currentDate    = Carbon::createFromDate($year, $month, 1);
+        $monthName      = $currentDate->translatedFormat('F Y');
+        $daysInMonth    = $currentDate->daysInMonth;
+        $startOfMonth   = $currentDate->copy()->startOfMonth();
+        $startDayOfWeek = $startOfMonth->dayOfWeekIso; // 1 (Senin) .. 7 (Minggu)
+        $holidays       = IndonesianHolidayService::getHolidaysForMonth($year, $month);
+
+        $events = collect();
+
+        if (!$isAdmin) {
+            // Ambil ID seluruh kelas aktif yang relevan
+            if ($isTeacher) {
+                $classroomIds = Classroom::where('teacher_id', $user->id)
+                    ->where('status', 'active')
+                    ->pluck('id')
+                    ->toArray();
+            } else {
+                $classroomIds = Classroom::whereHas('members', function ($q) use ($user) {
+                        $q->where('user_id', $user->id)->whereNull('out_at');
+                    })
+                    ->where('status', 'active')
+                    ->pluck('id')
+                    ->toArray();
+            }
+
+            // 1. Data Tugas (Assignments)
+            $assignments = ClassroomAssignment::whereHas('post', function ($q) use ($classroomIds) {
+                    $q->whereIn('classroom_id', $classroomIds);
+                })
+                ->whereNotNull('due_date')
+                ->whereYear('due_date', $year)
+                ->whereMonth('due_date', $month)
+                ->with(['post.classroom', 'mySubmission'])
+                ->get();
+
+            foreach ($assignments as $asn) {
+                $isSubmitted = !$isTeacher && $asn->mySubmission !== null;
+                $isOverdue   = $asn->due_date && $asn->due_date->isPast() && !$isSubmitted;
+                $statusLabel = $isSubmitted ? 'Sudah Dikumpulkan' : ($isOverdue ? 'Terlewat' : 'Belum Selesai');
+
+                $events->push([
+                    'title'       => $asn->post->title ?? 'Tugas Pembelajaran',
+                    'type'        => 'assignment',
+                    'type_label'  => 'Tugas',
+                    'classroom'   => $asn->post->classroom->name ?? 'Kelas',
+                    'date'        => $asn->due_date->format('Y-m-d'),
+                    'day'         => (int)$asn->due_date->format('j'),
+                    'time'        => $asn->due_date->format('H:i'),
+                    'formatted'   => $asn->due_date->translatedFormat('d F Y, H:i') . ' WIB',
+                    'status_label'=> $statusLabel,
+                    'color'       => '#DC2626',
+                ]);
+            }
+
+            // 2. Data Kuis / Evaluasi (Quizzes)
+            $quizzes = ClassroomQuiz::whereHas('post', function ($q) use ($classroomIds) {
+                    $q->whereIn('classroom_id', $classroomIds);
+                })
+                ->whereNotNull('due_date')
+                ->whereYear('due_date', $year)
+                ->whereMonth('due_date', $month)
+                ->with(['post.classroom', 'quizSet'])
+                ->get();
+
+            foreach ($quizzes as $quiz) {
+                $hasAttempt = false;
+                if (!$isTeacher) {
+                    $hasAttempt = QuizAttempt::where('quiz_set_id', $quiz->quiz_set_id)
+                        ->where('user_id', $user->id)
+                        ->exists();
+                }
+                $isOverdue   = $quiz->due_date && $quiz->due_date->isPast() && !$hasAttempt;
+                $statusLabel = $hasAttempt ? 'Sudah Dikerjakan' : ($isOverdue ? 'Batas Waktu Berakhir' : 'Wajib Dikerjakan');
+
+                $events->push([
+                    'title'       => $quiz->post->title ?? 'Kuis / Evaluasi',
+                    'type'        => 'quiz',
+                    'type_label'  => 'Kuis',
+                    'classroom'   => $quiz->post->classroom->name ?? 'Kelas',
+                    'date'        => $quiz->due_date->format('Y-m-d'),
+                    'day'         => (int)$quiz->due_date->format('j'),
+                    'time'        => $quiz->due_date->format('H:i'),
+                    'formatted'   => $quiz->due_date->translatedFormat('d F Y, H:i') . ' WIB',
+                    'status_label'=> $statusLabel,
+                    'color'       => '#2563EB',
+                ]);
+            }
+
+            // 3. Data Jadwal Acara Pribadi (Personal Events)
+            $personalEvents = UserCalendarEvent::where('user_id', $user->id)
+                ->whereYear('event_date', $year)
+                ->whereMonth('event_date', $month)
+                ->get();
+
+            foreach ($personalEvents as $pe) {
+                $time = $pe->event_time ? Carbon::parse($pe->event_time)->format('H:i') . ' WIB' : 'Sepanjang Hari';
+                $events->push([
+                    'title'       => $pe->title,
+                    'type'        => 'personal',
+                    'type_label'  => 'Pribadi',
+                    'classroom'   => 'Agenda Pribadi',
+                    'date'        => $pe->event_date->format('Y-m-d'),
+                    'day'         => (int)$pe->event_date->format('j'),
+                    'time'        => $pe->event_time ? Carbon::parse($pe->event_time)->format('H:i') : 'Sepanjang Hari',
+                    'formatted'   => $pe->event_date->translatedFormat('d F Y') . ($pe->event_time ? ', ' . $time : ''),
+                    'status_label'=> 'Pribadi',
+                    'color'       => $pe->color ?: '#059669',
+                ]);
+            }
+        }
+
+        $eventsByDay = $events->groupBy('day');
+        $roleLabel   = $isAdmin ? 'Administrator' : ($isTeacher ? 'Pengajar' : 'Pelajar');
+
+        $pdf = Pdf::loadView('calendar.export_pdf', compact(
+            'user',
+            'roleLabel',
+            'currentDate',
+            'month',
+            'year',
+            'monthName',
+            'daysInMonth',
+            'startDayOfWeek',
+            'holidays',
+            'events',
+            'eventsByDay',
+            'isAdmin',
+            'isTeacher'
+        ))->setPaper('a4', 'landscape');
+
+        $filename = 'Kalender_BasaKula_' . $currentDate->format('Y_m') . '.pdf';
+
+        return $pdf->download($filename);
     }
 
     /**

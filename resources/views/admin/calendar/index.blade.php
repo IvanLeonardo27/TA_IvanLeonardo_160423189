@@ -26,6 +26,11 @@
                 </div>
                 
                 <div class="col-lg-4 text-lg-end d-flex flex-column flex-sm-row flex-lg-column gap-2 justify-content-lg-end">
+                    <a href="{{ route('calendar.export_pdf', ['month' => $month, 'year' => $year]) }}" 
+                       class="btn btn-accent rounded-pill px-4 py-2 shadow-sm fw-bold btn-bouncy d-inline-flex align-items-center justify-content-center gap-2 text-white">
+                        <i class="fa-solid fa-file-pdf me-1.5" aria-hidden="true"></i>
+                        <span>Ekspor Kalender (PDF)</span>
+                    </a>
                     <div class="p-3 rounded-4" style="background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px);">
                         <div class="small text-white-50 mb-1">
                             <i class="fa-regular fa-clock me-1 text-warning"></i> Waktu Sistem Real-Time

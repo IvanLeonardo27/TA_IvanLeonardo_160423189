@@ -125,10 +125,11 @@ class ClassroomController extends Controller
             ->paginate(10);
 
         $teacher  = $classroom->teacher;
-        $members  = $classroom->students()->take(10)->get();
-        $totalMembers = $classroom->students()->count();
+        $classmates = $classroom->students()->orderBy('name', 'asc')->get();
+        $members  = $classmates->take(10);
+        $totalMembers = $classmates->count();
 
-        return view('student.classroom.show', compact('classroom', 'posts', 'teacher', 'members', 'totalMembers'));
+        return view('student.classroom.show', compact('classroom', 'posts', 'teacher', 'members', 'classmates', 'totalMembers'));
     }
 
     /** Halaman khusus membaca materi presentasi / PDF (Coursera style) */

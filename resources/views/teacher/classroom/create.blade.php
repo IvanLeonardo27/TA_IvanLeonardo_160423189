@@ -13,15 +13,15 @@
 
         <div class="card border-0 shadow-sm" style="border-radius:24px; overflow:hidden;">
             {{-- Preview Banner --}}
-            <div id="bannerPreview" class="d-flex align-items-end px-5 pt-4 pb-3 position-relative text-white"
-                 style="min-height:160px; background:#1F4D3A; transition:background .3s;">
+            <div id="bannerPreview" class="d-flex align-items-end px-4 px-md-5 pt-4 pb-3 position-relative text-white"
+                 style="min-height:160px; background:{{ old('banner_color', '#059669') }}; transition:background .3s; overflow:hidden;">
                 <i id="bannerIconPreview" class="fa-solid fa-graduation-cap position-absolute opacity-15"
-                   style="font-size:10rem;right:-10px;bottom:-20px;"></i>
+                   style="font-size:10rem; right:-10px; bottom:-20px; color:#ffffff; opacity:0.15 !important; pointer-events:none;"></i>
                 <div class="position-relative" style="z-index:1;">
-                    <h3 id="namePreviw" class="fw-bold mb-0" style="text-shadow:0 2px 6px rgba(0,0,0,.2);">
+                    <h3 id="namePreviw" class="fw-bold mb-0 text-white" style="color:#ffffff !important; text-shadow:0 2px 8px rgba(0,0,0,.45);">
                         Nama Kelas Anda
                     </h3>
-                    <p id="subjectPreview" class="mb-0 opacity-75 small mt-1">Mata Pelajaran</p>
+                    <p id="subjectPreview" class="mb-0 text-white small mt-1" style="color:rgba(255,255,255,.88) !important; text-shadow:0 1px 4px rgba(0,0,0,.35);">Mata Pelajaran</p>
                 </div>
             </div>
 
@@ -131,7 +131,11 @@
     });
 
     // Set awal
-    document.querySelector('.color-btn[data-color="#1F4D3A"]').style.transform = 'scale(1.35)';
-    document.querySelector('.icon-btn[data-icon="graduation-cap"]').classList.add('btn-primary','text-white');
+    const defaultColor = document.getElementById('bannerColorInput').value || '#059669';
+    const initColorBtn = document.querySelector(`.color-btn[data-color="${defaultColor}"]`);
+    if (initColorBtn) initColorBtn.style.transform = 'scale(1.35)';
+    const defaultIcon = document.getElementById('bannerIconInput').value || 'graduation-cap';
+    const initIconBtn = document.querySelector(`.icon-btn[data-icon="${defaultIcon}"]`);
+    if (initIconBtn) initIconBtn.classList.add('btn-primary','text-white');
 </script>
 @endpush

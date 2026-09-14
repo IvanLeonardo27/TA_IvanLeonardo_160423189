@@ -366,11 +366,6 @@
                             <i class="fa-regular fa-calendar-plus fs-4"></i>
                         </div>
                         <p class="text-muted small mb-2">Belum ada jadwal acara pribadi.</p>
-                        <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 fw-bold" 
-                                data-bs-toggle="modal" data-bs-target="#createEventModal"
-                                onclick="prepareCreateEvent()">
-                            <i class="fa-solid fa-plus me-1"></i> Buat Jadwal Pertama
-                        </button>
                     </div>
                     @endforelse
                 </div>
@@ -697,7 +692,7 @@
             <div class="modal-footer border-0 pt-0 d-flex align-items-center justify-content-between flex-wrap gap-2">
                 <button type="button" class="btn btn-light rounded-pill px-3 py-1.5 btn-sm fw-semibold" data-bs-dismiss="modal">Tutup</button>
                 <button type="button" class="btn btn-success rounded-pill px-3 py-1.5 btn-sm fw-bold shadow-xs d-inline-flex align-items-center gap-1.5" id="dayDetailAddBtn" onclick="quickAddFromDayModal()">
-                    <i class="fa-solid fa-plus"></i> <span>+ Tambah Jadwal di Tanggal Ini</span>
+                    <i class="fa-solid fa-plus"></i> <span>Tambah Jadwal di Tanggal Ini</span>
                 </button>
             </div>
         </div>
@@ -869,14 +864,23 @@
 
     function quickAddFromDayModal() {
         const dayModalEl = document.getElementById('dayDetailModal');
-        const dayModal = bootstrap.Modal.getInstance(dayModalEl);
-        if (dayModal) {
-            dayModal.hide();
-        }
-
+        const dayModal = dayModalEl ? bootstrap.Modal.getInstance(dayModalEl) : null;
+        
         prepareCreateEvent(currentSelectedDateStr);
-        const createModal = new bootstrap.Modal(document.getElementById('createEventModal'));
-        createModal.show();
+
+        if (dayModal && dayModalEl.classList.contains('show')) {
+            dayModalEl.addEventListener('hidden.bs.modal', function onHidden() {
+                dayModalEl.removeEventListener('hidden.bs.modal', onHidden);
+                const createModalEl = document.getElementById('createEventModal');
+                const createModal = bootstrap.Modal.getOrCreateInstance(createModalEl);
+                createModal.show();
+            }, { once: true });
+            dayModal.hide();
+        } else {
+            const createModalEl = document.getElementById('createEventModal');
+            const createModal = bootstrap.Modal.getOrCreateInstance(createModalEl);
+            createModal.show();
+        }
     }
 </script>
 @endpush

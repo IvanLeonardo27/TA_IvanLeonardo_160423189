@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Calendar" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.28.0">
+  <bpmn:collaboration id="Collaboration_Calendar">
+    <bpmn:participant id="Participant_LMS" name="LMS Pembelajaran Bahasa Jawa BasaKula" processRef="Process_Calendar" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Calendar" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_Calendar">
+      <bpmn:lane id="Lane_Sistem" name="Sistem (Laravel, MySQL, Google Calendar API)">
+        <bpmn:flowNodeRef>Task_DownloadPdf</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CompilePdfCalendar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SavePersonalEvent</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_GetFromCache</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RequestGCalFeed</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_CacheHoliday</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FetchHolidays</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AggregateEvents</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Pengguna" name="Pengguna (Pelajar / Pengajar / Admin)">
+        <bpmn:flowNodeRef>StartEvent_Calendar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SelectMonthYear</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_UserAction</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_Calendar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ClickExportPdf</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InputPersonalEvent</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_Calendar" name="Buka Halaman Kalender">
+      <bpmn:outgoing>Flow_StartToSelect</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_SelectMonthYear" name="Mengakses Menu Kalender &#38; Memilih Bulan/Tahun">
+      <bpmn:incoming>Flow_StartToSelect</bpmn:incoming>
+      <bpmn:incoming>Flow_LoopAfterSave</bpmn:incoming>
+      <bpmn:outgoing>Flow_SelectToFetch</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_UserAction" name="Pilih Aksi Pengguna:">
+      <bpmn:incoming>Flow_AggregateToRender</bpmn:incoming>
+      <bpmn:outgoing>Flow_ActionPersonal</bpmn:outgoing>
+      <bpmn:outgoing>Flow_ActionExportPdf</bpmn:outgoing>
+      <bpmn:outgoing>Flow_ActionDone</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="EndEvent_Calendar" name="Aktivitas Kalender Selesai">
+      <bpmn:incoming>Flow_ActionDone</bpmn:incoming>
+      <bpmn:incoming>Flow_0iq62nk</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Task_DownloadPdf" name="Mengunduh Berkas &#39;Kalender_BasaKula_YYYY_MM.pdf&#39;">
+      <bpmn:incoming>Flow_CompileToDownload</bpmn:incoming>
+      <bpmn:outgoing>Flow_0iq62nk</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_CompilePdfCalendar" name="Kompilasi Dokumen PDF Kalender A4  DomPDF">
+      <bpmn:incoming>Flow_ExportToCompile</bpmn:incoming>
+      <bpmn:outgoing>Flow_CompileToDownload</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_ClickExportPdf" name="Klik Tombol &#39;Ekspor Kalender (PDF)&#39;">
+      <bpmn:incoming>Flow_ActionExportPdf</bpmn:incoming>
+      <bpmn:outgoing>Flow_ExportToCompile</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_InputPersonalEvent" name="Input Form Acara Pribadi (Judul, Tanggal, Jam, Catatan, Warna)">
+      <bpmn:incoming>Flow_ActionPersonal</bpmn:incoming>
+      <bpmn:outgoing>Flow_PersonalToSave</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_SavePersonalEvent" name="Validasi Form &#38; Simpan ke Tabel &#39;user_calendar_events&#39;">
+      <bpmn:incoming>Flow_PersonalToSave</bpmn:incoming>
+      <bpmn:outgoing>Flow_LoopAfterSave</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_GetFromCache" name="Ambil Data Libur Nasional dari Cache">
+      <bpmn:incoming>Flow_CacheYes</bpmn:incoming>
+      <bpmn:outgoing>Flow_CacheToAggregate</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_RequestGCalFeed" name="Request Data Live dari Google Calendar API">
+      <bpmn:incoming>Flow_CacheNo</bpmn:incoming>
+      <bpmn:outgoing>Flow_ApiToAggregate</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_CacheHoliday" name="Hari Libur Tersedia?">
+      <bpmn:incoming>Flow_FetchToCheckCache</bpmn:incoming>
+      <bpmn:outgoing>Flow_CacheYes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_CacheNo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_FetchHolidays" name="Cek Cache Hari Libur Nasional Indonesia (7 Hari)">
+      <bpmn:incoming>Flow_SelectToFetch</bpmn:incoming>
+      <bpmn:outgoing>Flow_FetchToCheckCache</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_AggregateEvents" name="Agregasi Data Jadwal: Tenggat Tugas, Kuis Kelas, &#38; Acara Pribadi">
+      <bpmn:incoming>Flow_CacheToAggregate</bpmn:incoming>
+      <bpmn:incoming>Flow_ApiToAggregate</bpmn:incoming>
+      <bpmn:outgoing>Flow_AggregateToRender</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_StartToSelect" sourceRef="StartEvent_Calendar" targetRef="Task_SelectMonthYear" />
+    <bpmn:sequenceFlow id="Flow_LoopAfterSave" sourceRef="Task_SavePersonalEvent" targetRef="Task_SelectMonthYear" />
+    <bpmn:sequenceFlow id="Flow_SelectToFetch" sourceRef="Task_SelectMonthYear" targetRef="Task_FetchHolidays" />
+    <bpmn:sequenceFlow id="Flow_AggregateToRender" sourceRef="Task_AggregateEvents" targetRef="Gateway_UserAction" />
+    <bpmn:sequenceFlow id="Flow_ActionPersonal" name="Kelola Acara Pribadi" sourceRef="Gateway_UserAction" targetRef="Task_InputPersonalEvent" />
+    <bpmn:sequenceFlow id="Flow_ActionExportPdf" name="Ekspor PDF" sourceRef="Gateway_UserAction" targetRef="Task_ClickExportPdf" />
+    <bpmn:sequenceFlow id="Flow_ActionDone" name="Hanya Melihat" sourceRef="Gateway_UserAction" targetRef="EndEvent_Calendar" />
+    <bpmn:sequenceFlow id="Flow_0iq62nk" sourceRef="Task_DownloadPdf" targetRef="EndEvent_Calendar" />
+    <bpmn:sequenceFlow id="Flow_CompileToDownload" sourceRef="Task_CompilePdfCalendar" targetRef="Task_DownloadPdf" />
+    <bpmn:sequenceFlow id="Flow_ExportToCompile" sourceRef="Task_ClickExportPdf" targetRef="Task_CompilePdfCalendar" />
+    <bpmn:sequenceFlow id="Flow_PersonalToSave" sourceRef="Task_InputPersonalEvent" targetRef="Task_SavePersonalEvent" />
+    <bpmn:sequenceFlow id="Flow_CacheYes" name="Ya" sourceRef="Gateway_CacheHoliday" targetRef="Task_GetFromCache" />
+    <bpmn:sequenceFlow id="Flow_CacheToAggregate" sourceRef="Task_GetFromCache" targetRef="Task_AggregateEvents" />
+    <bpmn:sequenceFlow id="Flow_CacheNo" name="Tidak" sourceRef="Gateway_CacheHoliday" targetRef="Task_RequestGCalFeed" />
+    <bpmn:sequenceFlow id="Flow_ApiToAggregate" sourceRef="Task_RequestGCalFeed" targetRef="Task_AggregateEvents" />
+    <bpmn:sequenceFlow id="Flow_FetchToCheckCache" sourceRef="Task_FetchHolidays" targetRef="Gateway_CacheHoliday" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Calendar">
+    <bpmndi:BPMNPlane id="BPMNPlane_Calendar" bpmnElement="Collaboration_Calendar">
+      <bpmndi:BPMNShape id="Participant_LMS_di" bpmnElement="Participant_LMS" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1880" height="1140" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Sistem_di" bpmnElement="Lane_Sistem" isHorizontal="true">
+        <dc:Bounds x="190" y="590" width="1850" height="630" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Pengguna_di" bpmnElement="Lane_Pengguna" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="1850" height="510" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_Calendar_di" bpmnElement="StartEvent_Calendar">
+        <dc:Bounds x="232" y="462" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="214" y="505" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SelectMonthYear_di" bpmnElement="Task_SelectMonthYear">
+        <dc:Bounds x="310" y="440" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_UserAction_di" bpmnElement="Gateway_UserAction" isMarkerVisible="true">
+        <dc:Bounds x="890" y="315" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="826" y="326" width="54" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Calendar_di" bpmnElement="EndEvent_Calendar">
+        <dc:Bounds x="1882" y="382" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1927.5" y="386.5" width="89" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_DownloadPdf_di" bpmnElement="Task_DownloadPdf">
+        <dc:Bounds x="1685" y="900" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CompilePdfCalendar_di" bpmnElement="Task_CompilePdfCalendar">
+        <dc:Bounds x="1685" y="650" width="110" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ClickExportPdf_di" bpmnElement="Task_ClickExportPdf">
+        <dc:Bounds x="1685" y="306" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_InputPersonalEvent_di" bpmnElement="Task_InputPersonalEvent">
+        <dc:Bounds x="1245" y="440" width="110" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SavePersonalEvent_di" bpmnElement="Task_SavePersonalEvent">
+        <dc:Bounds x="1245" y="650" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_GetFromCache_di" bpmnElement="Task_GetFromCache">
+        <dc:Bounds x="715" y="640" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RequestGCalFeed_di" bpmnElement="Task_RequestGCalFeed">
+        <dc:Bounds x="715" y="760" width="110" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_CacheHoliday_di" bpmnElement="Gateway_CacheHoliday" isMarkerVisible="true">
+        <dc:Bounds x="620" y="655" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="622" y="620" width="48" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_FetchHolidays_di" bpmnElement="Task_FetchHolidays">
+        <dc:Bounds x="465" y="640" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_AggregateEvents_di" bpmnElement="Task_AggregateEvents">
+        <dc:Bounds x="860" y="700" width="110" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_StartToSelect_di" bpmnElement="Flow_StartToSelect">
+        <di:waypoint x="268" y="480" />
+        <di:waypoint x="310" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SelectToFetch_di" bpmnElement="Flow_SelectToFetch">
+        <di:waypoint x="420" y="480" />
+        <di:waypoint x="443" y="480" />
+        <di:waypoint x="443" y="680" />
+        <di:waypoint x="465" y="680" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AggregateToRender_di" bpmnElement="Flow_AggregateToRender">
+        <di:waypoint x="915" y="700" />
+        <di:waypoint x="915" y="365" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ActionPersonal_di" bpmnElement="Flow_ActionPersonal">
+        <di:waypoint x="924" y="356" />
+        <di:waypoint x="1020" y="440" />
+        <di:waypoint x="1245" y="458" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1008" y="406" width="63" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_PersonalToSave_di" bpmnElement="Flow_PersonalToSave">
+        <di:waypoint x="1300" y="520" />
+        <di:waypoint x="1300" y="650" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LoopAfterSave_di" bpmnElement="Flow_LoopAfterSave">
+        <di:waypoint x="1300" y="730" />
+        <di:waypoint x="1300" y="900" />
+        <di:waypoint x="365" y="900" />
+        <di:waypoint x="365" y="520" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ActionExportPdf_di" bpmnElement="Flow_ActionExportPdf">
+        <di:waypoint x="937" y="343" />
+        <di:waypoint x="1685" y="343" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="987" y="322" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ExportToCompile_di" bpmnElement="Flow_ExportToCompile">
+        <di:waypoint x="1740" y="386" />
+        <di:waypoint x="1740" y="650" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CompileToDownload_di" bpmnElement="Flow_CompileToDownload">
+        <di:waypoint x="1740" y="730" />
+        <di:waypoint x="1740" y="900" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ActionDone_di" bpmnElement="Flow_ActionDone">
+        <di:waypoint x="915" y="315" />
+        <di:waypoint x="915" y="190" />
+        <di:waypoint x="1900" y="190" />
+        <di:waypoint x="1900" y="382" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1373" y="172" width="71" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0iq62nk_di" bpmnElement="Flow_0iq62nk">
+        <di:waypoint x="1795" y="940" />
+        <di:waypoint x="1900" y="940" />
+        <di:waypoint x="1900" y="418" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CacheToAggregate_di" bpmnElement="Flow_CacheToAggregate">
+        <di:waypoint x="825" y="680" />
+        <di:waypoint x="915" y="680" />
+        <di:waypoint x="915" y="700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ApiToAggregate_di" bpmnElement="Flow_ApiToAggregate">
+        <di:waypoint x="825" y="800" />
+        <di:waypoint x="915" y="800" />
+        <di:waypoint x="915" y="780" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CacheYes_di" bpmnElement="Flow_CacheYes">
+        <di:waypoint x="670" y="680" />
+        <di:waypoint x="715" y="680" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="682" y="662" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CacheNo_di" bpmnElement="Flow_CacheNo">
+        <di:waypoint x="645" y="705" />
+        <di:waypoint x="645" y="800" />
+        <di:waypoint x="715" y="800" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="652" y="743" width="27" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_FetchToCheckCache_di" bpmnElement="Flow_FetchToCheckCache">
+        <di:waypoint x="575" y="680" />
+        <di:waypoint x="620" y="680" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

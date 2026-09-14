@@ -59,44 +59,52 @@
 
         {{-- Status Pengumpulan --}}
         @if($submission)
-        <div class="card border-0 shadow-sm mb-4" style="border-radius:20px; border-left:5px solid {{ $submission->status === 'graded' ? '#22C55E' : '#3B82F6' }} !important;">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+        <div class="card border-0 shadow-sm mb-4 overflow-hidden" style="border-radius:20px; border-left:5px solid {{ $submission->status === 'graded' ? '#22C55E' : '#3B82F6' }} !important;">
+            <div class="card-body p-3 p-md-4">
+                <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap mb-2">
                     <div>
                         <h6 class="fw-bold text-main mb-1">Tugas Sudah Dikumpulkan</h6>
-                        <small class="text-muted">{{ $submission->submitted_at->format('d M Y, H:i') }}</small>
-                        <div class="mt-2 d-flex align-items-center gap-2 p-2 bg-light rounded-3">
-                            <i class="fa-solid fa-file-lines text-primary"></i>
-                            <span class="fw-semibold small text-main">{{ $submission->original_name }}</span>
-                            <a href="{{ asset('storage/'.$submission->file_path) }}" target="_blank"
-                               class="btn btn-sm btn-outline-primary rounded-pill ms-2 px-3">
-                                <i class="fa-solid fa-download me-1"></i>Unduh
-                            </a>
-                        </div>
-                        @if($submission->note)
-                        <p class="text-muted small mt-2 mb-0"><em>"{{ $submission->note }}"</em></p>
-                        @endif
+                        <small class="text-muted d-block">{{ $submission->submitted_at->format('d M Y, H:i') }}</small>
                     </div>
                     <div class="text-end">
                         {!! $submission->status_badge !!}
                         @if($submission->score !== null)
-                        <div class="mt-2">
-                            <span class="fw-bold text-success" style="font-size:2rem;">{{ $submission->score }}</span>
+                        <div class="mt-1">
+                            <span class="fw-bold text-success fs-3">{{ $submission->score }}</span>
                             <small class="text-muted"> / {{ $assignment->max_score }}</small>
                         </div>
                         @endif
                     </div>
                 </div>
+
+                {{-- File Attachment Box (Responsive Truncate) --}}
+                <div class="mt-2 p-2.5 p-sm-3 bg-light rounded-3 border border-light-subtle d-flex align-items-center justify-content-between gap-2 flex-wrap flex-sm-nowrap overflow-hidden" style="min-width: 0; width: 100%;">
+                    <div class="d-flex align-items-center gap-2 overflow-hidden" style="min-width: 0; flex: 1 1 auto;">
+                        <i class="fa-solid fa-file-lines text-primary flex-shrink-0 fs-5"></i>
+                        <span class="fw-semibold small text-main text-truncate d-inline-block" title="{{ $submission->original_name }}" style="min-width: 0; max-width: 100%;">
+                            {{ $submission->original_name }}
+                        </span>
+                    </div>
+                    <a href="{{ asset('storage/'.$submission->file_path) }}" target="_blank"
+                       class="btn btn-sm btn-outline-primary rounded-pill px-3 flex-shrink-0 ms-auto">
+                        <i class="fa-solid fa-download me-1"></i>Unduh
+                    </a>
+                </div>
+
+                @if($submission->note)
+                <p class="text-muted small mt-2 mb-0 text-break-word"><em>"{{ $submission->note }}"</em></p>
+                @endif
+
                 @if($submission->teacher_feedback)
                 <div class="mt-3 p-3 bg-success bg-opacity-10 rounded-3">
                     <small class="fw-bold text-success d-block mb-1"><i class="fa-solid fa-comment me-1"></i>Catatan Pengajar</small>
-                    <p class="text-muted small mb-0">{{ $submission->teacher_feedback }}</p>
+                    <p class="text-muted small mb-0 text-break-word">{{ $submission->teacher_feedback }}</p>
                 </div>
                 @endif
 
                 @if($submission->status !== 'graded')
                 <div class="mt-3 pt-3 border-top">
-                    <p class="text-muted small mb-2">Ingin mengganti file? Upload ulang di bawah ini.</p>
+                    <p class="text-muted small mb-0">Ingin mengganti file? Upload ulang di bawah ini.</p>
                 </div>
                 @endif
             </div>
@@ -105,12 +113,12 @@
 
         {{-- Form Upload Tugas --}}
         @if(!$submission || $submission->status !== 'graded')
-        <div class="card border-0 shadow-sm" style="border-radius:20px;">
-            <div class="card-body p-5">
+        <div class="card border-0 shadow-sm overflow-hidden" style="border-radius:20px;">
+            <div class="card-body p-4 p-md-5">
                 <h5 class="fw-bold text-main mb-1">
                     {{ $submission ? 'Ganti File Pengumpulan' : 'Kumpulkan Tugas' }}
                 </h5>
-                <p class="text-muted mb-4 small">Format yang diterima: PDF, DOCX, JPG, PNG – Maks. 20MB</p>
+                <p class="text-muted mb-3 small">Format yang diterima: PDF, DOCX, JPG, PNG – Maks. 20MB</p>
 
                 {{-- Form Tarik Kembali (Dipisahkan agar tidak nested form) --}}
                 @if($submission)
@@ -124,24 +132,24 @@
                     @csrf
 
                     {{-- Drag & Drop Zone --}}
-                    <div id="dropZone" class="border-2 border-dashed rounded-4 p-5 text-center position-relative mb-4"
-                         style="border-color:#CBD5E1; background:#F8FAFC; cursor:pointer; transition:.25s; min-height:200px;">
+                    <div id="dropZone" class="border-2 border-dashed rounded-4 p-4 p-sm-5 text-center position-relative mb-4"
+                         style="border-color:#CBD5E1; background:#F8FAFC; cursor:pointer; transition:.25s; min-height:180px;">
                         <input type="file" name="file" id="fileInput" required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                                class="position-absolute w-100 h-100 opacity-0" style="top:0;left:0;cursor:pointer;">
 
                         <div id="dropDefault">
-                            <div class="mb-3 animate-float d-inline-block">
-                                <i class="fa-solid fa-cloud-arrow-up text-primary" style="font-size:3rem;"></i>
+                            <div class="mb-2 animate-float d-inline-block">
+                                <i class="fa-solid fa-cloud-arrow-up text-primary" style="font-size:2.5rem;"></i>
                             </div>
-                            <h5 class="fw-bold text-main">Seret & Lepas File Anda Di Sini</h5>
-                            <p class="text-muted mb-2">atau</p>
-                            <span class="btn btn-outline-primary rounded-pill px-4 btn-bouncy">Pilih File dari Komputer</span>
+                            <h6 class="fw-bold text-main fs-6 mb-1">Seret & Lepas File Anda Di Sini</h6>
+                            <p class="text-muted small mb-2">atau</p>
+                            <span class="btn btn-sm btn-outline-primary rounded-pill px-4 btn-bouncy">Pilih File dari Komputer</span>
                         </div>
 
                         <div id="dropSelected" class="d-none">
-                            <i class="fa-solid fa-circle-check text-success mb-2" style="font-size:3rem;"></i>
-                            <h5 class="fw-bold text-main" id="selectedFileName">–</h5>
-                            <small class="text-muted" id="selectedFileSize">–</small>
+                            <i class="fa-solid fa-circle-check text-success mb-2 fs-1"></i>
+                            <h6 class="fw-bold text-main text-truncate px-3 d-block" id="selectedFileName">–</h6>
+                            <small class="text-muted d-block" id="selectedFileSize">–</small>
                         </div>
                     </div>
 
@@ -151,14 +159,14 @@
                                   placeholder="Tuliskan catatan untuk pengajar...">{{ old('note') }}</textarea>
                     </div>
 
-                    <div class="d-flex gap-3">
+                    <div class="d-flex gap-2 gap-sm-3 flex-column-reverse flex-sm-row">
                         @if($submission)
-                        <button type="button" class="btn btn-outline-danger rounded-pill px-4"
+                        <button type="button" class="btn btn-outline-danger rounded-pill px-4 py-2 w-100 w-sm-auto"
                                 onclick="if(confirm('Tarik pengumpulan tugas ini? File yang telah diunggah akan dihapus dan status tugas menjadi belum dikumpulkan.')) { document.getElementById('unsubmitForm').submit(); }">
                             <i class="fa-solid fa-rotate-left me-2"></i>Tarik Kembali
                         </button>
                         @endif
-                        <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold btn-bouncy shadow flex-grow-1">
+                        <button type="submit" class="btn btn-primary rounded-pill px-5 py-2.5 fw-bold btn-bouncy shadow flex-grow-1 w-100 w-sm-auto">
                             <i class="fa-solid fa-paper-plane me-2"></i>
                             {{ $submission ? 'Perbarui Pengumpulan' : 'Kumpulkan Tugas' }}
                         </button>

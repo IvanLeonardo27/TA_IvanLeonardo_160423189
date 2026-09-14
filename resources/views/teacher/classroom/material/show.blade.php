@@ -128,14 +128,14 @@
                 </div>
 
                 {{-- Slide Navigation Footer --}}
-                <div class="bg-white px-3 px-md-4 py-2.5 py-md-3 border-top d-flex align-items-center justify-content-between gap-2">
-                    <button type="button" class="btn btn-light rounded-pill px-3 px-md-4 py-2 fw-semibold text-muted prev-slide-btn" disabled>
-                        <i class="fa-solid fa-chevron-left me-1"></i> <span class="d-none d-sm-inline">Sebelumnya</span>
+                <div class="bg-white px-2.5 px-sm-3 px-md-4 py-2 py-sm-2.5 py-md-3 border-top d-flex align-items-center justify-content-between gap-1.5 gap-sm-2">
+                    <button type="button" class="btn btn-light rounded-pill px-2.5 px-sm-3 px-md-4 py-1.5 py-sm-2 fw-semibold text-muted prev-slide-btn d-inline-flex align-items-center justify-content-center gap-1 flex-shrink-0" disabled title="Halaman Sebelumnya">
+                        <i class="fa-solid fa-chevron-left"></i> <span class="d-none d-sm-inline">Sebelumnya</span>
                     </button>
 
                     {{-- Current Page Badge for Mobile --}}
                     <div class="d-md-none text-center">
-                        <span class="badge bg-light text-dark border rounded-pill px-3 py-1.5 fw-semibold" style="font-size:0.82rem;">
+                        <span class="badge bg-light text-dark border rounded-pill px-2.5 px-sm-3 py-1.5 fw-semibold" style="font-size:0.8rem;">
                             <span class="mobile-current-slide-num">1</span> / {{ $totalSlides }}
                         </span>
                     </div>
@@ -148,8 +148,10 @@
                         @endfor
                     </div>
 
-                    <button type="button" class="btn btn-primary rounded-pill px-3 px-md-4 py-2 fw-bold btn-bouncy next-slide-btn">
-                        <span class="next-btn-text">Selanjutnya</span> <i class="fa-solid fa-chevron-right ms-1 next-btn-icon"></i>
+                    <button type="button" class="btn btn-primary rounded-pill px-2.5 px-sm-3 px-md-4 py-1.5 py-sm-2 fw-bold btn-bouncy next-slide-btn d-inline-flex align-items-center justify-content-center gap-1 flex-shrink-0">
+                        <span class="next-btn-text d-none d-sm-inline">Selanjutnya</span>
+                        <span class="next-btn-text-mobile d-sm-none">Lanjut</span>
+                        <i class="fa-solid fa-chevron-right next-btn-icon"></i>
                     </button>
                 </div>
             </div>
@@ -158,16 +160,16 @@
     </div>
 
     {{-- Forum Diskusi Materi --}}
-    <div class="card border-0 shadow-sm rounded-4 p-4 mt-4" style="background:#ffffff; border:1px solid #E2E8F0 !important;">
+    <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mt-4" style="background:#ffffff; border:1px solid #E2E8F0 !important;">
         <h6 class="fw-bold text-main mb-3 d-flex align-items-center gap-2">
             <i class="fa-solid fa-comments text-primary"></i> Diskusi & Pertanyaan Materi ({{ $post->comments->count() }})
         </h6>
 
         <form action="{{ route('classroom.comment.store', $post) }}" method="POST" class="d-flex gap-2 align-items-center mb-4">
             @csrf
-            <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&size=36" class="rounded-circle" width="36" height="36" style="flex-shrink:0;">
-            <input type="text" name="comment" class="form-control rounded-pill border-0 bg-light px-4 py-2.5" placeholder="Tulis balasan atau catatan..." required>
-            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold btn-bouncy shadow-sm d-flex align-items-center gap-1.5" style="height:44px;">
+            <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&size=36" class="rounded-circle flex-shrink-0" width="36" height="36">
+            <input type="text" name="comment" class="form-control rounded-pill border-0 bg-light px-3 px-sm-4 py-2 py-sm-2.5 flex-grow-1" style="min-width: 0;" placeholder="Tulis balasan atau catatan..." required>
+            <button type="submit" class="btn btn-primary rounded-pill px-3 px-sm-4 fw-bold btn-bouncy shadow-sm d-flex align-items-center justify-content-center gap-1.5 flex-shrink-0" style="height:40px;">
                 <i class="fa-solid fa-paper-plane fa-xs"></i> <span>Kirim</span>
             </button>
         </form>
@@ -382,12 +384,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (prevBtn) prevBtn.disabled = (idx === 0);
 
+        const nextBtnTextMobile = deck.querySelector('.next-btn-text-mobile');
         if (idx === totalSlides - 1) {
             if (nextBtnText) nextBtnText.textContent = 'Selesai';
-            if (nextBtnIcon) nextBtnIcon.className = 'fa-solid fa-check ms-1';
+            if (nextBtnTextMobile) nextBtnTextMobile.textContent = 'Selesai';
+            if (nextBtnIcon) nextBtnIcon.className = 'fa-solid fa-check';
         } else {
             if (nextBtnText) nextBtnText.textContent = 'Selanjutnya';
-            if (nextBtnIcon) nextBtnIcon.className = 'fa-solid fa-chevron-right ms-1';
+            if (nextBtnTextMobile) nextBtnTextMobile.textContent = 'Lanjut';
+            if (nextBtnIcon) nextBtnIcon.className = 'fa-solid fa-chevron-right';
         }
     }
 

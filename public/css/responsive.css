@@ -479,29 +479,94 @@ body {
    11. MODAL BOTTOM SHEET DI MOBILE
    ================================================================ */
 @media (max-width: 575.98px) {
-    .modal-dialog:not(#fileViewerModal .modal-dialog) {
+    .modal:not(#fileViewerModal) .modal-dialog {
         margin: 0 !important;
         max-width: 100% !important;
-        min-height: 100vh;
-        display: flex;
-        align-items: flex-end;
+        min-height: 100vh !important;
+        min-height: 100dvh !important;
+        display: flex !important;
+        align-items: flex-end !important;
     }
 
-    .modal-dialog:not(#fileViewerModal .modal-dialog) .modal-content {
+    .modal:not(#fileViewerModal) .modal-content {
         border-radius: 24px 24px 0 0 !important;
-        min-height: 40vh;
+        width: 100% !important;
+        min-height: 35vh;
+        max-height: 90vh !important;
+        max-height: 90dvh !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding-bottom: max(16px, env(safe-area-inset-bottom, 16px)) !important;
     }
 
+    /* File Viewer Modal di Mobile (< 576px): Fullscreen 100%, Header Melekat Kuat di Atas, Tidak Terpotong */
+    #fileViewerModal {
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+
+    #fileViewerModal .file-viewer-dialog,
     #fileViewerModal .modal-dialog {
-        margin: 8px !important;
-        max-width: calc(100% - 16px) !important;
-        height: calc(100vh - 16px) !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        height: 100% !important;
+        height: 100dvh !important;
+        min-height: 100dvh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
     }
 
+    #fileViewerModal .file-viewer-content,
     #fileViewerModal .modal-content {
-        border-radius: 16px !important;
+        border-radius: 0 !important;
         height: 100% !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        border: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
     }
+
+    #fileViewerModal .modal-header {
+        padding: 8px 12px !important;
+        min-height: 52px !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 1060 !important;
+        background: #0f172a !important;
+        flex-shrink: 0 !important;
+    }
+
+    #fileViewerModal .modal-body {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        height: calc(100dvh - 52px) !important;
+        overflow: hidden !important;
+        position: relative !important;
+    }
+}
+
+/* File Viewer Modal Default (Desktop & Tablet) */
+#fileViewerModal .file-viewer-dialog {
+    margin: 1.5rem auto !important;
+    max-width: 92vw !important;
+    height: calc(100vh - 3rem) !important;
+    height: calc(100dvh - 3rem) !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+#fileViewerModal .file-viewer-content {
+    border-radius: 20px !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
 }
 
 /* ================================================================
@@ -679,6 +744,24 @@ table:not(.table-responsive table) { word-break: break-word; }
         min-height: 88px;
         padding: 8px !important;
         border-radius: 12px !important;
+    }
+}
+
+/* ================================================================
+   16.7 FILE ATTACHMENT & SUBMISSION CARD RESPONSIVENESS
+   ================================================================ */
+.text-truncate-filename {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: inline-block !important;
+}
+
+@media (max-width: 575.98px) {
+    .card {
+        border-radius: 16px !important;
     }
 }
 

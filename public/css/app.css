@@ -385,3 +385,46 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: none;
 }
 
+/* Opacity Utilities (Extended for Bootstrap 5) */
+.opacity-05 { opacity: 0.05 !important; }
+.opacity-10 { opacity: 0.10 !important; }
+.opacity-12 { opacity: 0.12 !important; }
+.opacity-15 { opacity: 0.15 !important; }
+.opacity-20 { opacity: 0.20 !important; }
+
+/* Classroom Banner Typography & Preview Guarantee */
+#bannerPreview {
+    color: #ffffff !important;
+}
+#bannerPreview h3,
+#bannerPreview #namePreviw {
+    color: #ffffff !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45) !important;
+}
+#bannerPreview p,
+#bannerPreview #subjectPreview {
+    color: rgba(255, 255, 255, 0.88) !important;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35) !important;
+}
+#bannerPreview i#bannerIconPreview {
+    color: #ffffff !important;
+    opacity: 0.15 !important;
+    pointer-events: none;
+}
+
+/* Modal & Backdrop Layering Hierarchy */
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+
+.modal {
+    z-index: 1060 !important;
+}
+
+.modal-dialog {
+    z-index: 1065 !important;
+    position: relative;
+}
+
+
+

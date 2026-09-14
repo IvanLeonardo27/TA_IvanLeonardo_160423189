@@ -2,8 +2,18 @@
 
 @section('title', 'Materi: ' . ($post->title ?? 'Pembelajaran') . ' - ' . $classroom->name)
 
+@push('styles')
+<style>
+@media (max-width: 767.98px) {
+    .material-page-container {
+        padding-bottom: 76px !important;
+    }
+}
+</style>
+@endpush
+
 @section('content')
-<div class="container-fluid py-4" style="max-width: 1100px;">
+<div class="container-fluid py-4 material-page-container" style="max-width: 1100px;">
     {{-- Header & Navigasi Kembali --}}
     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2.5 mb-4">
         <a href="{{ route('student.classroom.show', $classroom) }}" class="btn btn-outline-secondary rounded-pill px-3.5 py-2 btn-sm fw-semibold shadow-xs">
@@ -74,7 +84,7 @@
                 <div class="bg-white px-3 px-md-4 py-2.5 py-md-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge bg-primary text-white rounded-pill px-3 py-1.5 fw-bold slide-counter-badge">
-                            Slide <span class="current-slide-num">1</span> / {{ $totalSlides }}
+                            Slide <span class="current-slide-num">1</span> / <span class="total-slides-num">{{ $totalSlides }}</span>
                         </span>
                         <span class="fw-bold text-main small current-slide-title d-none d-sm-inline">{{ $slidesList[0]['title'] ?? 'Halaman 1' }}</span>
                     </div>
@@ -128,15 +138,15 @@
                 </div>
 
                 {{-- Slide Navigation Footer --}}
-                <div class="bg-white px-3 px-md-4 py-2.5 py-md-3 border-top d-flex align-items-center justify-content-between gap-2">
-                    <button type="button" class="btn btn-light rounded-pill px-3 px-md-4 py-2 fw-semibold text-muted prev-slide-btn" disabled>
-                        <i class="fa-solid fa-chevron-left me-1"></i> <span class="d-none d-sm-inline">Sebelumnya</span>
+                <div class="bg-white px-2.5 px-sm-3 px-md-4 py-2 py-sm-2.5 py-md-3 border-top d-flex align-items-center justify-content-between gap-1.5 gap-sm-2">
+                    <button type="button" class="btn btn-light rounded-pill px-2.5 px-sm-3 px-md-4 py-1.5 py-sm-2 fw-semibold text-muted prev-slide-btn d-inline-flex align-items-center justify-content-center gap-1 flex-shrink-0" disabled title="Halaman Sebelumnya">
+                        <i class="fa-solid fa-chevron-left"></i> <span class="d-none d-sm-inline">Sebelumnya</span>
                     </button>
 
                     {{-- Current Page Badge for Mobile --}}
                     <div class="d-md-none text-center">
-                        <span class="badge bg-light text-dark border rounded-pill px-3 py-1.5 fw-semibold" style="font-size:0.82rem;">
-                            <span class="mobile-current-slide-num">1</span> / {{ $totalSlides }}
+                        <span class="badge bg-light text-dark border rounded-pill px-2.5 px-sm-3 py-1.5 fw-semibold" style="font-size:0.8rem;">
+                            <span class="mobile-current-slide-num">1</span> / <span class="mobile-total-slides-num">{{ $totalSlides }}</span>
                         </span>
                     </div>
 
@@ -148,8 +158,10 @@
                         @endfor
                     </div>
 
-                    <button type="button" class="btn btn-primary rounded-pill px-3 px-md-4 py-2 fw-bold btn-bouncy next-slide-btn">
-                        <span class="next-btn-text">Selanjutnya</span> <i class="fa-solid fa-chevron-right ms-1 next-btn-icon"></i>
+                    <button type="button" class="btn btn-primary rounded-pill px-2.5 px-sm-3 px-md-4 py-1.5 py-sm-2 fw-bold btn-bouncy next-slide-btn d-inline-flex align-items-center justify-content-center gap-1 flex-shrink-0">
+                        <span class="next-btn-text d-none d-sm-inline">Selanjutnya</span>
+                        <span class="next-btn-text-mobile d-sm-none">Lanjut</span>
+                        <i class="fa-solid fa-chevron-right next-btn-icon"></i>
                     </button>
                 </div>
             </div>
@@ -209,16 +221,16 @@
     @endif
 
     {{-- Forum Diskusi Materi --}}
-    <div class="card border-0 shadow-sm rounded-4 p-4 mt-4" style="background:#ffffff; border:1px solid #E2E8F0 !important;">
+    <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mt-4" style="background:#ffffff; border:1px solid #E2E8F0 !important;">
         <h6 class="fw-bold text-main mb-3 d-flex align-items-center gap-2">
             <i class="fa-solid fa-comments text-primary"></i> Diskusi & Pertanyaan Materi ({{ $post->comments->count() }})
         </h6>
 
         <form action="{{ route('classroom.comment.store', $post) }}" method="POST" class="d-flex gap-2 align-items-center mb-4">
             @csrf
-            <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&size=36" class="rounded-circle" width="36" height="36" style="flex-shrink:0;">
-            <input type="text" name="comment" class="form-control rounded-pill border-0 bg-light px-4 py-2.5" placeholder="Tulis komentar materi..." required>
-            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold btn-bouncy shadow-sm d-flex align-items-center gap-1.5" style="height:44px;">
+            <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&size=36" class="rounded-circle flex-shrink-0" width="36" height="36">
+            <input type="text" name="comment" class="form-control rounded-pill border-0 bg-light px-3 px-sm-4 py-2 py-sm-2.5 flex-grow-1" style="min-width: 0;" placeholder="Tulis komentar materi..." required>
+            <button type="submit" class="btn btn-primary rounded-pill px-3 px-sm-4 fw-bold btn-bouncy shadow-sm d-flex align-items-center justify-content-center gap-1.5 flex-shrink-0" style="height:40px;">
                 <i class="fa-solid fa-paper-plane fa-xs"></i> <span>Kirim</span>
             </button>
         </form>
@@ -251,6 +263,47 @@
         </div>
     </div>
 </div>
+
+{{-- MODAL CELEBRATION SELESAI MEMBACA (DILENGKAPI TOMBOL KEMBALI KE KELAS & BACA ULANG) --}}
+<div class="modal fade" id="materialCompletedModal" tabindex="-1" aria-labelledby="materialCompletedModalLabel" aria-hidden="true" style="backdrop-filter: blur(8px); background: rgba(15, 23, 42, 0.65);">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+        <div class="modal-content border-0 shadow-2xl rounded-4 overflow-hidden text-center p-4 p-md-4.5 bg-white">
+            <div class="mb-3 mt-2">
+                <span class="rounded-circle d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success shadow-xs" style="width: 76px; height: 76px;">
+                    <i class="fa-solid fa-circle-check fs-1"></i>
+                </span>
+            </div>
+            <h4 class="fw-bold text-dark mb-2">Selesai Membaca! 🎉</h4>
+            <p class="text-muted small mb-4 px-2" style="line-height: 1.5;">
+                Selamat! Anda telah menyelesaikan seluruh <strong class="text-dark"><span class="modal-total-slides-num">{{ $totalSlides }}</span> halaman</strong> materi pembelajaran <strong class="text-dark">{{ $post->title ?? 'ini' }}</strong>.
+            </p>
+            <div class="d-grid gap-2 mb-2">
+                <a href="{{ route('student.classroom.show', $classroom) }}" class="btn btn-primary rounded-pill py-2.5 fw-bold shadow-sm d-inline-flex align-items-center justify-content-center gap-2 btn-bouncy">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Kembali ke Kelas Sekarang</span>
+                </a>
+                <button type="button" class="btn btn-outline-secondary rounded-pill py-2.5 fw-semibold d-inline-flex align-items-center justify-content-center gap-2" id="btnRestartReadingModal">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span>Baca Ulang dari Awal</span>
+                </button>
+                <button type="button" class="btn btn-link text-muted btn-sm text-decoration-none pt-1" data-bs-dismiss="modal">
+                    Tetap di Halaman Materi (Tulis Komentar)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- MOBILE BOTTOM STICKY NAVIGATION BAR (Memastikan selalu bisa kembali ke kelas dari mana saja) --}}
+<div class="d-md-none position-fixed bottom-0 start-0 w-100 p-2.5 bg-white border-top shadow-lg d-flex align-items-center justify-content-between gap-2" style="z-index: 1040;">
+    <a href="{{ route('student.classroom.show', $classroom) }}" class="btn btn-outline-secondary rounded-pill px-3 py-2 btn-sm fw-bold flex-grow-1 text-truncate shadow-xs d-inline-flex align-items-center justify-content-center gap-1.5">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Kembali ke Kelas</span>
+    </a>
+    <button type="button" class="btn btn-light border rounded-pill px-3 py-2 btn-sm text-muted shadow-xs flex-shrink-0" onclick="window.scrollTo({top: 0, behavior: 'smooth'});" title="Kembali ke Puncak Halaman">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+</div>
 @endsection
 
 @push('scripts')
@@ -260,7 +313,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!deck) return;
 
     const deckId          = deck.dataset.deckId;
-    const totalSlides     = parseInt(deck.dataset.total) || 1;
+    let totalSlides       = parseInt(deck.dataset.total) || 1;
     const checkpointSlide = parseInt(deck.dataset.checkpointSlide) || 0;
     const correctIndex    = parseInt(deck.dataset.correctIndex) ?? -1;
     let isCheckpointSolved= localStorage.getItem(`basakula_checkpoint_passed_${deckId}`) === 'true';
@@ -274,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const numBadge        = deck.querySelector('.current-slide-num');
     const titleBadge      = deck.querySelector('.current-slide-title');
     const progressBar     = deck.querySelector('.slide-progress-bar');
-    const dots            = deck.querySelectorAll('.slide-dot');
+    let dots              = deck.querySelectorAll('.slide-dot');
     const pdfCanvas       = deck.querySelector('#pdfCanvas-' + deckId);
     const pdfLoading      = deck.querySelector('#pdfLoading-' + deckId);
     const pdfUrl          = deck.dataset.pdfUrl;
@@ -284,10 +337,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const alertBox        = overlay ? overlay.querySelector('.checkpoint-alert') : null;
     const optionLabels    = overlay ? overlay.querySelectorAll('.checkpoint-opt-label') : null;
 
-    let pdfDocInstance = null;
-    let isRendering = false;
-    let pageNumPending = null;
-    let currentZoom = 1.0;
+    let pdfDocInstance    = null;
+    let isRendering       = false;
+    let pageNumPending    = null;
+    let currentRenderTask = null;
+    let currentZoom       = 1.0;
 
     const zoomInBtn  = deck.querySelector('.zoom-in-btn');
     const zoomOutBtn = deck.querySelector('.zoom-out-btn');
@@ -317,7 +371,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function renderPdfPage(num) {
-        if (!pdfDocInstance || !pdfCanvas) return;
+        if (!pdfDocInstance || !pdfCanvas) {
+            isRendering = false;
+            return;
+        }
+
+        // Pastikan nomor halaman valid di dalam PDF
+        if (num < 1 || num > pdfDocInstance.numPages) {
+            isRendering = false;
+            return;
+        }
+
+        // Batalkan render task yang sedang berjalan jika ada
+        if (currentRenderTask) {
+            try { currentRenderTask.cancel(); } catch (e) {}
+            currentRenderTask = null;
+        }
+
         isRendering = true;
         pdfDocInstance.getPage(num).then(function(page) {
             const ctx = pdfCanvas.getContext('2d');
@@ -335,8 +405,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const scaleX = containerW / unscaledViewport.width;
             const scaleY = containerH / unscaledViewport.height;
 
-            // Skala optimal:
-            // Di layar HP (mobile), paskan lebar PDF 100% ke lebar layar agar tidak kekecilan atau terpotong
+            // Skala optimal
             let baseFitScale;
             if (isMobile) {
                 baseFitScale = scaleX;
@@ -365,13 +434,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 canvasContext: ctx,
                 viewport: viewport
             };
-            page.render(renderContext).promise.then(function() {
+
+            currentRenderTask = page.render(renderContext);
+            currentRenderTask.promise.then(function() {
                 isRendering = false;
+                currentRenderTask = null;
                 if (pageNumPending !== null) {
-                    renderPdfPage(pageNumPending);
+                    const nextNum = pageNumPending;
                     pageNumPending = null;
+                    renderPdfPage(nextNum);
+                }
+            }).catch(function(err) {
+                isRendering = false;
+                currentRenderTask = null;
+                if (err && err.name !== 'RenderingCancelledException') {
+                    console.warn("PDF render notice:", err);
+                }
+                if (pageNumPending !== null) {
+                    const nextNum = pageNumPending;
+                    pageNumPending = null;
+                    renderPdfPage(nextNum);
                 }
             });
+        }).catch(function(err) {
+            isRendering = false;
+            currentRenderTask = null;
+            console.error("PDF getPage error:", err);
         });
     }
 
@@ -396,9 +484,39 @@ document.addEventListener('DOMContentLoaded', function() {
     if (pdfUrl && window.pdfjsLib && pdfCanvas) {
         pdfjsLib.getDocument(pdfUrl).promise.then(function(doc) {
             pdfDocInstance = doc;
+            // Sinkronkan total halaman aktual dari PDF jika berbeda dari meta
+            if (doc.numPages && doc.numPages > 0) {
+                totalSlides = doc.numPages;
+                deck.dataset.total = totalSlides;
+
+                const totalNumEl = deck.querySelector('.total-slides-num');
+                if (totalNumEl) totalNumEl.textContent = totalSlides;
+                const mobTotalNumEl = deck.querySelector('.mobile-total-slides-num');
+                if (mobTotalNumEl) mobTotalNumEl.textContent = totalSlides;
+                const modalTotalNumEl = document.querySelector('.modal-total-slides-num');
+                if (modalTotalNumEl) modalTotalNumEl.textContent = totalSlides;
+
+                // Perbarui dots indikator
+                const dotsContainer = deck.querySelector('.slide-dots-container');
+                if (dotsContainer) {
+                    dotsContainer.innerHTML = '';
+                    const dotsCount = Math.min(15, totalSlides);
+                    for (let d = 0; d < dotsCount; d++) {
+                        const dot = document.createElement('span');
+                        dot.className = 'rounded-pill slide-dot ' + (d === 0 ? 'active' : '');
+                        dot.style.width = (d === 0 ? '22px' : '8px');
+                        dot.style.height = '8px';
+                        dot.style.background = (d === 0 ? '#3B82F6' : '#CBD5E1');
+                        dot.style.transition = '.3s';
+                        dotsContainer.appendChild(dot);
+                    }
+                    dots = deck.querySelectorAll('.slide-dot');
+                }
+            }
+
             if (pdfLoading) pdfLoading.classList.add('d-none');
             if (pdfCanvas) pdfCanvas.classList.remove('d-none');
-            renderPdfPage(currentSlideIdx + 1);
+            updateDeckUI(currentSlideIdx);
         }).catch(function(e) {
             console.error("PDF load error:", e);
             if (pdfLoading) pdfLoading.innerHTML = '<p class="text-white-50 small mb-0">Gunakan tombol Layar Penuh / Unduh File untuk membuka dokumen.</p>';
@@ -406,6 +524,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateDeckUI(idx) {
+        if (idx < 0) idx = 0;
+        if (idx >= totalSlides) idx = totalSlides - 1;
         currentSlideIdx = idx;
 
         if (pdfDocInstance) {
@@ -427,7 +547,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const progressPct = ((idx + 1) / totalSlides) * 100;
         if (progressBar) progressBar.style.width = `${progressPct}%`;
 
-        if (dots) {
+        dots = deck.querySelectorAll('.slide-dot');
+        if (dots && dots.length > 0) {
             dots.forEach((dot, dIdx) => {
                 if (dIdx === idx) {
                     dot.style.width = '22px';
@@ -441,16 +562,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (prevBtn) prevBtn.disabled = (idx === 0);
 
-        if (idx === totalSlides - 1) {
+        const nextBtnTextMobile = deck.querySelector('.next-btn-text-mobile');
+        if (idx >= totalSlides - 1) {
             if (nextBtnText) nextBtnText.textContent = 'Selesai Membaca 🎉';
-            if (nextBtnIcon) nextBtnIcon.className = 'fa-solid fa-check ms-1';
+            if (nextBtnTextMobile) nextBtnTextMobile.textContent = 'Selesai 🎉';
+            if (nextBtnIcon) nextBtnIcon.className = 'fa-solid fa-check';
             if (nextBtn) {
                 nextBtn.classList.remove('btn-primary');
                 nextBtn.classList.add('btn-success');
             }
         } else {
             if (nextBtnText) nextBtnText.textContent = 'Selanjutnya';
-            if (nextBtnIcon) nextBtnIcon.className = 'fa-solid fa-chevron-right ms-1';
+            if (nextBtnTextMobile) nextBtnTextMobile.textContent = 'Lanjut';
+            if (nextBtnIcon) nextBtnIcon.className = 'fa-solid fa-chevron-right';
             if (nextBtn) {
                 nextBtn.classList.remove('btn-success');
                 nextBtn.classList.add('btn-primary');
@@ -475,10 +599,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateDeckUI(currentSlideIdx + 1);
             } else {
                 if (window.confetti) {
-                    window.confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+                    window.confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
                 }
-                alert('🎉 Selamat! Anda telah selesai membaca seluruh halaman materi pembelajaran ini.');
+                const completedModalEl = document.getElementById('materialCompletedModal');
+                if (completedModalEl) {
+                    const modalInst = bootstrap.Modal.getOrCreateInstance(completedModalEl);
+                    modalInst.show();
+                } else {
+                    window.location.href = "{{ route('student.classroom.show', $classroom) }}";
+                }
             }
+        });
+    }
+
+    const restartBtn = document.getElementById('btnRestartReadingModal');
+    if (restartBtn) {
+        restartBtn.addEventListener('click', () => {
+            const completedModalEl = document.getElementById('materialCompletedModal');
+            if (completedModalEl) {
+                const modalInst = bootstrap.Modal.getInstance(completedModalEl);
+                if (modalInst) modalInst.hide();
+            }
+            updateDeckUI(0);
+            window.scrollTo({ top: 180, behavior: 'smooth' });
         });
     }
 

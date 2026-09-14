@@ -17,15 +17,15 @@
 
         <div class="card border-0 shadow-sm" style="border-radius:24px; overflow:hidden;">
             {{-- Preview Banner --}}
-            <div id="bannerPreview" class="d-flex align-items-end px-5 pt-4 pb-3 position-relative text-white"
-                 style="min-height:160px; background:{{ old('banner_color', $classroom->banner_color ?? '#059669') }}; transition:background .3s;">
+            <div id="bannerPreview" class="d-flex align-items-end px-4 px-md-5 pt-4 pb-3 position-relative text-white"
+                 style="min-height:160px; background:{{ old('banner_color', $classroom->banner_color ?? '#059669') }}; transition:background .3s; overflow:hidden;">
                 <i id="bannerIconPreview" class="fa-solid fa-{{ old('banner_icon', $classroom->banner_icon ?? 'graduation-cap') }} position-absolute opacity-15"
-                   style="font-size:10rem;right:-10px;bottom:-20px;"></i>
+                   style="font-size:10rem; right:-10px; bottom:-20px; color:#ffffff; opacity:0.15 !important; pointer-events:none;"></i>
                 <div class="position-relative" style="z-index:1;">
-                    <h3 id="namePreviw" class="fw-bold mb-0" style="text-shadow:0 2px 6px rgba(0,0,0,.2);">
+                    <h3 id="namePreviw" class="fw-bold mb-0 text-white" style="color:#ffffff !important; text-shadow:0 2px 8px rgba(0,0,0,.45);">
                         {{ old('name', $classroom->name) }}
                     </h3>
-                    <p id="subjectPreview" class="mb-0 opacity-75 small mt-1">
+                    <p id="subjectPreview" class="mb-0 text-white small mt-1" style="color:rgba(255,255,255,.88) !important; text-shadow:0 1px 4px rgba(0,0,0,.35);">
                         {{ old('subject', $classroom->subject ?: 'Mata Pelajaran') }}
                     </p>
                 </div>

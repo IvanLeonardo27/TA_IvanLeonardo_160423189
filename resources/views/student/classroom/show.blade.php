@@ -8,10 +8,10 @@
      style="border-radius: 24px; background: linear-gradient(135deg, {{ $classroom->banner_color ?? 'var(--primary)' }} 0%, color-mix(in srgb, {{ $classroom->banner_color ?? '#16382a' }} 70%, #000) 100%);">
     <div class="p-4 p-md-5 position-relative text-white" style="min-height: 190px;">
         <!-- Decorative Background Elements -->
-        <div class="position-absolute" style="right: -40px; bottom: -50px; opacity: 0.12;">
-            <i class="fa-solid fa-graduation-cap" style="font-size: 16rem; color: #ffffff;"></i>
+        <div class="position-absolute" style="right: -40px; bottom: -50px; opacity: 0.12; pointer-events: none;">
+            <i class="fa-solid fa-{{ $classroom->banner_icon ?? 'graduation-cap' }}" style="font-size: 16rem; color: #ffffff;"></i>
         </div>
-        <div class="position-absolute" style="right: 180px; top: -30px; opacity: 0.08;">
+        <div class="position-absolute" style="right: 180px; top: -30px; opacity: 0.08; pointer-events: none;">
             <i class="fa-solid fa-book-open" style="font-size: 10rem; color: #ffffff;"></i>
         </div>
 
@@ -27,7 +27,7 @@
                 </span>
             </div>
             
-            <h1 class="fw-bold display-6 mb-2 text-white" style="text-shadow: 0 2px 10px rgba(0,0,0,0.25);">
+            <h1 class="fw-bold display-6 mb-2 text-white" style="color: #ffffff !important; text-shadow: 0 2px 10px rgba(0,0,0,0.45);">
                 {{ $classroom->name }}
             </h1>
             
@@ -51,7 +51,7 @@
 
 {{-- SEGMENTED NAVIGATION TABS (CUSTOM BRANDED DESIGN) --}}
 <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white p-2">
-    <ul class="nav nav-pills nav-justified gap-2" id="classroomTab" role="tablist">
+    <ul class="nav nav-pills nav-justified flex-column flex-md-row gap-2" id="classroomTab" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active rounded-3 fw-bold py-2.5 btn-tab-custom" id="weeks-tab" data-bs-toggle="tab" data-bs-target="#weeks-pane" type="button" role="tab">
                 <i class="fa-solid fa-layer-group me-2"></i> Kurikulum & Materi Mingguan (Week)
@@ -60,6 +60,11 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link rounded-3 fw-bold py-2.5 btn-tab-custom" id="feed-tab" data-bs-toggle="tab" data-bs-target="#feed-pane" type="button" role="tab">
                 <i class="fa-solid fa-comments me-2"></i> Feed Diskusi Terbaru
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-3 fw-bold py-2.5 btn-tab-custom" id="classmates-tab" data-bs-toggle="tab" data-bs-target="#classmates-pane" type="button" role="tab">
+                <i class="fa-solid fa-users me-2"></i> Teman Sekelas ({{ $totalMembers }})
             </button>
         </li>
     </ul>
@@ -130,6 +135,49 @@
                             <small class="text-muted">Guru Pengampu</small>
                         </div>
                     </div>
+                </div>
+
+                {{-- Card Teman Sekelas (Sidebar Ringkas) --}}
+                <div class="card border-0 shadow-sm rounded-4 bg-white p-4 mt-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-users text-primary"></i> Teman Sekelas
+                        </h6>
+                        <span class="badge bg-primary-subtle text-primary rounded-pill fw-bold">{{ $totalMembers }} Siswa</span>
+                    </div>
+                    <p class="text-muted small mb-3" style="font-size: 0.78rem;">Klik avatar atau nama untuk melihat profil teman sekelas Anda.</p>
+                    <div class="d-flex flex-wrap gap-1 align-items-center mb-3">
+                        @foreach($members as $member)
+                        @php
+                            $mIsMe = ($member->id === Auth::id());
+                            $mJoinedRaw = $member->pivot->joined_at ?? $member->created_at;
+                            $mJoinedDate = $mJoinedRaw ? \Carbon\Carbon::parse($mJoinedRaw)->translatedFormat('d F Y') : '-';
+                            $mAvatar = 'https://ui-avatars.com/api/?name=' . urlencode($member->name) . '&size=120&background=' . ($mIsMe ? '0D9488' : '16402E') . '&color=fff&bold=true';
+                        @endphp
+                        <button type="button" class="btn p-0 border-0 bg-transparent btn-show-classmate"
+                                data-name="{{ $member->name }}"
+                                data-avatar="{{ $mAvatar }}"
+                                data-joined="{{ $mJoinedDate }}"
+                                data-isme="{{ $mIsMe ? 'true' : 'false' }}"
+                                title="{{ $member->name }} (Klik untuk lihat profil)">
+                            <img src="{{ $mAvatar }}"
+                                 class="rounded-circle border border-2 border-white shadow-xs hover-scale"
+                                 width="36" height="36" alt="{{ $member->name }}"
+                                 style="margin-left: -4px;">
+                        </button>
+                        @endforeach
+                        @if($totalMembers > 10)
+                        <button type="button" class="btn p-0 border-0 bg-transparent" onclick="document.getElementById('classmates-tab').click();" title="Lihat semua teman">
+                            <div class="rounded-circle bg-light border border-2 border-white shadow-xs d-flex align-items-center justify-content-center"
+                                 style="width:36px;height:36px;margin-left:-4px;font-size:.68rem;font-weight:700;color:var(--primary);">
+                                +{{ $totalMembers - 10 }}
+                            </div>
+                        </button>
+                        @endif
+                    </div>
+                    <button type="button" class="btn btn-outline-primary rounded-pill btn-sm w-100 fw-semibold" onclick="document.getElementById('classmates-tab').click();">
+                        <i class="fa-solid fa-users me-1.5"></i> Lihat Semua Teman Sekelas
+                    </button>
                 </div>
             </div>
         </div>
@@ -410,11 +458,39 @@
                             @if($post->comments->isNotEmpty())
                             <div class="mb-3">
                                 @foreach($post->comments->take(3) as $comment)
+                                @php
+                                    $cStudent = $classmates->firstWhere('id', $comment->user_id);
+                                    $cJoined = $cStudent ? ($cStudent->pivot->joined_at ?? $cStudent->created_at) : null;
+                                    $cJoinedDate = $cJoined ? \Carbon\Carbon::parse($cJoined)->translatedFormat('d F Y') : '-';
+                                    $cIsMe = ($comment->user_id === Auth::id());
+                                    $cAvatar = 'https://ui-avatars.com/api/?name=' . urlencode($comment->user->name) . '&size=120&background=' . ($cIsMe ? '0D9488' : '16402E') . '&color=fff&bold=true';
+                                @endphp
                                 <div class="d-flex gap-3 mb-2 align-items-start">
                                     <img src="https://ui-avatars.com/api/?name={{ urlencode($comment->user->name) }}&size=32"
-                                         class="rounded-circle mt-1" width="32" height="32" style="flex-shrink:0;">
+                                         class="rounded-circle mt-1 {{ $cStudent ? 'btn-show-classmate' : '' }}" 
+                                         width="32" height="32" style="flex-shrink:0; cursor:{{ $cStudent ? 'pointer' : 'default' }};"
+                                         @if($cStudent)
+                                         data-name="{{ $comment->user->name }}"
+                                         data-avatar="{{ $cAvatar }}"
+                                         data-joined="{{ $cJoinedDate }}"
+                                         data-isme="{{ $cIsMe ? 'true' : 'false' }}"
+                                         title="Klik untuk lihat profil {{ $comment->user->name }}"
+                                         @endif>
                                     <div class="bg-light rounded-3 px-3 py-2 flex-grow-1">
-                                        <span class="fw-bold text-main small">{{ $comment->user->name }}</span>
+                                        <span class="fw-bold text-main small {{ $cStudent ? 'btn-show-classmate' : '' }}" 
+                                              style="cursor:{{ $cStudent ? 'pointer' : 'default' }};"
+                                              @if($cStudent)
+                                              data-name="{{ $comment->user->name }}"
+                                              data-avatar="{{ $cAvatar }}"
+                                              data-joined="{{ $cJoinedDate }}"
+                                              data-isme="{{ $cIsMe ? 'true' : 'false' }}"
+                                              title="Klik untuk lihat profil {{ $comment->user->name }}"
+                                              @endif>
+                                            {{ $comment->user->name }}
+                                            @if($cStudent)
+                                            <i class="fa-solid fa-circle-info ms-1 text-primary opacity-50" style="font-size: 0.65rem;"></i>
+                                            @endif
+                                        </span>
                                         <p class="mb-0 small text-muted">{{ $comment->comment }}</p>
                                         <small class="text-muted" style="font-size:.65rem;">{{ $comment->created_at->diffForHumans() }}</small>
                                     </div>
@@ -470,151 +546,221 @@
                     @endif
                 </div>
 
-                {{-- Card Teman Sekelas --}}
+                {{-- Card Teman Sekelas (Sidebar Ringkas) --}}
                 <div class="card border-0 shadow-sm p-4 rounded-4 bg-white">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6 class="fw-bold text-main mb-0 d-flex align-items-center gap-2">
                             <i class="fa-solid fa-users text-primary"></i> Teman Sekelas
                         </h6>
-                        <span class="badge bg-soft-blue text-primary rounded-pill fw-bold">{{ $totalMembers }}</span>
+                        <span class="badge bg-primary-subtle text-primary rounded-pill fw-bold">{{ $totalMembers }} Siswa</span>
                     </div>
-                    <div class="d-flex flex-wrap gap-1">
+                    <p class="text-muted small mb-3" style="font-size: 0.78rem;">Klik avatar atau nama untuk melihat profil teman sekelas Anda.</p>
+                    <div class="d-flex flex-wrap gap-1 align-items-center mb-3">
                         @foreach($members as $member)
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode($member->name) }}&size=36"
-                             class="rounded-circle border border-2 border-white shadow-sm"
-                             width="36" height="36" title="{{ $member->name }}"
-                             style="margin-left:-6px;" alt="{{ $member->name }}">
+                        @php
+                            $mIsMe = ($member->id === Auth::id());
+                            $mJoinedRaw = $member->pivot->joined_at ?? $member->created_at;
+                            $mJoinedDate = $mJoinedRaw ? \Carbon\Carbon::parse($mJoinedRaw)->translatedFormat('d F Y') : '-';
+                            $mAvatar = 'https://ui-avatars.com/api/?name=' . urlencode($member->name) . '&size=120&background=' . ($mIsMe ? '0D9488' : '16402E') . '&color=fff&bold=true';
+                        @endphp
+                        <button type="button" class="btn p-0 border-0 bg-transparent btn-show-classmate"
+                                data-name="{{ $member->name }}"
+                                data-avatar="{{ $mAvatar }}"
+                                data-joined="{{ $mJoinedDate }}"
+                                data-isme="{{ $mIsMe ? 'true' : 'false' }}"
+                                title="{{ $member->name }} (Klik untuk lihat profil)">
+                            <img src="{{ $mAvatar }}"
+                                 class="rounded-circle border border-2 border-white shadow-xs hover-scale"
+                                 width="36" height="36" alt="{{ $member->name }}"
+                                 style="margin-left:-4px;">
+                        </button>
                         @endforeach
                         @if($totalMembers > 10)
-                        <div class="rounded-circle bg-light border border-2 border-white shadow-sm d-flex align-items-center justify-content-center"
-                             style="width:36px;height:36px;margin-left:-6px;font-size:.65rem;font-weight:700;color:#6B7280;">
-                            +{{ $totalMembers - 10 }}
-                        </div>
+                        <button type="button" class="btn p-0 border-0 bg-transparent" onclick="document.getElementById('classmates-tab').click();" title="Lihat semua teman">
+                            <div class="rounded-circle bg-light border border-2 border-white shadow-xs d-flex align-items-center justify-content-center"
+                                 style="width:36px;height:36px;margin-left:-4px;font-size:.68rem;font-weight:700;color:var(--primary);">
+                                +{{ $totalMembers - 10 }}
+                            </div>
+                        </button>
                         @endif
                     </div>
+                    <button type="button" class="btn btn-outline-primary rounded-pill btn-sm w-100 fw-semibold" onclick="document.getElementById('classmates-tab').click();">
+                        <i class="fa-solid fa-users me-1.5"></i> Lihat Semua Teman Sekelas
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- TAB 2: MODUL MATERI PEMBELAJARAN KELAS --}}
-    <div class="tab-pane fade" id="materi-pane" role="tabpanel">
-        <div class="row g-4 mb-4">
-            <!-- Card Materi 1 -->
-            <div class="col-lg-4 col-md-6">
-                <div class="card card-modern h-100 position-relative overflow-hidden border-0 shadow-sm rounded-4">
-                    <div class="position-absolute top-0 end-0 p-3 z-3">
-                        <button class="btn btn-light rounded-circle shadow-sm text-accent" style="width: 40px; height: 40px;">
-                            <i class="fa-regular fa-bookmark"></i>
+    {{-- TAB 3: DAFTAR TEMAN SEKELAS (PRIVACY COMPLIANT & FULLY RESPONSIVE) --}}
+    <div class="tab-pane fade" id="classmates-pane" role="tabpanel">
+        <div class="card border-0 shadow-sm rounded-4 bg-white mb-4 overflow-hidden">
+            <div class="card-header bg-white border-bottom p-4 px-md-4">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" 
+                             style="width: 46px; height: 46px; background: rgba(22, 64, 46, 0.1); color: var(--primary, #16402E);">
+                            <i class="fa-solid fa-users fs-5"></i>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <h5 class="fw-bold text-dark mb-0">Teman Sekelas</h5>
+                                <span class="badge bg-primary rounded-pill px-3 py-1 fw-semibold" id="studentCounterBadge">{{ $totalMembers }} Pelajar</span>
+                            </div>
+                            <small class="text-muted">Daftar seluruh teman yang terdaftar dan belajar di ruang kelas {{ $classroom->name }}</small>
+                        </div>
+                    </div>
+                    
+                    {{-- Privacy Notice Pill --}}
+                    <div class="d-flex align-items-center gap-2 text-muted small bg-light rounded-pill px-3 py-1.5 border">
+                        <i class="fa-solid fa-shield-halved text-success"></i>
+                        <span style="font-size: 0.78rem;">Informasi kontak pribadi dilindungi demi privasi</span>
+                    </div>
+                </div>
+
+                {{-- Search Bar --}}
+                <div class="p-2.5 bg-light rounded-4 border d-flex align-items-center">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-0 ps-3 text-muted">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input type="text" id="classmateSearchInput" class="form-control bg-transparent border-0 shadow-none py-2"
+                               placeholder="Ketik untuk mencari nama teman sekelas..." onkeyup="filterClassmates()">
+                        <button type="button" class="btn btn-link text-muted pe-3 text-decoration-none d-none" id="clearClassmateSearch" onclick="clearClassmateSearch()">
+                            <i class="fa-solid fa-xmark"></i>
                         </button>
-                    </div>
-                    
-                    <div class="bg-primary d-flex align-items-center justify-content-center" style="height: 170px; position: relative;">
-                        <i class="fa-solid fa-users text-white opacity-25" style="font-size: 6rem; position: absolute; right: -20px; bottom: -20px;"></i>
-                        <h3 class="text-white fw-bold mb-0 z-2 position-relative">Aksara Jawa</h3>
-                    </div>
-                    
-                    <div class="card-body p-4 bg-white">
-                        <span class="badge bg-soft-blue text-primary rounded-pill mb-2 px-3">Menulis & Membaca</span>
-                        <h5 class="fw-bold text-main">Aksara Jawa Dasar (Carakan)</h5>
-                        <p class="text-muted small mb-3">Belajar mengenal, membaca, dan menulis 20 aksara dasar bahasa Jawa.</p>
-                        
-                        <div class="d-flex align-items-center mb-3">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($teacher->name) }}" class="rounded-circle me-2" width="24">
-                            <small class="text-muted fw-semibold">Oleh: {{ $teacher->name }}</small>
-                        </div>
-                        
-                        <div class="d-flex justify-content-between text-muted small mb-3">
-                            <span><i class="fa-regular fa-clock me-1"></i> 45 Menit</span>
-                            <span><i class="fa-solid fa-list me-1"></i> 4 Section</span>
-                        </div>
-                        
-                        <div class="progress mb-2" style="height: 8px;">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <small class="text-success fw-bold d-block text-end mb-4">100% Selesai</small>
-                        
-                        <a href="/ui/materi/show" class="btn btn-outline-primary w-100 rounded-pill fw-semibold">Buka Materi</a>
                     </div>
                 </div>
             </div>
-            
-            <!-- Card Materi 2 -->
-            <div class="col-lg-4 col-md-6">
-                <div class="card card-modern h-100 position-relative overflow-hidden border-0 shadow-sm rounded-4">
-                    <div class="position-absolute top-0 end-0 p-3 z-3">
-                        <button class="btn btn-light rounded-circle shadow-sm text-accent" style="width: 40px; height: 40px;">
-                            <i class="fa-solid fa-bookmark"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="bg-accent d-flex align-items-center justify-content-center" style="height: 170px; position: relative;">
-                        <i class="fa-solid fa-people-arrows text-white opacity-25" style="font-size: 6rem; position: absolute; right: -20px; bottom: -20px;"></i>
-                        <h3 class="text-white fw-bold mb-0 z-2 position-relative">Unggah-Ungguh</h3>
-                    </div>
-                    
-                    <div class="card-body p-4 bg-white">
-                        <span class="badge bg-soft-blue text-primary rounded-pill mb-2 px-3">Tata Krama</span>
-                        <h5 class="fw-bold text-main">Ngoko Lugu lan Ngoko Alus</h5>
-                        <p class="text-muted small mb-3">Memahami perbedaan dan penggunaan tingkatan bahasa dalam keseharian.</p>
-                        
-                        <div class="d-flex align-items-center mb-3">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($teacher->name) }}" class="rounded-circle me-2" width="24">
-                            <small class="text-muted fw-semibold">Oleh: {{ $teacher->name }}</small>
+
+            <div class="card-body p-4 px-md-4">
+                <div class="row g-3" id="classmatesContainer">
+                    @forelse($classmates as $student)
+                    @php
+                        $isMe = ($student->id === Auth::id());
+                        $joinedRaw = $student->pivot->joined_at ?? $student->created_at;
+                        $joinedDate = $joinedRaw ? \Carbon\Carbon::parse($joinedRaw)->translatedFormat('d F Y') : '-';
+                        $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($student->name) . '&size=120&background=' . ($isMe ? '0D9488' : '16402E') . '&color=fff&bold=true';
+                    @endphp
+                    <div class="col-12 col-sm-6 col-lg-4 classmate-card-item" data-name="{{ strtolower($student->name) }}">
+                        <div class="card border rounded-4 p-3 h-100 bg-white shadow-xs hover-elevate-subtle transition"
+                             style="border: 1px solid #E2E8F0 !important; cursor: pointer;"
+                             onclick="openClassmateModal('{{ addslashes($student->name) }}', '{{ $avatarUrl }}', '{{ $joinedDate }}', {{ $isMe ? 'true' : 'false' }})"
+                             title="Klik untuk melihat profil {{ $student->name }}">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="position-relative flex-shrink-0">
+                                    <img src="{{ $avatarUrl }}"
+                                         class="rounded-circle shadow-xs" width="50" height="50" alt="{{ $student->name }}"
+                                         style="border: 2px solid #F1F5F9; object-fit: cover;">
+                                    <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-white rounded-circle" style="width: 12px; height: 12px;"></span>
+                                </div>
+                                <div class="overflow-hidden flex-grow-1">
+                                    <div class="d-flex align-items-center justify-content-between gap-1 mb-1">
+                                        <h6 class="fw-bold text-dark mb-0 text-truncate text-hover-primary" title="{{ $student->name }}" style="font-size: 0.95rem;">
+                                            {{ $student->name }}
+                                        </h6>
+                                        @if($isMe)
+                                        <span class="badge bg-primary text-white rounded-pill px-2 py-0.5 flex-shrink-0" style="font-size: 0.65rem;">Anda</span>
+                                        @endif
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2 text-muted" style="font-size: 0.76rem;">
+                                        <span class="badge bg-success-subtle text-success rounded-pill px-2 py-0.5" style="font-size: 0.65rem;">
+                                            <i class="fa-solid fa-graduation-cap me-1"></i> Pelajar
+                                        </span>
+                                    </div>
+                                    <div class="text-muted mt-1.5 text-truncate" style="font-size: 0.74rem;">
+                                        <i class="fa-regular fa-calendar-check text-primary me-1"></i>Bergabung: {{ $joinedDate }}
+                                    </div>
+                                </div>
+                                <div class="text-muted opacity-50 flex-shrink-0">
+                                    <i class="fa-solid fa-chevron-right fs-6"></i>
+                                </div>
+                            </div>
                         </div>
-                        
-                        <div class="d-flex justify-content-between text-muted small mb-3">
-                            <span><i class="fa-regular fa-clock me-1"></i> 60 Menit</span>
-                            <span><i class="fa-solid fa-list me-1"></i> 5 Section</span>
-                        </div>
-                        
-                        <div class="progress mb-2" style="height: 8px;">
-                            <div class="progress-bar bg-primary" role="progressbar" style="width: 60%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <small class="text-primary fw-bold d-block text-end mb-4">60% Selesai</small>
-                        
-                        <a href="/ui/materi/show" class="btn btn-primary w-100 rounded-pill fw-semibold shadow-sm">Lanjutkan Belajar <i class="fa-solid fa-arrow-right ms-2"></i></a>
                     </div>
+                    @empty
+                    <div class="col-12 text-center py-5 text-muted">
+                        <i class="fa-solid fa-user-group fs-1 text-muted opacity-25 mb-3 d-block"></i>
+                        <h6 class="fw-bold text-dark">Belum Ada Teman Sekelas</h6>
+                        <p class="small text-muted mb-0">Belum ada pelajar lain yang bergabung ke kelas ini.</p>
+                    </div>
+                    @endforelse
+                </div>
+
+                {{-- Pencarian Tidak Ditemukan --}}
+                <div id="noClassmateSearchResults" class="text-center py-5 text-muted d-none">
+                    <i class="fa-solid fa-magnifying-glass fs-2 text-muted opacity-50 mb-2 d-block"></i>
+                    <h6 class="fw-bold text-dark mb-1">Teman Tidak Ditemukan</h6>
+                    <p class="small text-muted mb-0">Tidak ada teman sekelas dengan nama yang cocok dengan pencarian Anda.</p>
                 </div>
             </div>
-            
-            <!-- Card Materi 3 -->
-            <div class="col-lg-4 col-md-6">
-                <div class="card card-modern h-100 position-relative overflow-hidden border-0 shadow-sm rounded-4">
-                    <div class="position-absolute top-0 end-0 p-3 z-3">
-                        <button class="btn btn-light rounded-circle shadow-sm text-accent" style="width: 40px; height: 40px;">
-                            <i class="fa-regular fa-bookmark"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="bg-secondary d-flex align-items-center justify-content-center border-bottom" style="height: 170px; position: relative;">
-                        <i class="fa-solid fa-music text-accent opacity-25" style="font-size: 6rem; position: absolute; right: -20px; bottom: -20px;"></i>
-                        <h3 class="text-primary fw-bold mb-0 z-2 position-relative">Tembang Macapat</h3>
-                    </div>
-                    
-                    <div class="card-body p-4 bg-white">
-                        <span class="badge bg-soft-blue text-primary rounded-pill mb-2 px-3">Sastra</span>
-                        <h5 class="fw-bold text-main">Mengenal Tembang Pocung</h5>
-                        <p class="text-muted small mb-3">Belajar menyanyikan dan memaknai lirik dari Tembang Macapat Pocung.</p>
-                        
-                        <div class="d-flex align-items-center mb-3">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($teacher->name) }}" class="rounded-circle me-2" width="24">
-                            <small class="text-muted fw-semibold">Oleh: {{ $teacher->name }}</small>
-                        </div>
-                        
-                        <div class="d-flex justify-content-between text-muted small mb-3">
-                            <span><i class="fa-regular fa-clock me-1"></i> 30 Menit</span>
-                            <span><i class="fa-solid fa-list me-1"></i> 3 Section</span>
-                        </div>
-                        
-                        <div class="progress mb-2" style="height: 8px;">
-                            <div class="progress-bar bg-secondary" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <small class="text-muted fw-bold d-block text-end mb-4">Belum Dimulai</small>
-                        
-                        <a href="/ui/materi/show" class="btn btn-outline-primary w-100 rounded-pill fw-semibold">Mulai Belajar</a>
-                    </div>
+        </div>
+    </div>
+</div>
+
+{{-- MODAL POP-UP PROFIL TEMAN SEKELAS (PRIVACY SAFE: NO EMAIL, NO SENSITIVE DATA) --}}
+<div class="modal fade" id="classmateProfileModal" tabindex="-1" aria-labelledby="classmateProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            {{-- Header with Classroom Gradient --}}
+            <div class="position-relative p-4 pb-5 text-center text-white" 
+                 style="background: linear-gradient(135deg, {{ $classroom->banner_color ?? 'var(--primary, #16402E)' }} 0%, color-mix(in srgb, {{ $classroom->banner_color ?? '#16402E' }} 70%, #000) 100%);">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3 shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                <span class="badge rounded-pill bg-white bg-opacity-20 text-white px-3 py-1 fw-semibold mb-1" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+                    <i class="fa-solid fa-id-badge me-1"></i> PROFIL TEMAN SEKELAS
+                </span>
+                <div class="text-white text-opacity-75 small text-truncate px-3 mt-1">
+                    {{ $classroom->name }}
                 </div>
+            </div>
+
+            {{-- Body --}}
+            <div class="modal-body px-4 pt-0 pb-4 text-center">
+                {{-- Overlapping Avatar --}}
+                <div class="position-relative d-inline-block mb-3" style="margin-top: -48px;">
+                    <img id="classmateModalAvatar" 
+                         src="" 
+                         alt="Foto Profil" 
+                         class="rounded-circle shadow border border-4 border-white bg-white" 
+                         width="96" height="96" 
+                         style="object-fit: cover;">
+                    <span class="position-absolute bottom-0 end-0 p-2 bg-success border border-2 border-white rounded-circle" title="Anggota Aktif">
+                        <span class="visually-hidden">Aktif</span>
+                    </span>
+                </div>
+
+                {{-- Name --}}
+                <h5 class="fw-bold text-dark mb-1 text-break" id="classmateModalName">
+                    <!-- Dynamic -->
+                </h5>
+
+                <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
+                    <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3 py-1 fw-semibold" style="font-size: 0.75rem;">
+                        <i class="fa-solid fa-graduation-cap me-1"></i> Pelajar
+                    </span>
+                    <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1 fw-semibold d-none" id="classmateModalMeBadge" style="font-size: 0.75rem;">
+                        <i class="fa-solid fa-user-check me-1"></i> Anda
+                    </span>
+                </div>
+
+                {{-- Tanggal Bergabung (Hanya info publik aman, TANPA EMAIL ATAU DATA PRIVASI) --}}
+                <div class="card border rounded-4 bg-light p-3 mb-3 text-center" style="border-color: #E2E8F0 !important;">
+                    <div class="d-flex align-items-center justify-content-center gap-1.5 text-muted small fw-semibold mb-1">
+                        <i class="fa-regular fa-calendar-check text-primary"></i>
+                        <span>Tanggal Bergabung ke Kelas</span>
+                    </div>
+                    <div class="fw-bold text-dark fs-6" id="classmateModalJoined">
+                        <!-- Dynamic -->
+                    </div>
+                    <small class="text-muted mt-1 d-block" style="font-size: 0.72rem;">
+                        Terdaftar aktif dalam pembelajaran kelas ini
+                    </small>
+                </div>
+
+                {{-- Action / Close --}}
+                <button type="button" class="btn btn-light rounded-pill w-100 py-2 fw-semibold text-secondary shadow-xs border" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-xmark me-1"></i> Tutup
+                </button>
             </div>
         </div>
     </div>
@@ -640,11 +786,102 @@
     background-color: var(--secondary) !important;
     color: var(--primary) !important;
 }
+
+.classmate-card-item .card {
+    transition: all 0.2s ease-in-out;
+}
+.classmate-card-item .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08) !important;
+    border-color: var(--primary) !important;
+}
+.classmate-card-item .card:hover .text-hover-primary {
+    color: var(--primary) !important;
+}
+.hover-scale {
+    transition: transform 0.2s ease;
+}
+.hover-scale:hover {
+    transform: scale(1.12);
+}
 </style>
 @endpush
 
 @push('scripts')
 <script>
+// Classmate Profile Modal & Search Engine
+window.openClassmateModal = function(name, avatar, joined, isMe) {
+    const modalEl = document.getElementById('classmateProfileModal');
+    if (!modalEl) return;
+
+    document.getElementById('classmateModalName').textContent = name || '-';
+    document.getElementById('classmateModalAvatar').src = avatar || 'https://ui-avatars.com/api/?name=User&size=120';
+    document.getElementById('classmateModalJoined').textContent = joined || '-';
+
+    const meBadge = document.getElementById('classmateModalMeBadge');
+    if (meBadge) {
+        if (isMe === true || isMe === 'true') {
+            meBadge.classList.remove('d-none');
+        } else {
+            meBadge.classList.add('d-none');
+        }
+    }
+
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modal.show();
+};
+
+window.filterClassmates = function() {
+    const input = document.getElementById('classmateSearchInput');
+    if (!input) return;
+    const query = input.value.toLowerCase().trim();
+    const items = document.querySelectorAll('.classmate-card-item');
+    const clearBtn = document.getElementById('clearClassmateSearch');
+    const noResults = document.getElementById('noClassmateSearchResults');
+
+    if (clearBtn) {
+        clearBtn.classList.toggle('d-none', query.length === 0);
+    }
+
+    let visibleCount = 0;
+    items.forEach(item => {
+        const name = item.getAttribute('data-name') || '';
+        if (name.includes(query)) {
+            item.classList.remove('d-none');
+            visibleCount++;
+        } else {
+            item.classList.add('d-none');
+        }
+    });
+
+    if (noResults) {
+        noResults.classList.toggle('d-none', visibleCount > 0 || items.length === 0);
+    }
+};
+
+window.clearClassmateSearch = function() {
+    const input = document.getElementById('classmateSearchInput');
+    if (input) {
+        input.value = '';
+        window.filterClassmates();
+        input.focus();
+    }
+};
+
+// Global click delegation for classmate trigger buttons
+document.addEventListener('click', function(e) {
+    const trigger = e.target.closest('.btn-show-classmate');
+    if (trigger) {
+        e.preventDefault();
+        e.stopPropagation();
+        const name = trigger.getAttribute('data-name');
+        const avatar = trigger.getAttribute('data-avatar');
+        const joined = trigger.getAttribute('data-joined');
+        const isMe = trigger.getAttribute('data-isme');
+        window.openClassmateModal(name, avatar, joined, isMe);
+    }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     // Local Time conversion
     const timeElements = document.querySelectorAll('.user-local-time');
@@ -823,7 +1060,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (window.confetti) {
                     window.confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
                 }
-                alert('🎉 Selamat! Anda telah selesai membaca seluruh halaman materi pembelajaran ini.');
+                if (nextBtnText) {
+                    nextBtnText.textContent = 'Selesai Dibaca! 🎉';
+                }
             }
         });
 

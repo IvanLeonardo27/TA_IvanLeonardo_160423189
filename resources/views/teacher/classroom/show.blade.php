@@ -8,7 +8,7 @@
      style="border-radius:24px; background: linear-gradient(135deg, {{ $classroom->banner_color ?? 'var(--primary)' }} 0%, color-mix(in srgb, {{ $classroom->banner_color ?? '#16382a' }} 70%, #000) 100%);">
     <div class="p-4 p-md-5 position-relative text-white" style="min-height:190px;">
         <i class="fa-solid fa-{{ $classroom->banner_icon ?? 'graduation-cap' }} position-absolute opacity-10"
-           style="font-size:15rem; right:-20px; bottom:-40px; color:#ffffff;"></i>
+           style="font-size:15rem; right:-20px; bottom:-40px; color:#ffffff; opacity:0.12 !important; pointer-events:none;"></i>
         
         <div class="position-relative" style="z-index:2;">
             @if($classroom->subject)
@@ -18,7 +18,7 @@
             </span>
             @endif
 
-            <h1 class="fw-bold display-6 mb-2 text-white" style="text-shadow:0 2px 10px rgba(0,0,0,.25);">{{ $classroom->name }}</h1>
+            <h1 class="fw-bold display-6 mb-2 text-white" style="color:#ffffff !important; text-shadow:0 2px 10px rgba(0,0,0,.45);">{{ $classroom->name }}</h1>
 
             <div class="d-flex align-items-center gap-2 mt-3 flex-wrap">
                 <div class="d-flex align-items-center gap-2 bg-dark bg-opacity-40 border border-white border-opacity-20 rounded-pill px-3 py-1.5 shadow-sm">

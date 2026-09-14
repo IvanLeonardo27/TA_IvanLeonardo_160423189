@@ -27,7 +27,7 @@
     @if($generalPosts->count() > 0 || $hasCustomGeneralTitle)
     <div class="accordion-item border-0 shadow-sm rounded-4 mb-3 overflow-hidden" style="border: 1px solid #E2E8F0 !important;">
         <h2 class="accordion-header" id="headingWeek0">
-            <button class="accordion-button rounded-4 bg-white py-3.5 px-4 fw-bold text-dark d-flex align-items-center justify-content-between" 
+            <button class="accordion-button rounded-4 bg-white py-3 px-3 px-sm-4 fw-bold text-dark d-flex align-items-center justify-content-between" 
                     type="button" data-bs-toggle="collapse" data-bs-target="#collapseWeek0" aria-expanded="true">
                 <div class="d-flex align-items-center gap-2.5">
                     <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 shadow-xs" style="width:36px; height:36px; background-color: #DCFCE7; color: #15803D;">
@@ -36,16 +36,16 @@
                     <span class="fs-6 fw-bold" style="color: #16402E;">{{ $classroom->getWeekTitle(0) }}</span>
                 </div>
                 @if($isTeacher)
-                <span class="btn btn-sm btn-light border rounded-pill text-dark ms-auto me-3 px-3 py-1 fw-semibold shadow-xs" 
+                <span class="btn btn-sm btn-light border rounded-pill text-dark ms-auto me-3 px-2.5 px-sm-3 py-1 fw-semibold shadow-xs text-nowrap" 
                       style="font-size: 0.78rem;"
                       onclick="event.stopPropagation(); openEditWeekTitleModal(0, '{{ addslashes($classroom->getWeekTitle(0)) }}')">
-                    <i class="fa-solid fa-pen-to-square me-1 text-warning"></i> Edit Judul Header
+                    <i class="fa-solid fa-pen-to-square me-1 text-warning"></i> <span class="d-none d-sm-inline">Edit Judul Header</span><span class="d-sm-none">Edit</span>
                 </span>
                 @endif
             </button>
         </h2>
         <div id="collapseWeek0" class="accordion-collapse collapse show" data-bs-parent="#courseWeeksAccordion">
-            <div class="accordion-body p-4 bg-white border-top">
+            <div class="accordion-body p-2.5 p-sm-3 p-md-4 bg-white border-top">
                 @include('classroom.partials._week_posts_list', ['posts' => $generalPosts])
 
                 @if($isTeacher)
@@ -78,23 +78,23 @@
         @endphp
         <div class="accordion-item border-0 shadow-sm rounded-4 mb-3 overflow-hidden" style="border: 1px solid #E2E8F0 !important;">
             <h2 class="accordion-header" id="headingWeek{{ $w }}">
-                <button class="accordion-button {{ $isExpanded ? '' : 'collapsed' }} rounded-4 bg-white py-3.5 px-4 fw-bold text-dark d-flex align-items-center justify-content-between" 
+                <button class="accordion-button {{ $isExpanded ? '' : 'collapsed' }} rounded-4 bg-white py-3 px-3 px-sm-4 fw-bold text-dark d-flex align-items-center justify-content-between" 
                         type="button" data-bs-toggle="collapse" data-bs-target="#collapseWeek{{ $w }}" aria-expanded="{{ $isExpanded ? 'true' : 'false' }}">
                     <div class="d-flex align-items-center gap-2.5">
                         <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 shadow-xs" style="width:36px; height:36px; background-color: #E0F2FE; color: #0284C7;">
                             <i class="fa-solid fa-calendar-week fs-6"></i>
                         </div>
-                        <span class="fs-6 fw-bold" style="color: #16402E;">{{ $displayHeaderTitle }}</span>
+                        <span class="fs-6 fw-bold text-truncate" style="color: #16402E; max-width: 170px;">{{ $displayHeaderTitle }}</span>
                     </div>
                     @if($isTeacher)
-                    <div class="d-flex align-items-center gap-2 ms-auto me-3">
-                        <span class="btn btn-sm btn-light border rounded-pill text-dark px-3 py-1 fw-semibold shadow-xs" 
+                    <div class="d-flex align-items-center gap-1.5 ms-auto me-2 me-sm-3">
+                        <span class="btn btn-sm btn-light border rounded-pill text-dark px-2.5 px-sm-3 py-1 fw-semibold shadow-xs text-nowrap" 
                               style="font-size: 0.78rem;"
                               onclick="event.stopPropagation(); openEditWeekTitleModal({{ $w }}, '{{ addslashes($rawTitle) }}')">
-                            <i class="fa-solid fa-pen-to-square me-1 text-warning"></i> Edit Judul Header
+                            <i class="fa-solid fa-pen-to-square me-1 text-warning"></i> <span class="d-none d-sm-inline">Edit Judul Header</span><span class="d-sm-none">Edit</span>
                         </span>
 
-                        <span class="btn btn-sm btn-light border rounded-circle text-danger p-0 d-inline-flex align-items-center justify-content-center shadow-xs hover-bg-danger"
+                        <span class="btn btn-sm btn-light border rounded-circle text-danger p-0 d-inline-flex align-items-center justify-content-center shadow-xs hover-bg-danger flex-shrink-0"
                               style="width: 29px; height: 29px; cursor: pointer; transition: all 0.2s;"
                               title="Hapus Week {{ $w }} Beserta Seluruh Isinya"
                               onclick="event.stopPropagation(); confirmDeleteWeek({{ $w }})">
@@ -105,7 +105,7 @@
                 </button>
             </h2>
             <div id="collapseWeek{{ $w }}" class="accordion-collapse collapse {{ $isExpanded ? 'show' : '' }}" data-bs-parent="#courseWeeksAccordion">
-                <div class="accordion-body p-4 bg-white border-top">
+                <div class="accordion-body p-2.5 p-sm-3 p-md-4 bg-white border-top">
                     @include('classroom.partials._week_posts_list', ['posts' => $weekPosts, 'weekNumber' => $w])
 
                     @if($isTeacher)

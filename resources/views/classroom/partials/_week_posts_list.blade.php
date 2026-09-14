@@ -53,22 +53,22 @@
                 }
             @endphp
 
-            <div class="card border-0 shadow-sm rounded-4 bg-white hover-elevate transition" style="border: 1px solid #E2E8F0 !important; padding: 1.25rem 1.5rem !important;">
-                <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap flex-md-nowrap">
-                    <div class="d-flex align-items-center gap-3 overflow-hidden">
+            <div class="card border-0 shadow-sm rounded-4 bg-white hover-elevate transition p-3 p-md-3.5" style="border: 1px solid #E2E8F0 !important;">
+                <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2.5 gap-md-3">
+                    <div class="d-flex align-items-start gap-2.5 gap-md-3 overflow-hidden w-100">
                         <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0 shadow-xs" 
-                             style="width: 44px; height: 44px; background-color: {{ $style['bg'] }}; color: {{ $style['color'] }};">
+                             style="width: 42px; height: 42px; background-color: {{ $style['bg'] }}; color: {{ $style['color'] }};">
                             <i class="fa-solid {{ $style['icon'] }} fs-5"></i>
                         </div>
 
-                        <div class="overflow-hidden">
-                            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                        <div class="overflow-hidden flex-grow-1" style="min-width: 0;">
+                            <div class="d-flex align-items-center gap-1.5 mb-1 flex-wrap">
                                 <span class="badge rounded-pill px-2.5 py-0.5 fw-semibold border {{ $style['badge'] }}" style="font-size: 0.7rem;">
                                     {{ $style['label'] }}
                                 </span>
                                 @if($isTeacherUser && !$post->is_published)
                                     <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-2.5 py-0.5 fw-semibold" style="font-size: 0.7rem;">
-                                        Hidden from students
+                                        Hidden
                                     </span>
                                 @endif
                                 <small class="text-muted" style="font-size: 0.72rem;">
@@ -91,7 +91,7 @@
 
                             @if($post->type === 'url' && $post->link_url)
                                 <div class="mt-0.5">
-                                    <a href="{{ $post->link_url }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-muted small text-truncate d-inline-block" style="max-width: 380px; font-size: 0.75rem;">
+                                    <a href="{{ $post->link_url }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-muted small text-truncate d-inline-block" style="max-width: 100%; font-size: 0.75rem;">
                                         <i class="fa-solid fa-link me-1 text-info"></i>{{ $post->link_url }}
                                     </a>
                                 </div>
@@ -131,48 +131,50 @@
                     </div>
 
                     {{-- Status / Action Button --}}
-                    <div class="d-flex align-items-center gap-2 flex-shrink-0 ms-auto ms-md-0">
+                    <div class="d-flex align-items-center justify-content-between justify-content-md-end gap-2 flex-wrap w-100 w-md-auto mt-2 mt-md-0 pt-2.5 pt-md-0 border-top border-md-0 border-light-subtle">
                         @if($isTeacherUser)
-                            {{-- Tombol Toggle Visibilitas untuk Pengajar --}}
-                            <form action="{{ route('teacher.classroom.post.toggle_visibility', $post) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 text-dark fw-semibold shadow-xs" style="font-size: 0.78rem;" title="{{ $post->is_published ? 'Sembunyikan dari siswa' : 'Tampilkan ke siswa' }}">
-                                    @if($post->is_published)
-                                        <i class="fa-regular fa-eye-slash me-1 text-muted"></i> Sembunyikan
-                                    @else
-                                        <i class="fa-regular fa-eye me-1 text-success"></i> Tampilkan
-                                    @endif
-                                </button>
-                            </form>
+                            <div class="d-flex align-items-center gap-1.5 flex-wrap">
+                                {{-- Tombol Toggle Visibilitas untuk Pengajar --}}
+                                <form action="{{ route('teacher.classroom.post.toggle_visibility', $post) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-light border rounded-pill px-2.5 px-sm-3 py-1.5 text-dark fw-semibold shadow-xs text-nowrap" style="font-size: 0.76rem;" title="{{ $post->is_published ? 'Sembunyikan dari siswa' : 'Tampilkan ke siswa' }}">
+                                        @if($post->is_published)
+                                            <i class="fa-regular fa-eye-slash me-1 text-muted"></i> Sembunyikan
+                                        @else
+                                            <i class="fa-regular fa-eye me-1 text-success"></i> Tampilkan
+                                        @endif
+                                    </button>
+                                </form>
 
-                            {{-- Tombol Aksi Kelola untuk Pengajar --}}
-                            @if($post->type === 'material')
-                                <a href="{{ route('teacher.classroom.material.show', [$post->classroom_id, $post->id]) }}" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold text-primary border-primary border hover-bg-primary" style="font-size: 0.78rem;">
-                                    Buka Materi <i class="fa-solid fa-arrow-right ms-1"></i>
-                                </a>
-                            @elseif($post->type === 'assignment')
-                                @if($post->assignment)
-                                <button type="button" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold text-danger border-danger border hover-bg-danger shadow-xs" style="font-size: 0.78rem;" data-bs-toggle="modal" data-bs-target="#submissionModal{{ $post->assignment->id }}">
-                                    Periksa Tugas <i class="fa-solid fa-folder-open ms-1"></i>
-                                </button>
+                                {{-- Tombol Aksi Kelola untuk Pengajar --}}
+                                @if($post->type === 'material')
+                                    <a href="{{ route('teacher.classroom.material.show', [$post->classroom_id, $post->id]) }}" class="btn btn-sm rounded-pill px-2.5 px-sm-3 py-1.5 fw-semibold text-primary border-primary border hover-bg-primary text-nowrap" style="font-size: 0.76rem;">
+                                        Buka Materi <i class="fa-solid fa-arrow-right ms-1"></i>
+                                    </a>
+                                @elseif($post->type === 'assignment')
+                                    @if($post->assignment)
+                                    <button type="button" class="btn btn-sm rounded-pill px-2.5 px-sm-3 py-1.5 fw-semibold text-danger border-danger border hover-bg-danger shadow-xs text-nowrap" style="font-size: 0.76rem;" data-bs-toggle="modal" data-bs-target="#submissionModal{{ $post->assignment->id }}">
+                                        Periksa Tugas <i class="fa-solid fa-folder-open ms-1"></i>
+                                    </button>
+                                    @endif
+                                @elseif($post->type === 'quiz' && $post->quiz)
+                                    <a href="{{ route('teacher.classroom.quiz.preview_submissions', $post->quiz->id) }}" class="btn btn-sm rounded-pill px-2.5 px-sm-3 py-1.5 fw-semibold text-success border-success border text-nowrap" style="font-size: 0.76rem;">
+                                        Hasil Quiz <i class="fa-solid fa-chart-pie ms-1"></i>
+                                    </a>
+                                @elseif($post->type === 'url' && $post->link_url)
+                                    <a href="{{ $post->link_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm rounded-pill px-2.5 px-sm-3 py-1.5 fw-semibold text-info border-info border hover-bg-info text-nowrap" style="font-size: 0.76rem;">
+                                        Buka Tautan <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
+                                    </a>
                                 @endif
-                            @elseif($post->type === 'quiz' && $post->quiz)
-                                <a href="{{ route('teacher.classroom.quiz.preview_submissions', $post->quiz->id) }}" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold text-success border-success border" style="font-size: 0.78rem;">
-                                    Hasil Quiz <i class="fa-solid fa-chart-pie ms-1"></i>
-                                </a>
-                            @elseif($post->type === 'url' && $post->link_url)
-                                <a href="{{ $post->link_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold text-info border-info border hover-bg-info" style="font-size: 0.78rem;">
-                                    Buka Tautan <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
-                                </a>
-                            @endif
+                            </div>
 
                             {{-- Tombol Hapus Postingan (Soft Delete) --}}
                             <form action="{{ route('teacher.classroom.post.destroy', [$post->classroom_id, $post->id]) }}" method="POST"
-                                  class="d-inline ms-1"
+                                  class="d-inline ms-auto ms-md-1"
                                   onsubmit="return confirm('Hapus postingan \'{{ addslashes($post->title ?? 'tanpa judul') }}\'? Postingan akan dipindahkan ke arsip sampah (Soft Delete).')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-light border rounded-circle text-danger shadow-xs hover-shadow d-inline-flex align-items-center justify-content-center"
+                                <button type="submit" class="btn btn-sm btn-light border rounded-circle text-danger shadow-xs hover-shadow d-inline-flex align-items-center justify-content-center flex-shrink-0"
                                         style="width: 32px; height: 32px; padding: 0;"
                                         title="Hapus Postingan">
                                     <i class="fa-solid fa-trash fa-xs"></i>
@@ -180,51 +182,53 @@
                             </form>
                         @else
                             {{-- Tampilan Aksi untuk Siswa --}}
-                            @if($post->type === 'material')
-                                <a href="{{ $targetUrl }}" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold text-primary border-primary border hover-bg-primary" style="font-size: 0.78rem;">
-                                    Buka Materi <i class="fa-solid fa-arrow-right ms-1"></i>
-                                </a>
-                            @elseif($post->type === 'assignment')
-                                @php $mySub = $post->assignment ? $post->assignment->mySubmission : null; @endphp
-                                @if($mySub)
-                                    <a href="{{ $targetUrl }}" class="btn btn-sm rounded-pill px-3 py-1.5 fw-bold text-white border-0 shadow-xs" style="font-size: 0.78rem; background-color: #10B981;" title="Lihat Tugas Terkumpul">
-                                        <i class="fa-solid fa-circle-check me-1"></i> Terkumpul
+                            <div class="d-flex align-items-center gap-1.5 flex-wrap ms-auto ms-md-0">
+                                @if($post->type === 'material')
+                                    <a href="{{ $targetUrl }}" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold text-primary border-primary border hover-bg-primary text-nowrap" style="font-size: 0.78rem;">
+                                        Buka Materi <i class="fa-solid fa-arrow-right ms-1"></i>
                                     </a>
-                                @else
-                                    <a href="{{ $targetUrl }}" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold text-danger border-danger border" style="font-size: 0.78rem;">
-                                        Kumpulkan <i class="fa-solid fa-upload ms-1"></i>
-                                    </a>
-                                @endif
-                            @elseif($post->type === 'quiz')
-                                @php
-                                    $myAttempt = $post->quiz ? $post->quiz->myAttempt : null;
-                                    $isSingleOnly = $post->quiz && ((int)$post->quiz->max_attempts === 1);
-                                @endphp
-                                @if($myAttempt)
-                                    <div class="d-flex align-items-center gap-1.5">
-                                        <a href="{{ route('student.classroom.quiz.result', [$post->quiz->id, $myAttempt->id]) }}" class="btn btn-sm rounded-pill px-3 py-1.5 fw-bold text-white border-0 shadow-xs btn-bouncy" style="font-size: 0.78rem; background-color: #10B981;" title="Lihat Hasil Evaluasi / Quiz">
-                                            <i class="fa-solid fa-circle-check me-1"></i> Telah Mengerjakan Quiz
+                                @elseif($post->type === 'assignment')
+                                    @php $mySub = $post->assignment ? $post->assignment->mySubmission : null; @endphp
+                                    @if($mySub)
+                                        <a href="{{ $targetUrl }}" class="btn btn-sm rounded-pill px-3 py-1.5 fw-bold text-white border-0 shadow-xs text-nowrap" style="font-size: 0.78rem; background-color: #10B981;" title="Lihat Tugas Terkumpul">
+                                            <i class="fa-solid fa-circle-check me-1"></i> Terkumpul
                                         </a>
-                                        @if(!$isSingleOnly)
-                                            <a href="{{ route('student.classroom.quiz.show', $post->quiz->id) }}" class="btn btn-sm btn-light border rounded-pill px-2.5 py-1.5 fw-semibold text-muted shadow-xs hover-shadow" style="font-size: 0.75rem;" title="Ulangi Kerjakan Kuis">
-                                                <i class="fa-solid fa-rotate-right"></i>
+                                    @else
+                                        <a href="{{ $targetUrl }}" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold text-danger border-danger border text-nowrap" style="font-size: 0.78rem;">
+                                            Kumpulkan <i class="fa-solid fa-upload ms-1"></i>
+                                        </a>
+                                    @endif
+                                @elseif($post->type === 'quiz')
+                                    @php
+                                        $myAttempt = $post->quiz ? $post->quiz->myAttempt : null;
+                                        $isSingleOnly = $post->quiz && ((int)$post->quiz->max_attempts === 1);
+                                    @endphp
+                                    @if($myAttempt)
+                                        <div class="d-flex align-items-center gap-1.5 flex-wrap">
+                                            <a href="{{ route('student.classroom.quiz.result', [$post->quiz->id, $myAttempt->id]) }}" class="btn btn-sm rounded-pill px-3 py-1.5 fw-bold text-white border-0 shadow-xs btn-bouncy text-nowrap" style="font-size: 0.78rem; background-color: #10B981;" title="Lihat Hasil Evaluasi / Quiz">
+                                                <i class="fa-solid fa-circle-check me-1"></i> Telah Mengerjakan Quiz
                                             </a>
-                                        @endif
-                                    </div>
-                                @else
-                                    <a href="{{ $targetUrl }}" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold text-success border-success border btn-bouncy" style="font-size: 0.78rem;">
-                                        Kerjakan <i class="fa-solid fa-pen-to-square ms-1"></i>
+                                            @if(!$isSingleOnly)
+                                                <a href="{{ route('student.classroom.quiz.show', $post->quiz->id) }}" class="btn btn-sm btn-light border rounded-pill px-2.5 py-1.5 fw-semibold text-muted shadow-xs hover-shadow flex-shrink-0" style="font-size: 0.75rem;" title="Ulangi Kerjakan Kuis">
+                                                    <i class="fa-solid fa-rotate-right"></i>
+                                                </a>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <a href="{{ $targetUrl }}" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold text-success border-success border btn-bouncy text-nowrap" style="font-size: 0.78rem;">
+                                            Kerjakan <i class="fa-solid fa-pen-to-square ms-1"></i>
+                                        </a>
+                                    @endif
+                                @elseif($post->type === 'url' && $post->link_url)
+                                    <a href="{{ $post->link_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold text-info border-info border hover-bg-info text-nowrap" style="font-size: 0.78rem;">
+                                        Buka Tautan <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
                                     </a>
+                                @else
+                                    <span class="badge bg-success-subtle text-success border border-success rounded-pill px-3 py-1.5 fw-semibold" style="font-size: 0.72rem;">
+                                        <i class="fa-solid fa-check me-1"></i> Tersedia
+                                    </span>
                                 @endif
-                            @elseif($post->type === 'url' && $post->link_url)
-                                <a href="{{ $post->link_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold text-info border-info border hover-bg-info" style="font-size: 0.78rem;">
-                                    Buka Tautan <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
-                                </a>
-                            @else
-                                <span class="badge bg-success-subtle text-success border border-success rounded-pill px-3 py-1.5 fw-semibold" style="font-size: 0.72rem;">
-                                    <i class="fa-solid fa-check me-1"></i> Tersedia
-                                </span>
-                            @endif
+                            </div>
                         @endif
                     </div>
                 </div>

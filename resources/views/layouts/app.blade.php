@@ -71,42 +71,59 @@
     </div>
 
     <!-- File Viewer Modal (Google Drive Style Previewer) -->
-    <div class="modal fade" id="fileViewerModal" tabindex="-1" aria-hidden="true" style="backdrop-filter: blur(8px); background: rgba(0,0,0,0.6);">
-        <div class="modal-dialog modal-xl modal-dialog-centered" style="height: 90vh;">
-            <div class="modal-content border-0 shadow-lg h-100 overflow-hidden" style="border-radius: 20px; background: #0f172a; color: #fff;">
-                <div class="modal-header border-0 bg-dark bg-opacity-50 px-4 py-3 text-white">
-                    <div class="d-flex align-items-center gap-3">
-                        <i id="previewFileIcon" class="fa-solid fa-file text-accent fs-4" aria-hidden="true"></i>
-                        <div>
-                            <h6 id="previewFileName" class="fw-bold mb-0 text-white text-truncate" style="max-width: 250px;">Document Preview</h6>
-                            <small id="previewFileSize" class="text-white-50" style="font-size: 0.75rem;"></small>
+    <div class="modal fade" id="fileViewerModal" tabindex="-1" aria-hidden="true" style="backdrop-filter: blur(10px); background: rgba(0,0,0,0.75);">
+        <div class="modal-dialog modal-xl modal-dialog-centered file-viewer-dialog">
+            <div class="modal-content border-0 shadow-2xl overflow-hidden file-viewer-content" style="background: #0f172a; color: #fff;">
+                {{-- Sticky Header (Always pinned at the top, guaranteed visible with prominent close button) --}}
+                <div class="modal-header border-0 bg-dark bg-opacity-75 px-3 px-md-4 py-2.5 text-white flex-shrink-0 d-flex align-items-center justify-content-between gap-2" style="border-bottom: 1px solid rgba(255,255,255,0.12) !important; z-index: 10;">
+                    <div class="d-flex align-items-center gap-2.5 overflow-hidden flex-grow-1 me-2" style="min-width: 0;">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 36px; height: 36px; background: rgba(255,255,255,0.1);">
+                            <i id="previewFileIcon" class="fa-solid fa-file text-accent fs-5" aria-hidden="true"></i>
+                        </div>
+                        <div class="overflow-hidden flex-grow-1" style="min-width: 0;">
+                            <h6 id="previewFileName" class="fw-bold mb-0 text-white text-truncate" style="font-size: 0.9rem;">Document Preview</h6>
+                            <small id="previewFileSize" class="text-white-50 d-block text-truncate" style="font-size: 0.72rem;"></small>
                         </div>
                     </div>
-                    <div class="d-flex align-items-center gap-2 ms-auto">
-                        <a id="previewDownloadBtn" href="#" download class="btn btn-outline-light btn-sm rounded-pill px-3 shadow-sm">
-                            <i class="fa-solid fa-download me-1" aria-hidden="true"></i> <span class="d-none d-sm-inline">Unduh</span>
+                    <div class="d-flex align-items-center gap-1.5 flex-shrink-0">
+                        <a id="previewDownloadBtn" href="#" download class="btn btn-outline-light btn-sm rounded-pill px-2.5 px-md-3 py-1.5 shadow-sm d-inline-flex align-items-center gap-1" title="Unduh Berkas">
+                            <i class="fa-solid fa-download" aria-hidden="true"></i> 
+                            <span class="d-none d-sm-inline">Unduh</span>
                         </a>
-                        <a id="previewExternalBtn" href="#" target="_blank" class="btn btn-light btn-sm rounded-pill px-3 shadow-sm text-dark fw-semibold">
-                            <i class="fa-solid fa-arrow-up-right-from-square me-1" aria-hidden="true"></i> <span class="d-none d-sm-inline">Tab Baru</span>
+                        <a id="previewExternalBtn" href="#" target="_blank" class="btn btn-light btn-sm rounded-pill px-2.5 px-md-3 py-1.5 shadow-sm text-dark fw-semibold d-inline-flex align-items-center gap-1" title="Buka di Tab Baru">
+                            <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> 
+                            <span class="d-none d-sm-inline">Tab Baru</span>
                         </a>
-                        <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn btn-danger btn-sm rounded-pill px-2.5 px-md-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1 shadow-sm ms-1" data-bs-dismiss="modal" title="Tutup Pratinjau">
+                            <i class="fa-solid fa-xmark"></i>
+                            <span>Tutup</span>
+                        </button>
                     </div>
                 </div>
-                <div class="modal-body p-0 d-flex align-items-center justify-content-center bg-black bg-opacity-40 position-relative overflow-hidden" id="previewContainer">
+
+                {{-- Body Container --}}
+                <div class="modal-body p-0 d-flex align-items-center justify-content-center bg-black bg-opacity-50 position-relative overflow-hidden flex-grow-1" id="previewContainer" style="min-height: 0;">
                     <div id="previewSpinner" class="spinner-border text-primary position-absolute" role="status">
                         <span class="visually-hidden">Memuat berkas...</span>
                     </div>
-                    <iframe id="previewIframe" src="" class="w-100 h-100 border-0 d-none"></iframe>
-                    <img id="previewImg" src="" class="img-fluid d-none" style="max-height: 80vh; object-fit: contain;" alt="Preview">
-                    <video id="previewVideo" controls class="w-100 d-none" style="max-height: 80vh;"></video>
-                    <div id="previewUnsupported" class="text-center p-5 d-none">
-                        <i class="fa-solid fa-file-circle-exclamation text-warning mb-3" style="font-size: 4rem;" aria-hidden="true"></i>
+                    <iframe id="previewIframe" src="" class="w-100 h-100 border-0 d-none" style="display: block;"></iframe>
+                    <img id="previewImg" src="" class="img-fluid d-none" style="max-height: 85vh; object-fit: contain;" alt="Preview">
+                    <video id="previewVideo" controls class="w-100 d-none" style="max-height: 85vh;"></video>
+                    <div id="previewUnsupported" class="text-center p-4 p-md-5 d-none">
+                        <i class="fa-solid fa-file-circle-exclamation text-warning mb-3" style="font-size: 3.5rem;" aria-hidden="true"></i>
                         <h5 class="fw-bold text-white mb-2">Pratinjau Tidak Tersedia</h5>
-                        <p class="text-white-50 mb-4">Format berkas ini tidak dapat dipratinjau langsung. Silakan unduh berkas untuk membukanya.</p>
-                        <a id="previewFallbackDownload" href="#" download class="btn btn-primary rounded-pill px-4">
+                        <p class="text-white-50 mb-4 small" style="max-width: 400px; margin: 0 auto;">Format berkas ini tidak dapat dipratinjau langsung di browser. Silakan unduh berkas untuk membukanya.</p>
+                        <a id="previewFallbackDownload" href="#" download class="btn btn-primary rounded-pill px-4 fw-semibold">
                             <i class="fa-solid fa-download me-2" aria-hidden="true"></i>Unduh Berkas Sekarang
                         </a>
                     </div>
+
+                    {{-- Floating Bottom Close Button (Specially for Mobile) --}}
+                    <button type="button" class="btn btn-danger rounded-pill shadow-lg position-absolute d-md-none file-viewer-floating-close"
+                            style="bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 20; padding: 7px 18px; font-weight: 700; font-size: 0.8rem; white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,0.6) !important;"
+                            data-bs-dismiss="modal">
+                        <i class="fa-solid fa-xmark me-1"></i> Tutup Layar Penuh
+                    </button>
                 </div>
             </div>
         </div>
@@ -233,6 +250,65 @@
             });
 
             resetAfkTimer();
+
+            // ─── GLOBAL BOOTSTRAP MODAL SYSTEM & MOBILE BACK BUTTON ───
+            // 1. Move all modals to document.body so they escape any parent stacking contexts
+            document.querySelectorAll('.modal').forEach(function(modalEl) {
+                if (modalEl.parentElement !== document.body) {
+                    document.body.appendChild(modalEl);
+                }
+            });
+
+            // 2. On show.bs.modal, guarantee the modal is on document.body and push history state
+            document.addEventListener('show.bs.modal', function(e) {
+                const modalEl = e.target;
+                if (modalEl && modalEl.classList.contains('modal') && modalEl.parentElement !== document.body) {
+                    document.body.appendChild(modalEl);
+                }
+
+                // Add history entry for mobile browser back button dismiss
+                if (!window.location.hash.includes('modal-active')) {
+                    window.history.pushState({ modalActive: true, modalId: modalEl.id }, '', window.location.href);
+                }
+            });
+
+            // 3. When a modal finishes closing, clean up orphaned backdrops and sync history
+            document.addEventListener('hidden.bs.modal', function(e) {
+                const anyOpenModal = document.querySelector('.modal.show');
+                if (!anyOpenModal) {
+                    document.querySelectorAll('.modal-backdrop').forEach(function(b) {
+                        b.remove();
+                    });
+                    document.body.classList.remove('modal-open');
+                    document.body.style.removeProperty('overflow');
+                    document.body.style.removeProperty('padding-right');
+
+                    if (window.history.state && window.history.state.modalActive) {
+                        window.history.back();
+                    }
+                }
+            });
+
+            // 4. Handle Mobile Browser / Gesture Back Button to dismiss active modal
+            window.addEventListener('popstate', function(e) {
+                const openModals = document.querySelectorAll('.modal.show');
+                if (openModals.length > 0) {
+                    openModals.forEach(function(m) {
+                        const bsInstance = bootstrap.Modal.getInstance(m);
+                        if (bsInstance) {
+                            bsInstance.hide();
+                        } else {
+                            m.classList.remove('show');
+                            m.style.display = 'none';
+                        }
+                    });
+                    document.querySelectorAll('.modal-backdrop').forEach(function(b) {
+                        b.remove();
+                    });
+                    document.body.classList.remove('modal-open');
+                    document.body.style.removeProperty('overflow');
+                }
+            });
         });
 
         // â”€â”€â”€ GLOBAL FILE PREVIEWER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -272,7 +348,8 @@
             const ext = (fileName.split('.').pop() || '').toLowerCase();
             
             if (['pdf'].includes(ext)) {
-                iframe.src = url;
+                const pdfTargetUrl = url.includes('#') ? url : (url + '#view=FitH');
+                iframe.src = pdfTargetUrl;
                 iframe.onload = function() { spinner.classList.add('d-none'); };
                 iframe.classList.remove('d-none');
             } else if (['ppt', 'pptx', 'doc', 'docx', 'xls', 'xlsx'].includes(ext)) {

@@ -40,21 +40,21 @@ class JavaneseScriptController extends Controller
     }
 
     /**
-     * Form tambah Aksara Jawa baru (Hanya Admin).
+     * Form tambah Aksara Jawa baru (Pengajar & Admin).
      */
     public function create()
     {
-        Gate::authorize('admin');
+        Gate::authorize('manage-materials');
         $categories = JavaneseScriptCategory::all();
         return view('teacher.javanese-script.create', compact('categories'));
     }
 
     /**
-     * Simpan data Aksara Jawa baru beserta contoh kalimatnya (Hanya Admin).
+     * Simpan data Aksara Jawa baru beserta contoh kalimatnya (Pengajar & Admin).
      */
     public function store(Request $request)
     {
-        Gate::authorize('admin');
+        Gate::authorize('manage-materials');
 
         $request->validate([
             'category_id' => 'required|exists:javanese_script_categories,id',
@@ -103,11 +103,11 @@ class JavaneseScriptController extends Controller
     }
 
     /**
-     * Form edit data Aksara Jawa & contoh kalimatnya (Hanya Admin).
+     * Form edit data Aksara Jawa & contoh kalimatnya (Pengajar & Admin).
      */
     public function edit($id)
     {
-        Gate::authorize('admin');
+        Gate::authorize('manage-materials');
 
         $script = JavaneseScriptDetail::with(['category', 'examples'])->findOrFail($id);
         $categories = JavaneseScriptCategory::all();
@@ -117,11 +117,11 @@ class JavaneseScriptController extends Controller
     }
 
     /**
-     * Update data Aksara Jawa & contoh kalimat (Hanya Admin).
+     * Update data Aksara Jawa & contoh kalimat (Pengajar & Admin).
      */
     public function update(Request $request, $id)
     {
-        Gate::authorize('admin');
+        Gate::authorize('manage-materials');
 
         $script = JavaneseScriptDetail::findOrFail($id);
 
@@ -177,11 +177,11 @@ class JavaneseScriptController extends Controller
     }
 
     /**
-     * Hapus data Aksara Jawa (Hanya Admin).
+     * Hapus data Aksara Jawa (Pengajar & Admin).
      */
     public function destroy($id)
     {
-        Gate::authorize('admin');
+        Gate::authorize('manage-materials');
 
         $script = JavaneseScriptDetail::findOrFail($id);
 

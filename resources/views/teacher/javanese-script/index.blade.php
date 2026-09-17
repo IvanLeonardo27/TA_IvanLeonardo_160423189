@@ -21,7 +21,7 @@
                 <i class="fa-solid fa-eye"></i>
                 <span>Tampilan Interaktif</span>
             </a>
-            @if(auth()->check() && auth()->user()->isAdmin())
+            @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isTeacher()))
             <a href="{{ route('teacher.javanese-script.create') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2">
                 <i class="fa-solid fa-plus"></i>
                 <span>Tambah Aksara Baru</span>
@@ -120,7 +120,7 @@
                             <span class="badge bg-light text-dark border px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
                                 {{ $item->category->name ?? 'Aksara' }}
                             </span>
-                            @if(auth()->check() && auth()->user()->isAdmin())
+                            @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isTeacher()))
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-light rounded-circle p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 28px; height: 28px;">
                                     <i class="fa-solid fa-ellipsis-vertical text-muted"></i>
@@ -170,7 +170,7 @@
 
                     <!-- Tombol Aksi Bawah -->
                     <div class="mt-3 pt-2 border-top">
-                        @if(auth()->check() && auth()->user()->isAdmin())
+                        @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isTeacher()))
                         <div class="d-flex gap-2">
                             <a href="{{ route('teacher.javanese-script.edit', $item->id) }}" class="btn btn-outline-warning btn-sm rounded-pill w-50 fw-semibold">
                                 <i class="fa-solid fa-pen-to-square me-1"></i> Edit

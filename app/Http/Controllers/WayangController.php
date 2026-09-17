@@ -77,21 +77,21 @@ class WayangController extends Controller
     }
 
     /**
-     * Form Tambah Tokoh Wayang Baru (Hanya Admin)
+     * Form Tambah Tokoh Wayang Baru (Pengajar & Admin)
      */
     public function create()
     {
-        \Illuminate\Support\Facades\Gate::authorize('admin');
+        \Illuminate\Support\Facades\Gate::authorize('manage-materials');
         $categories = WayangCategory::orderBy('name')->get();
         return view('wayang.create', compact('categories'));
     }
 
     /**
-     * Simpan Tokoh Wayang Baru (Hanya Admin)
+     * Simpan Tokoh Wayang Baru (Pengajar & Admin)
      */
     public function store(Request $request)
     {
-        \Illuminate\Support\Facades\Gate::authorize('admin');
+        \Illuminate\Support\Facades\Gate::authorize('manage-materials');
 
         $validated = $request->validate([
             'name'             => 'required|string|max:150',
@@ -120,21 +120,21 @@ class WayangController extends Controller
     }
 
     /**
-     * Form Edit Tokoh Wayang (Hanya Admin)
+     * Form Edit Tokoh Wayang (Pengajar & Admin)
      */
     public function edit(WayangCharacter $character)
     {
-        \Illuminate\Support\Facades\Gate::authorize('admin');
+        \Illuminate\Support\Facades\Gate::authorize('manage-materials');
         $categories = WayangCategory::orderBy('name')->get();
         return view('wayang.edit', compact('character', 'categories'));
     }
 
     /**
-     * Update Data Tokoh Wayang (Hanya Admin)
+     * Update Data Tokoh Wayang (Pengajar & Admin)
      */
     public function update(Request $request, WayangCharacter $character)
     {
-        \Illuminate\Support\Facades\Gate::authorize('admin');
+        \Illuminate\Support\Facades\Gate::authorize('manage-materials');
 
         $validated = $request->validate([
             'name'             => 'required|string|max:150',
@@ -166,11 +166,11 @@ class WayangController extends Controller
     }
 
     /**
-     * Hapus Tokoh Wayang (Hanya Admin)
+     * Hapus Tokoh Wayang (Pengajar & Admin)
      */
     public function destroy(WayangCharacter $character)
     {
-        \Illuminate\Support\Facades\Gate::authorize('admin');
+        \Illuminate\Support\Facades\Gate::authorize('manage-materials');
 
         $name = $character->name;
         if ($character->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($character->image_path)) {

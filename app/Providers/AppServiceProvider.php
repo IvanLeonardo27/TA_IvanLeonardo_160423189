@@ -56,6 +56,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('admin', fn(User $user) => $user->isAdmin());
         Gate::define('teacher', fn(User $user) => $user->isTeacher() || $user->isAdmin());
         Gate::define('student', fn(User $user) => $user->isStudent());
+        Gate::define('manage-materials', fn(User $user) => $user->isAdmin() || $user->isTeacher());
 
         // 3. Contextual Gates
         Gate::define('access-classroom', function (User $user, Classroom $classroom) {

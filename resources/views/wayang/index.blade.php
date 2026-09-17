@@ -90,9 +90,9 @@
             </h5>
         </div>
 
-        {{-- Filter Allegiance & Admin Actions --}}
+        {{-- Filter Allegiance & Admin/Teacher Actions --}}
         <div class="d-flex align-items-center gap-2 flex-wrap">
-            @if(auth()->check() && auth()->user()->isAdmin())
+            @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isTeacher()))
             <a href="{{ route('wayang.create') }}" class="btn btn-warning rounded-pill px-3 py-1.5 fw-bold shadow-xs text-dark d-inline-flex align-items-center gap-1.5 me-2" style="background:#FBBF24; border:none; font-size: 0.84rem;">
                 <i class="fa-solid fa-plus-circle"></i> Tambah Tokoh Wayang
             </a>
@@ -238,7 +238,7 @@
                         </a>
                     </div>
 
-                    @if(auth()->check() && auth()->user()->isAdmin())
+                    @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isTeacher()))
                     <div class="d-flex gap-1.5 pt-2 border-top mt-2">
                         <a href="{{ route('wayang.edit', $char) }}" class="btn btn-outline-primary btn-sm rounded-pill flex-grow-1 fw-bold" style="font-size: 0.76rem;">
                             <i class="fa-solid fa-pen-to-square me-1"></i> Edit

@@ -21,20 +21,20 @@ class MacapatController extends Controller
     }
 
     /**
-     * Form tambah kategori Macapat baru (Hanya Admin).
+     * Form tambah kategori Macapat baru (Pengajar & Admin).
      */
     public function create()
     {
-        Gate::authorize('admin');
+        Gate::authorize('manage-materials');
         return view('teacher.macapat.create');
     }
 
     /**
-     * Simpan kategori Macapat baru (Hanya Admin).
+     * Simpan kategori Macapat baru (Pengajar & Admin).
      */
     public function store(Request $request)
     {
-        Gate::authorize('admin');
+        Gate::authorize('manage-materials');
 
         $validated = $request->validate([
             'name' => 'required|string|max:50',
@@ -60,20 +60,20 @@ class MacapatController extends Controller
     }
 
     /**
-     * Form edit kategori Macapat (Hanya Admin).
+     * Form edit kategori Macapat (Pengajar & Admin).
      */
     public function edit(MacapatCategory $macapat)
     {
-        Gate::authorize('admin');
+        Gate::authorize('manage-materials');
         return view('teacher.macapat.edit', ['category' => $macapat]);
     }
 
     /**
-     * Update data kategori Macapat (Hanya Admin).
+     * Update data kategori Macapat (Pengajar & Admin).
      */
     public function update(Request $request, MacapatCategory $macapat)
     {
-        Gate::authorize('admin');
+        Gate::authorize('manage-materials');
 
         $validated = $request->validate([
             'name' => 'required|string|max:50',
@@ -90,11 +90,11 @@ class MacapatController extends Controller
     }
 
     /**
-     * Hapus kategori Macapat beserta seluruh baitnya (Hanya Admin).
+     * Hapus kategori Macapat beserta seluruh baitnya (Pengajar & Admin).
      */
     public function destroy(MacapatCategory $macapat)
     {
-        Gate::authorize('admin');
+        Gate::authorize('manage-materials');
 
         $macapat->delete();
 
@@ -102,11 +102,11 @@ class MacapatController extends Controller
     }
 
     /**
-     * Tambah bait (detail) pada tembang macapat (Hanya Admin).
+     * Tambah bait (detail) pada tembang macapat (Pengajar & Admin).
      */
     public function storeDetail(Request $request, MacapatCategory $macapat)
     {
-        Gate::authorize('admin');
+        Gate::authorize('manage-materials');
 
         $validated = $request->validate([
             'verse' => 'required|string',
@@ -129,11 +129,11 @@ class MacapatController extends Controller
     }
 
     /**
-     * Hapus bait (detail) tembang macapat (Hanya Admin).
+     * Hapus bait (detail) tembang macapat (Pengajar & Admin).
      */
     public function destroyDetail(MacapatDetail $detail)
     {
-        Gate::authorize('admin');
+        Gate::authorize('manage-materials');
 
         if ($detail->audio_path && Storage::disk('public')->exists($detail->audio_path)) {
             Storage::disk('public')->delete($detail->audio_path);

@@ -132,14 +132,14 @@
             @endforelse
         </div>
 
-        @if(auth()->check() && auth()->user()->isAdmin())
+        @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isTeacher()))
         @php
             if (!isset($allCategoriesList)) {
                 $allCategoriesList = \App\Models\VocabularyCategory::orderBy('name')->get();
             }
         @endphp
         <div class="d-flex gap-2 mt-3 pt-3 border-top justify-content-end align-items-center">
-            <small class="text-muted fw-bold me-auto"><i class="fa-solid fa-shield-halved text-primary me-1"></i> Kontrol Admin:</small>
+            <small class="text-muted fw-bold me-auto"><i class="fa-solid fa-shield-halved text-primary me-1"></i> Kontrol Pengajar & Admin:</small>
             <button type="button" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold shadow-xs text-dark" data-bs-toggle="modal" data-bs-target="#editVocabModal{{ $vocab->id }}">
                 <i class="fa-solid fa-pen-to-square me-1"></i> Edit Kosakata
             </button>

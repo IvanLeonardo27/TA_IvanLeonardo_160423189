@@ -9,7 +9,7 @@
         <p class="text-muted">Eksplorasi 11 Tembang Macapat beserta paugeran (Guru Gatra, Wilangan, Lagu) dan cakepan liriknya.</p>
     </div>
     <div class="col-md-4 text-md-end mt-3 mt-md-0">
-        @if(auth()->check() && auth()->user()->isAdmin())
+        @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isTeacher()))
         <a href="{{ route('teacher.macapat.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm">
             <i class="fa-solid fa-plus me-2"></i> Tambah Kategori Macapat
         </a>
@@ -52,7 +52,7 @@
                             <a href="{{ route('teacher.macapat.show', $item) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1">
                                 <i class="fa-solid fa-book-open me-1"></i> Detail & Bait
                             </a>
-                            @if(auth()->check() && auth()->user()->isAdmin())
+                            @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isTeacher()))
                             <a href="{{ route('teacher.macapat.edit', $item) }}" class="btn btn-sm btn-warning text-white rounded-pill px-3 me-1">
                                 <i class="fa-solid fa-pen"></i>
                             </a>

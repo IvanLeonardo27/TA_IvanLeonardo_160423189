@@ -6,6 +6,7 @@ use App\Models\Vocabulary;
 use App\Models\VocabularyCategory;
 use App\Models\VocabularyExample;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class VocabularyController extends Controller
 {
@@ -59,6 +60,8 @@ class VocabularyController extends Controller
 
     public function store(Request $request)
     {
+        Gate::authorize('manage-materials');
+
         $request->validate([
             'indonesian_word' => 'required|string|max:191',
             'javanese_ngoko'  => 'required|string|max:191',
@@ -100,6 +103,8 @@ class VocabularyController extends Controller
 
     public function update(Request $request, Vocabulary $vocabulary)
     {
+        Gate::authorize('manage-materials');
+
         $request->validate([
             'indonesian_word'    => 'required|string|max:191',
             'javanese_ngoko'     => 'required|string|max:191',
@@ -151,6 +156,8 @@ class VocabularyController extends Controller
 
     public function destroy(Vocabulary $vocabulary)
     {
+        Gate::authorize('manage-materials');
+
         $word = $vocabulary->indonesian_word;
         $vocabulary->examples()->delete();
         $vocabulary->delete();

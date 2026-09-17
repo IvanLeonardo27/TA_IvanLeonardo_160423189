@@ -138,15 +138,30 @@ Route::get('/macapat/{id}', [\App\Http\Controllers\MacapatController::class, 'sh
 Route::get('/aksara-jawa', [\App\Http\Controllers\JavaneseScriptController::class, 'index'])->name('javanese-script.index');
 Route::get('/aksara-jawa/{id}', [\App\Http\Controllers\JavaneseScriptController::class, 'show'])->name('javanese-script.show');
 
-// Halaman Pembelajaran & Pengelolaan Pewayangan (Katalog, Detail, & CRUD Admin)
-Route::get('/wayang', [\App\Http\Controllers\WayangController::class, 'index'])->name('wayang.index');
-Route::middleware(['auth'])->prefix('wayang')->name('wayang.')->group(function () {
-    Route::get('/create', [\App\Http\Controllers\WayangController::class, 'create'])->name('create');
-    Route::post('/', [\App\Http\Controllers\WayangController::class, 'store'])->name('store');
-    Route::get('/{character}/edit', [\App\Http\Controllers\WayangController::class, 'edit'])->name('edit');
-    Route::put('/{character}', [\App\Http\Controllers\WayangController::class, 'update'])->name('update');
-    Route::delete('/{character}', [\App\Http\Controllers\WayangController::class, 'destroy'])->name('destroy');
+// Rute Pewayangan untuk Pengajar & Admin (Teacher CRUD)
+Route::middleware(['auth'])->prefix('teacher/wayang')->name('teacher.wayang.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Teacher\WayangController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\Teacher\WayangController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\Teacher\WayangController::class, 'store'])->name('store');
+    Route::get('/{character}', [\App\Http\Controllers\Teacher\WayangController::class, 'show'])->name('show');
+    Route::get('/{character}/edit', [\App\Http\Controllers\Teacher\WayangController::class, 'edit'])->name('edit');
+    Route::put('/{character}', [\App\Http\Controllers\Teacher\WayangController::class, 'update'])->name('update');
+    Route::delete('/{character}', [\App\Http\Controllers\Teacher\WayangController::class, 'destroy'])->name('destroy');
 });
+
+// Halaman Pembelajaran Pewayangan (Katalog Publik/Siswa)
+Route::get('/wayang', [\App\Http\Controllers\WayangController::class, 'index'])->name('wayang.index');
+
+// Rute CRUD Pewayangan (Dikelola oleh Teacher\WayangController)
+Route::middleware(['auth'])->prefix('wayang')->name('wayang.')->group(function () {
+    Route::get('/create', [\App\Http\Controllers\Teacher\WayangController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\Teacher\WayangController::class, 'store'])->name('store');
+    Route::get('/{character}/edit', [\App\Http\Controllers\Teacher\WayangController::class, 'edit'])->name('edit');
+    Route::put('/{character}', [\App\Http\Controllers\Teacher\WayangController::class, 'update'])->name('update');
+    Route::delete('/{character}', [\App\Http\Controllers\Teacher\WayangController::class, 'destroy'])->name('destroy');
+});
+
+// Detail Tokoh Wayang (Evaluasi setelah /create)
 Route::get('/wayang/{character}', [\App\Http\Controllers\WayangController::class, 'show'])->name('wayang.show');
 
 Route::post('/translate', CustomerTranslateController::class)->name('customer.translate');

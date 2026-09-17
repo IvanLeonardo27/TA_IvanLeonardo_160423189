@@ -60,7 +60,7 @@
                     </a>
                 </li>
                 <li class="nav-item mb-1" data-tour="sidebar-wayang">
-                    <a href="{{ route('wayang.index') }}" class="nav-link {{ request()->is('*wayang*') ? 'active' : '' }}">
+                    <a href="{{ route('teacher.wayang.index') }}" class="nav-link {{ request()->is('*wayang*') ? 'active' : '' }}">
                         <i class="fa-solid fa-masks-theater"></i> Pewayangan
                     </a>
                 </li>
@@ -104,7 +104,7 @@
                     </a>
                 </li>
                 <li class="nav-item mb-1" data-tour="sidebar-wayang">
-                    <a href="{{ route('wayang.index') }}" class="nav-link {{ request()->is('*wayang*') ? 'active' : '' }}">
+                    <a href="{{ route('teacher.wayang.index') }}" class="nav-link {{ request()->is('*wayang*') ? 'active' : '' }}">
                         <i class="fa-solid fa-masks-theater"></i> Pewayangan
                     </a>
                 </li>

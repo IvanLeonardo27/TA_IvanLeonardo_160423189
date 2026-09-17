@@ -44,7 +44,11 @@
                             <h6 class="mb-1 fw-bold text-primary">{{ $item->name }}</h6>
                             <small class="text-muted">{{ Str::limit($item->watak ?? $item->description, 50) }}</small>
                         </td>
-                        <td><span class="badge bg-secondary">{{ $item->guru_gatra }} Gatra</span></td>
+                        <td>
+                            <span class="badge rounded-pill px-3 py-1.5 fw-bold shadow-xs" style="background: #EBF5F0; color: #16402E; border: 1px solid #B8D8C7; font-size: 0.84rem;">
+                                <i class="fa-solid fa-layer-group me-1" style="color: #2E7D32;"></i> {{ $item->guru_gatra }} Gatra
+                            </span>
+                        </td>
                         <td><code>{{ $item->guru_wilangan }}</code></td>
                         <td><code>{{ $item->guru_lagu }}</code></td>
                         <td><span class="badge bg-soft-blue text-primary">{{ $item->details_count }} Bait</span></td>

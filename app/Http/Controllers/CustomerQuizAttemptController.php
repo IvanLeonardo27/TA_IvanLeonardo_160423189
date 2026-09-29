@@ -13,16 +13,22 @@ class CustomerQuizAttemptController extends Controller
     public function __invoke(Request $request)
     {
         $data = $request->validate([
-            'quiz_set_id' => ['required', 'integer', 'exists:quiz_masters,id'],
-            'player_name' => ['nullable', 'string', 'max:80'],
-            'score' => ['required', 'integer', 'min:0', 'max:100'],
-            'answers' => ['nullable', 'array'],
-            'answers.*.question_id' => ['required', 'integer'],
+            'quiz_master_id' => ['nullable', 'integer', 'exists:quiz_masters,id'],
+            'quiz_set_id'    => ['nullable', 'integer', 'exists:quiz_masters,id'],
+            'player_name'    => ['nullable', 'string', 'max:80'],
+            'score'          => ['required', 'integer', 'min:0', 'max:100'],
+            'answers'        => ['nullable', 'array'],
+            'answers.*.question_id'  => ['required', 'integer'],
             'answers.*.chosen_index' => ['nullable', 'integer', 'min:0', 'max:50'],
-            'answers.*.time_ms' => ['nullable', 'integer', 'min:0', 'max:600000'],
+            'answers.*.time_ms'      => ['nullable', 'integer', 'min:0', 'max:600000'],
         ]);
 
-        $quizSet = QuizSet::query()->findOrFail($data['quiz_set_id']);
+        $quizMasterId = $data['quiz_master_id'] ?? ($data['quiz_set_id'] ?? null);
+        if (!$quizMasterId) {
+            return response()->json(['message' => 'quiz_master_id wajib diisi.'], 422);
+        }
+
+        $quizSet = QuizSet::query()->findOrFail($quizMasterId);
 
         $playerName = trim((string) ($data['player_name'] ?? ''));
         if ($playerName === '') {
@@ -31,7 +37,7 @@ class CustomerQuizAttemptController extends Controller
 
         if ($quizSet->max_attempts_per_player !== null) {
             $attemptCount = QuizAttempt::query()
-                ->where('quiz_set_id', $quizSet->id)
+                ->where('quiz_master_id', $quizSet->id)
                 ->where('player_name', $playerName)
                 ->count();
 
@@ -43,10 +49,10 @@ class CustomerQuizAttemptController extends Controller
         }
 
         $attempt = QuizAttempt::query()->create([
-            'quiz_set_id' => $quizSet->id,
-            'player_name' => $playerName,
-            'score' => (int) $data['score'],
-            'taken_at' => now(),
+            'quiz_master_id' => $quizSet->id,
+            'player_name'    => $playerName,
+            'score'          => (int) $data['score'],
+            'taken_at'       => now(),
         ]);
 
         $answers = $data['answers'] ?? [];
@@ -54,7 +60,7 @@ class CustomerQuizAttemptController extends Controller
             $questionIds = collect($answers)->pluck('question_id')->unique()->values();
 
             $questions = QuizQuestion::query()
-                ->where('quiz_set_id', $quizSet->id)
+                ->where('quiz_master_id', $quizSet->id)
                 ->whereIn('id', $questionIds)
                 ->get(['id', 'correct_index']);
 

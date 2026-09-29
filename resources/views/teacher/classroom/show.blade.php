@@ -11,12 +11,6 @@
            style="font-size:15rem; right:-20px; bottom:-40px; color:#ffffff; opacity:0.12 !important; pointer-events:none;"></i>
         
         <div class="position-relative" style="z-index:2;">
-            @if($classroom->subject)
-            <span class="badge rounded-pill px-3 py-1.5 mb-2 fw-bold bg-dark bg-opacity-40 text-white shadow-sm border border-white border-opacity-20"
-                  style="letter-spacing:.5px; font-size:.72rem;">
-                <i class="fa-solid fa-book-journal-whills me-1 text-accent"></i> {{ strtoupper($classroom->subject) }}
-            </span>
-            @endif
 
             <h1 class="fw-bold display-6 mb-2 text-white" style="color:#ffffff !important; text-shadow:0 2px 10px rgba(0,0,0,.45);">{{ $classroom->name }}</h1>
 

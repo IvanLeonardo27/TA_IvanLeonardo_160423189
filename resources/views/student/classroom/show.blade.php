@@ -17,11 +17,6 @@
 
         <div class="position-relative" style="z-index: 2;">
             <div class="d-flex align-items-center gap-2 mb-2">
-                @if($classroom->subject)
-                <span class="badge rounded-pill px-3 py-1.5 fw-bold bg-dark bg-opacity-40 text-white shadow-sm border border-white border-opacity-20" style="font-size: 0.72rem; letter-spacing: 0.5px;">
-                    <i class="fa-solid fa-book-journal-whills me-1 text-accent"></i> {{ strtoupper($classroom->subject) }}
-                </span>
-                @endif
                 <span class="badge rounded-pill px-3 py-1.5 fw-bold bg-accent text-white shadow-sm" style="font-size: 0.72rem;">
                     <i class="fa-solid fa-users me-1"></i> {{ $totalMembers }} Siswa
                 </span>
@@ -338,9 +333,6 @@
                                 ->where(function($q) use ($post) {
                                     if (!empty($post->quiz->id)) {
                                         $q->where('quiz_id', $post->quiz->id);
-                                    }
-                                    if (!empty($post->quiz->quiz_set_id)) {
-                                        $q->orWhere('quiz_set_id', $post->quiz->quiz_set_id);
                                     }
                                     if (!empty($post->quiz->quiz_master_id)) {
                                         $q->orWhere('quiz_master_id', $post->quiz->quiz_master_id);

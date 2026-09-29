@@ -87,6 +87,18 @@ Route::middleware(['auth'])->prefix('teacher/classroom')->name('teacher.classroo
     Route::get('/{classroom}/material/{post}', [TeacherClassroomController::class, 'showMaterial'])->name('material.show');
     Route::get('/quizzes/{quiz}/export-excel', [TeacherClassroomPostController::class, 'exportQuizAnswersExcel'])->name('quiz.export_excel');
     Route::get('/quizzes/{quiz}/preview', [TeacherClassroomPostController::class, 'previewQuizSubmissions'])->name('quiz.preview_submissions');
+    Route::patch('/quizzes/{quiz}/toggle-review', [TeacherClassroomPostController::class, 'toggleQuizReview'])->name('quiz.toggle_review');
+});
+
+// Rute Bank Soal untuk Pengajar (Teacher & Admin)
+Route::middleware(['auth'])->prefix('teacher/question-bank')->name('teacher.question-bank.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Teacher\QuestionBankController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\Teacher\QuestionBankController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\Teacher\QuestionBankController::class, 'store'])->name('store');
+    Route::get('/api/list', [\App\Http\Controllers\Teacher\QuestionBankController::class, 'apiList'])->name('api.list');
+    Route::get('/{question}/edit', [\App\Http\Controllers\Teacher\QuestionBankController::class, 'edit'])->name('edit');
+    Route::put('/{question}', [\App\Http\Controllers\Teacher\QuestionBankController::class, 'update'])->name('update');
+    Route::delete('/{question}', [\App\Http\Controllers\Teacher\QuestionBankController::class, 'destroy'])->name('destroy');
 });
 
 // Rute Kelas untuk Pelajar (Student)
@@ -105,6 +117,7 @@ Route::middleware(['auth'])->prefix('student/classroom')->name('student.classroo
     Route::get('/quizzes/{quiz}', [\App\Http\Controllers\Student\ClassroomQuizController::class, 'show'])->name('quiz.show');
     Route::post('/quizzes/{quiz}', [\App\Http\Controllers\Student\ClassroomQuizController::class, 'submit'])->name('quiz.submit');
     Route::get('/quizzes/{quiz}/result/{attempt?}', [\App\Http\Controllers\Student\ClassroomQuizController::class, 'result'])->name('quiz.result');
+    Route::get('/quizzes/{quiz}/review/{attempt?}', [\App\Http\Controllers\Student\ClassroomQuizController::class, 'review'])->name('quiz.review');
 });
 
 // Rute Tembang Macapat untuk Pengajar (Teacher)
@@ -125,6 +138,7 @@ Route::middleware(['auth'])->prefix('teacher/javanese-script')->name('teacher.ja
     Route::get('/', [\App\Http\Controllers\Teacher\JavaneseScriptController::class, 'index'])->name('index');
     Route::get('/create', [\App\Http\Controllers\Teacher\JavaneseScriptController::class, 'create'])->name('create');
     Route::post('/', [\App\Http\Controllers\Teacher\JavaneseScriptController::class, 'store'])->name('store');
+    Route::get('/{id}', [\App\Http\Controllers\Teacher\JavaneseScriptController::class, 'show'])->name('show');
     Route::get('/{id}/edit', [\App\Http\Controllers\Teacher\JavaneseScriptController::class, 'edit'])->name('edit');
     Route::put('/{id}', [\App\Http\Controllers\Teacher\JavaneseScriptController::class, 'update'])->name('update');
     Route::delete('/{id}', [\App\Http\Controllers\Teacher\JavaneseScriptController::class, 'destroy'])->name('destroy');

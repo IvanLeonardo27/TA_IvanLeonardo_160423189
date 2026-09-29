@@ -56,9 +56,6 @@ class ClassroomQuizPolicy
         if ((int)$quiz->max_attempts === 1) {
             $hasAttempt = QuizAttempt::where(function($q) use ($quiz) {
                     $q->where('quiz_id', $quiz->id);
-                    if (!empty($quiz->quiz_set_id)) {
-                        $q->orWhere('quiz_set_id', $quiz->quiz_set_id);
-                    }
                     if (!empty($quiz->quiz_master_id)) {
                         $q->orWhere('quiz_master_id', $quiz->quiz_master_id);
                     }

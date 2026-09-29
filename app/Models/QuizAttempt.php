@@ -15,6 +15,7 @@ class QuizAttempt extends Model
 
     protected $fillable = [
         'quiz_id',
+        'quiz_master_id',
         'quiz_set_id',
         'user_id',
         'student_id',
@@ -54,14 +55,24 @@ class QuizAttempt extends Model
         return "{$mins} M {$remSecs} D";
     }
 
+    public function getQuizSetIdAttribute()
+    {
+        return $this->quiz_master_id;
+    }
+
+    public function setQuizSetIdAttribute($value)
+    {
+        $this->attributes['quiz_master_id'] = $value;
+    }
+
     public function quizSet(): BelongsTo
     {
-        return $this->belongsTo(QuizSet::class, 'quiz_set_id');
+        return $this->belongsTo(QuizMaster::class, 'quiz_master_id');
     }
 
     public function quizMaster(): BelongsTo
     {
-        return $this->belongsTo(QuizSet::class, 'quiz_set_id');
+        return $this->belongsTo(QuizMaster::class, 'quiz_master_id');
     }
 
     public function quiz(): BelongsTo

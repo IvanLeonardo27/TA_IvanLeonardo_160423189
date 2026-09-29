@@ -113,7 +113,7 @@ class SinauBasaSeeder extends Seeder
 
         foreach ($questionsAngka as $q) {
             QuizQuestion::firstOrCreate(
-                ['quiz_set_id' => $quizAngka->id, 'question' => $q['question']],
+                ['quiz_master_id' => $quizAngka->id, 'question' => $q['question']],
                 [
                     'options' => $q['options'],
                     'correct_index' => $q['correct_index'],
@@ -137,7 +137,7 @@ class SinauBasaSeeder extends Seeder
 
         foreach ($questionsHewan as $q) {
             QuizQuestion::firstOrCreate(
-                ['quiz_set_id' => $quizHewan->id, 'question' => $q['question']],
+                ['quiz_master_id' => $quizHewan->id, 'question' => $q['question']],
                 [
                     'options' => $q['options'],
                     'correct_index' => $q['correct_index'],
@@ -159,19 +159,19 @@ class SinauBasaSeeder extends Seeder
         // Attempts (sample)
         $now = Carbon::now();
         QuizAttempt::firstOrCreate(
-            ['quiz_set_id' => $quizAngka->id, 'player_name' => 'Rizky Ramadhan', 'taken_at' => $now->copy()->subDays(1)],
+            ['quiz_master_id' => $quizAngka->id, 'player_name' => 'Rizky Ramadhan', 'taken_at' => $now->copy()->subDays(1)],
             ['score' => 100]
         );
         QuizAttempt::firstOrCreate(
-            ['quiz_set_id' => $quizHewan->id, 'player_name' => 'Siti Aminah', 'taken_at' => $now->copy()->subDays(2)],
+            ['quiz_master_id' => $quizHewan->id, 'player_name' => 'Siti Aminah', 'taken_at' => $now->copy()->subDays(2)],
             ['score' => 80]
         );
         QuizAttempt::firstOrCreate(
-            ['quiz_set_id' => $quizAngka->id, 'player_name' => 'Anindita Putri', 'taken_at' => $now->copy()->subDays(3)],
+            ['quiz_master_id' => $quizAngka->id, 'player_name' => 'Anindita Putri', 'taken_at' => $now->copy()->subDays(3)],
             ['score' => 100]
         );
         QuizAttempt::firstOrCreate(
-            ['quiz_set_id' => $quizAngka->id, 'player_name' => 'Budi Santoso', 'taken_at' => $now->copy()->subDays(4)],
+            ['quiz_master_id' => $quizAngka->id, 'player_name' => 'Budi Santoso', 'taken_at' => $now->copy()->subDays(4)],
             ['score' => 98]
         );
     }

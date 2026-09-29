@@ -72,10 +72,6 @@
                 </div>
 
                 <div class="position-relative" style="z-index:1;">
-                    <span class="badge rounded-pill mb-2 px-3 py-1 fw-semibold"
-                          style="background:rgba(255,255,255,0.25); font-size:.7rem; letter-spacing:.5px;">
-                        {{ strtoupper($classroom->subject ?? 'Bahasa Jawa') }}
-                    </span>
                     <h4 class="fw-bold mb-0 text-white text-truncate" style="color:#ffffff !important; text-shadow:0 1px 4px rgba(0,0,0,.35);">
                         {{ $classroom->name }}
                     </h4>

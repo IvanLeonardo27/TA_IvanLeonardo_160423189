@@ -28,9 +28,6 @@ class ClassroomQuizController extends Controller
             $existingAttempt = QuizAttempt::query()
                 ->where(function($q) use ($quiz) {
                     $q->where('quiz_id', $quiz->id);
-                    if (!empty($quiz->quiz_set_id)) {
-                        $q->orWhere('quiz_set_id', $quiz->quiz_set_id);
-                    }
                     if (!empty($quiz->quiz_master_id)) {
                         $q->orWhere('quiz_master_id', $quiz->quiz_master_id);
                     }
@@ -48,18 +45,8 @@ class ClassroomQuizController extends Controller
             }
         }
 
-        // Ambil daftar soal pilihan ganda yang dibuat pengajar di kuis ini
-        $questions = QuizQuestion::query()
-            ->where(function($q) use ($quiz) {
-                if (!empty($quiz->quiz_set_id)) {
-                    $q->where('quiz_set_id', $quiz->quiz_set_id);
-                }
-                if (!empty($quiz->quiz_master_id)) {
-                    $q->orWhere('quiz_master_id', $quiz->quiz_master_id);
-                }
-            })
-            ->where('is_active', true)
-            ->get();
+        // Ambil daftar soal pilihan ganda kuis
+        $questions = $quiz->getQuestionsList();
 
         return view('student.classroom.quiz_take', compact('quiz', 'post', 'classroom', 'quizSet', 'questions'));
     }
@@ -70,30 +57,31 @@ class ClassroomQuizController extends Controller
         Gate::authorize('attempt', $quiz);
 
         $quizSet   = $quiz->quizSet;
-        $questions = QuizQuestion::query()
-            ->where(function($q) use ($quiz) {
-                if (!empty($quiz->quiz_set_id)) {
-                    $q->where('quiz_set_id', $quiz->quiz_set_id);
-                }
-                if (!empty($quiz->quiz_master_id)) {
-                    $q->orWhere('quiz_master_id', $quiz->quiz_master_id);
-                }
-            })
-            ->where('is_active', true)
-            ->get();
+        $questions = $quiz->getQuestionsList();
 
         $userAnswers = $request->input('answers', []);
         $totalQuestions = $questions->count();
-        $correctCount   = 0;
+        $maxScore = (float) ($quiz->max_score ?? 100);
+        $questionWeight = $totalQuestions > 0 ? ($maxScore / $totalQuestions) : 0;
+        $totalEarnedPoints = 0;
 
-        foreach ($questions as $index => $q) {
-            $userAnsIndex = isset($userAnswers[$q->id]) ? (int)$userAnswers[$q->id] : null;
-            if ($userAnsIndex !== null && $userAnsIndex === (int)$q->correct_index) {
-                $correctCount++;
+        foreach ($questions as $q) {
+            $userAnsIndex = isset($userAnswers[$q->id]) && $userAnswers[$q->id] !== '' ? (int)$userAnswers[$q->id] : null;
+            $optWeights   = $q->option_percentages ?? [];
+
+            $pct = 0.0;
+            if ($userAnsIndex !== null) {
+                if (!empty($optWeights) && isset($optWeights[$userAnsIndex])) {
+                    $pct = (float) $optWeights[$userAnsIndex];
+                } else {
+                    $pct = ($userAnsIndex === (int)$q->correct_index) ? 100.0 : 0.0;
+                }
             }
+
+            $totalEarnedPoints += ($questionWeight * ($pct / 100.0));
         }
 
-        $calculatedScore = $totalQuestions > 0 ? round(($correctCount / $totalQuestions) * ($quiz->max_score ?? 100)) : 0;
+        $calculatedScore = $totalQuestions > 0 ? (int) round($totalEarnedPoints) : 0;
 
         $startedAt = $request->filled('started_at') ? Carbon::parse($request->input('started_at')) : now()->subMinutes(1);
         $takenAt   = now();
@@ -102,8 +90,7 @@ class ClassroomQuizController extends Controller
         // Simpan hasil percobaaan kuis ke database
         $attempt = QuizAttempt::create([
             'quiz_id'            => $quiz->id,
-            'quiz_set_id'        => $quiz->quiz_set_id,
-            'quiz_master_id'     => $quiz->quiz_master_id ?? $quiz->quiz_set_id,
+            'quiz_master_id'     => $quiz->quiz_master_id,
             'user_id'            => Auth::id(),
             'student_id'         => Auth::id(),
             'player_name'        => Auth::user()?->name ?? 'Siswa',
@@ -115,12 +102,23 @@ class ClassroomQuizController extends Controller
         ]);
 
         // Simpan rincian jawaban masing-masing soal ke tabel quiz_answers
-        $pointsPerQuestion = $totalQuestions > 0 ? round(($quiz->max_score ?? 100) / $totalQuestions) : 0;
+        $pointsPerQuestion = $totalQuestions > 0 ? ($maxScore / $totalQuestions) : 0;
         foreach ($questions as $q) {
             $userAnsIndex = isset($userAnswers[$q->id]) && $userAnswers[$q->id] !== '' ? (int)$userAnswers[$q->id] : null;
-            $isCorrect = ($userAnsIndex !== null && $userAnsIndex === (int)$q->correct_index);
+            $optWeights   = $q->option_percentages ?? [];
+
+            $pct = 0.0;
+            if ($userAnsIndex !== null) {
+                if (!empty($optWeights) && isset($optWeights[$userAnsIndex])) {
+                    $pct = (float) $optWeights[$userAnsIndex];
+                } else {
+                    $pct = ($userAnsIndex === (int)$q->correct_index) ? 100.0 : 0.0;
+                }
+            }
+
+            $isCorrect      = ($pct >= 100.0);
             $selectedOption = $userAnsIndex !== null ? chr(65 + $userAnsIndex) : '-';
-            $scoreEarned = $isCorrect ? $pointsPerQuestion : 0;
+            $scoreEarned    = (int) round($pointsPerQuestion * ($pct / 100.0));
 
             QuizAnswer::create([
                 'attempt_id'      => $attempt->id,
@@ -149,9 +147,6 @@ class ClassroomQuizController extends Controller
             $attempt = QuizAttempt::query()
                 ->where(function($q) use ($quiz) {
                     $q->where('quiz_id', $quiz->id);
-                    if (!empty($quiz->quiz_set_id)) {
-                        $q->orWhere('quiz_set_id', $quiz->quiz_set_id);
-                    }
                     if (!empty($quiz->quiz_master_id)) {
                         $q->orWhere('quiz_master_id', $quiz->quiz_master_id);
                     }
@@ -171,5 +166,51 @@ class ClassroomQuizController extends Controller
         }
 
         return view('student.classroom.quiz_result', compact('quiz', 'post', 'classroom', 'attempt'));
+    }
+
+    /** Menampilkan halaman pembahasan & rincian jawaban soal kuis */
+    public function review(ClassroomQuiz $quiz, ?QuizAttempt $attempt = null)
+    {
+        Gate::authorize('view', $quiz);
+
+        $post      = $quiz->post;
+        $classroom = $post?->classroom;
+
+        if (!$attempt) {
+            $attempt = QuizAttempt::query()
+                ->where(function($q) use ($quiz) {
+                    $q->where('quiz_id', $quiz->id);
+                    if (!empty($quiz->quiz_master_id)) {
+                        $q->orWhere('quiz_master_id', $quiz->quiz_master_id);
+                    }
+                })
+                ->where(function($q) {
+                    $q->where('user_id', Auth::id())
+                      ->orWhere('student_id', Auth::id());
+                })
+                ->latest('id')
+                ->firstOrFail();
+        } else {
+            // Pastikan attempt ini milik user yang bersangkutan (atau pengajar kelas / admin)
+            $isOwner = ($attempt->user_id === Auth::id() || $attempt->student_id === Auth::id());
+            if (!$isOwner && $classroom?->teacher_id !== Auth::id() && !Auth::user()->isAdmin()) {
+                abort(403);
+            }
+        }
+
+        // Cek izin akses pembahasan dari pengajar (Kecuali jika yang melihat adalah guru pemilik kelas / admin)
+        $isTeacherOrAdmin = (Auth::id() === $classroom?->teacher_id || Auth::user()->isAdmin());
+        if (!$quiz->show_explanation && !$isTeacherOrAdmin) {
+            return redirect()->route('student.classroom.quiz.result', [$quiz, $attempt])
+                ->with('error', 'Pembahasan kuis ini belum dibuka oleh pengajar.');
+        }
+
+        // Ambil daftar soal pilihan ganda kuis
+        $questions = $quiz->getQuestionsList();
+
+        // Ambil mapping jawaban siswa [question_id => QuizAnswer]
+        $answers = $attempt->answers->keyBy('question_id');
+
+        return view('student.classroom.quiz_review', compact('quiz', 'post', 'classroom', 'attempt', 'questions', 'answers'));
     }
 }

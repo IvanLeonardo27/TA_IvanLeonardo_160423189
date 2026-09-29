@@ -203,10 +203,6 @@
                             <span class="text-white fw-semibold small text-truncate d-block">{{ $classroom->teacher->name }}</span>
                         </div>
                     </div>
-
-                    <span class="badge rounded-pill px-2.5 py-1" style="background:rgba(255,255,255,.2); font-size:.68rem; letter-spacing:.4px;">
-                        {{ strtoupper($classroom->subject ?? 'Bahasa Jawa') }}
-                    </span>
                 </div>
 
                 <h4 class="fw-bold mb-1 text-white text-truncate position-relative" style="z-index:1; color:#ffffff !important; text-shadow:0 1px 4px rgba(0,0,0,.35);">

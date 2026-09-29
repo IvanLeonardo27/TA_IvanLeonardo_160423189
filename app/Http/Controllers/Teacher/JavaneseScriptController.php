@@ -67,6 +67,7 @@ class JavaneseScriptController extends Controller
             'javanese_script_text' => 'nullable|string',
             'javanese_latin_text' => 'nullable|string',
             'indonesian_text' => 'nullable|string',
+            'syllable_breakdown' => 'nullable|string',
         ]);
 
         DB::beginTransaction();
@@ -86,11 +87,20 @@ class JavaneseScriptController extends Controller
             ]);
 
             if ($request->filled('javanese_script_text') || $request->filled('javanese_latin_text') || $request->filled('indonesian_text')) {
+                $syllables = null;
+                if ($request->filled('syllable_breakdown')) {
+                    $decoded = json_decode($request->syllable_breakdown, true);
+                    if (is_array($decoded) && count($decoded) > 0) {
+                        $syllables = $decoded;
+                    }
+                }
+
                 JavaneseScriptExample::create([
                     'script_detail_id' => $script->id,
                     'javanese_script_text' => $request->javanese_script_text ?? $script->name,
                     'javanese_latin_text' => $request->javanese_latin_text ?? $script->latin,
                     'indonesian_text' => $request->indonesian_text ?? 'Contoh kalimat aksara ' . $script->name,
+                    'syllable_breakdown' => $syllables,
                 ]);
             }
 
@@ -100,6 +110,14 @@ class JavaneseScriptController extends Controller
             DB::rollBack();
             return back()->with('error', 'Gagal menambahkan aksara: ' . $e->getMessage())->withInput();
         }
+    }
+
+    /**
+     * Tampilkan detail materi Aksara Jawa (Pengajar & Admin).
+     */
+    public function show($id)
+    {
+        return redirect()->route('javanese-script.show', $id);
     }
 
     /**
@@ -136,6 +154,7 @@ class JavaneseScriptController extends Controller
             'javanese_script_text' => 'nullable|string',
             'javanese_latin_text' => 'nullable|string',
             'indonesian_text' => 'nullable|string',
+            'syllable_breakdown' => 'nullable|string',
         ]);
 
         DB::beginTransaction();
@@ -158,12 +177,21 @@ class JavaneseScriptController extends Controller
             $script->update($data);
 
             if ($request->filled('javanese_script_text') || $request->filled('javanese_latin_text') || $request->filled('indonesian_text')) {
+                $syllables = null;
+                if ($request->filled('syllable_breakdown')) {
+                    $decoded = json_decode($request->syllable_breakdown, true);
+                    if (is_array($decoded) && count($decoded) > 0) {
+                        $syllables = $decoded;
+                    }
+                }
+
                 JavaneseScriptExample::updateOrCreate(
                     ['script_detail_id' => $script->id],
                     [
                         'javanese_script_text' => $request->javanese_script_text ?? $script->name,
                         'javanese_latin_text' => $request->javanese_latin_text ?? $script->latin,
                         'indonesian_text' => $request->indonesian_text ?? 'Contoh kalimat aksara ' . $script->name,
+                        'syllable_breakdown' => $syllables,
                     ]
                 );
             }

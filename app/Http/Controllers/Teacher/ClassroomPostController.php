@@ -39,6 +39,7 @@ class ClassroomPostController extends Controller
             'duration_minutes'    => 'nullable|integer|min:1|max:300',
             'max_score'           => 'nullable|integer|min:0|max:1000',
             'show_score'          => 'nullable|boolean',
+            'show_explanation'    => 'nullable|boolean',
             'max_attempts'        => 'nullable|integer|in:0,1',
             'instructions'        => 'nullable|string',
         ]);
@@ -158,56 +159,118 @@ class ClassroomPostController extends Controller
                 'is_active'          => true,
             ]);
 
-            // 2. Simpan setiap soal pilihan ganda yang diinput pengajar
-            $questionsInput = $request->input('questions', []);
-            $checkpointSlide = (int) $request->input('checkpoint_slide', 1);
+            // 2. Simpan atau tautkan butir-butir soal pilihan ganda
+            $orderNum = 1;
 
+            // 2a. Tautkan soal yang dipilih dari Bank Soal
+            $selectedBankIds = $request->input('selected_question_ids', []);
+            if (!empty($selectedBankIds) && is_array($selectedBankIds)) {
+                $bankQuestions = \App\Models\QuizQuestion::query()
+                    ->whereIn('id', $selectedBankIds)
+                    ->when(!\Illuminate\Support\Facades\Auth::user()->isAdmin(), function($q) {
+                        $q->where('teacher_id', \Illuminate\Support\Facades\Auth::id());
+                    })
+                    ->get();
+
+                foreach ($bankQuestions as $bq) {
+                    \Illuminate\Support\Facades\DB::table('quiz_question_items')->updateOrInsert(
+                        [
+                            'quiz_master_id'   => $quizSet->id,
+                            'quiz_question_id' => $bq->id,
+                        ],
+                        [
+                            'order_number' => $orderNum++,
+                            'created_at'   => now(),
+                            'updated_at'   => now(),
+                        ]
+                    );
+                }
+            }
+
+            // 2b. Simpan soal baru yang diketik secara manual oleh pengajar
+            $questionsInput = $request->input('questions', []);
             if (is_array($questionsInput)) {
-                foreach ($questionsInput as $qData) {
+                foreach ($questionsInput as $qIndex => $qData) {
                     if (empty($qData['text'])) continue;
 
                     $optionsRaw    = $qData['options'] ?? [];
                     $correctLetter = $qData['correct'] ?? 'A';
+                    $pctsRaw       = $qData['percentages'] ?? [];
                     
-                    // Format options ke array dan cari correct_index (0 untuk A, 1 untuk B, dst)
-                    $optionsList = [];
-                    $correctIndex = 0;
+                    // Format options ke array, simpan bobot persentase, dan tentukan correct_index (nilai tertinggi)
+                    $optionsList   = [];
+                    $optionWeights = [];
+                    $correctIndex  = 0;
+                    $highestPct    = -1;
                     $idx = 0;
                     foreach ($optionsRaw as $letter => $optText) {
                         if (!empty($optText)) {
                             $optionsList[] = $optText;
-                            if ($letter === $correctLetter) {
+                            $pctVal = isset($pctsRaw[$letter]) ? (int) $pctsRaw[$letter] : ($letter === $correctLetter ? 100 : 0);
+                            $optionWeights[] = $pctVal;
+
+                            if ($pctVal > $highestPct) {
+                                $highestPct = $pctVal;
+                                $correctIndex = $idx;
+                            } elseif ($highestPct <= 0 && $letter === $correctLetter) {
                                 $correctIndex = $idx;
                             }
                             $idx++;
                         }
                     }
 
-                    \App\Models\QuizQuestion::create([
-                        'quiz_set_id'    => $quizSet->id,
-                        'question'       => $qData['text'],
-                        'question_text'  => $qData['text'],
-                        'options'        => $optionsList,
-                        'correct_index'  => $correctIndex,
-                        'correct_answer' => (string) $correctIndex,
-                        'points'         => 10,
-                        'is_active'      => true,
-                        'explanation'    => $qData['explanation'] ?? "checkpoint_slide:{$checkpointSlide}",
+                    // Handle upload gambar soal (opsional - hanya png, jpg, jpeg)
+                    $imagePath = null;
+                    if ($request->hasFile("questions.{$qIndex}.image")) {
+                        $imageFile = $request->file("questions.{$qIndex}.image");
+                        $extension = strtolower($imageFile->getClientOriginalExtension());
+                        if (in_array($extension, ['png', 'jpg', 'jpeg'])) {
+                            $imagePath = $imageFile->store('classroom/quiz-questions', 'public');
+                        }
+                    }
+
+                    $newQuestion = \App\Models\QuizQuestion::create([
+                        'teacher_id'         => \Illuminate\Support\Facades\Auth::id(),
+                        'quiz_master_id'     => $quizSet->id,
+                        'question'           => $qData['text'],
+                        'question_text'      => $qData['text'],
+                        'category'           => $qData['category'] ?? 'umum',
+                        'image_path'         => $imagePath,
+                        'options'            => $optionsList,
+                        'option_percentages' => $optionWeights,
+                        'correct_index'      => $correctIndex,
+                        'correct_answer'     => (string) $correctIndex,
+                        'points'             => 10,
+                        'is_active'          => true,
+                        'explanation'        => !empty($qData['explanation']) ? trim($qData['explanation']) : null,
                     ]);
+
+                    \Illuminate\Support\Facades\DB::table('quiz_question_items')->updateOrInsert(
+                        [
+                            'quiz_master_id'   => $quizSet->id,
+                            'quiz_question_id' => $newQuestion->id,
+                        ],
+                        [
+                            'order_number' => $orderNum++,
+                            'created_at'   => now(),
+                            'updated_at'   => now(),
+                        ]
+                    );
                 }
             }
 
-            // 3. Tautkan post dengan quiz_set_id yang baru dibuat
+            // 3. Tautkan post dengan quiz_master_id yang baru dibuat
             $quizDueDate = $validated['quiz_due_date'] 
                         ?? ($validated['due_date'] ?? $request->input('quiz_due_date', $request->input('due_date')));
 
             \App\Models\ClassroomQuiz::create([
                 'post_id'          => $post->id,
-                'quiz_set_id'      => $quizSet->id,
+                'quiz_master_id'   => $quizSet->id,
                 'due_date'         => $quizDueDate ?: null,
                 'duration_minutes' => $durationMinutes,
                 'max_score'        => $validated['max_score'] ?? 100,
-                'show_score'       => true,
+                'show_score'       => $request->boolean('show_score', true),
+                'show_explanation' => $request->boolean('show_explanation', false),
                 'max_attempts'     => (int)$request->input('max_attempts', 1),
                 'instructions'     => $validated['instructions'] ?? null,
             ]);
@@ -260,9 +323,6 @@ class ClassroomPostController extends Controller
             $attempts = \App\Models\QuizAttempt::query()
                 ->where(function($q) use ($quiz) {
                     $q->where('quiz_id', $quiz->id);
-                    if (!empty($quiz->quiz_set_id)) {
-                        $q->orWhere('quiz_set_id', $quiz->quiz_set_id);
-                    }
                     if (!empty($quiz->quiz_master_id)) {
                         $q->orWhere('quiz_master_id', $quiz->quiz_master_id);
                     }
@@ -294,25 +354,12 @@ class ClassroomPostController extends Controller
         $classroom = $post?->classroom;
 
         // Ambil daftar soal pilihan ganda kuis
-        $questions = \App\Models\QuizQuestion::query()
-            ->where(function($q) use ($quiz) {
-                if (!empty($quiz->quiz_set_id)) {
-                    $q->where('quiz_set_id', $quiz->quiz_set_id);
-                }
-                if (!empty($quiz->quiz_master_id)) {
-                    $q->orWhere('quiz_master_id', $quiz->quiz_master_id);
-                }
-            })
-            ->where('is_active', true)
-            ->get();
+        $questions = $quiz->getQuestionsList();
 
         // Ambil seluruh percobaan kuis siswa
         $attempts = \App\Models\QuizAttempt::query()
             ->where(function($q) use ($quiz) {
                 $q->where('quiz_id', $quiz->id);
-                if (!empty($quiz->quiz_set_id)) {
-                    $q->orWhere('quiz_set_id', $quiz->quiz_set_id);
-                }
                 if (!empty($quiz->quiz_master_id)) {
                     $q->orWhere('quiz_master_id', $quiz->quiz_master_id);
                 }
@@ -332,5 +379,17 @@ class ClassroomPostController extends Controller
 
         $statusText = $post->is_published ? 'ditampilkan kepada siswa' : 'disembunyikan dari siswa';
         return back()->with('success', "Status postingan berhasil {$statusText}.");
+    }
+
+    /** Toggle izin pembahasan kuis untuk siswa */
+    public function toggleQuizReview(\App\Models\ClassroomQuiz $quiz)
+    {
+        \Illuminate\Support\Facades\Gate::authorize('manageResults', $quiz);
+        $quiz->update([
+            'show_explanation' => !$quiz->show_explanation,
+        ]);
+
+        $statusText = $quiz->show_explanation ? 'dibuka (siswa dapat melihat kunci & pembahasan)' : 'dikunci (siswa hanya melihat total nilai)';
+        return back()->with('success', "Pembahasan kuis berhasil {$statusText}.");
     }
 }

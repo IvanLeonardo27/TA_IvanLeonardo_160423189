@@ -43,6 +43,11 @@
                         <i class="fa-solid fa-school text-success"></i> Kelola Ruang Kelas
                     </a>
                 </li>
+                <li class="nav-item mb-1" data-tour="sidebar-bank-soal">
+                    <a href="{{ route('teacher.question-bank.index') }}" class="nav-link {{ request()->routeIs('teacher.question-bank.*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-boxes-stacked" style="color: #8B5CF6;"></i> Bank Soal
+                    </a>
+                </li>
                 <li class="nav-item mb-1" data-tour="sidebar-kalender">
                     <a href="{{ route('admin.calendar') }}" class="nav-link {{ request()->routeIs('admin.calendar*') || request()->routeIs('calendar.*') ? 'active' : '' }}">
                         <i class="fa-solid fa-calendar-days text-primary"></i> Kalender
@@ -85,6 +90,11 @@
                 <li class="nav-item mb-1" data-tour="sidebar-buat-kelas">
                     <a href="{{ route('teacher.classroom.create') }}" class="nav-link {{ request()->routeIs('teacher.classroom.create') ? 'active' : '' }}">
                         <i class="fa-solid fa-plus-circle"></i> Buat Kelas Baru
+                    </a>
+                </li>
+                <li class="nav-item mb-1" data-tour="sidebar-bank-soal">
+                    <a href="{{ route('teacher.question-bank.index') }}" class="nav-link {{ request()->routeIs('teacher.question-bank.*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-boxes-stacked" style="color: #8B5CF6;"></i> Bank Soal
                     </a>
                 </li>
                 <li class="nav-item mb-1" data-tour="sidebar-kalender">

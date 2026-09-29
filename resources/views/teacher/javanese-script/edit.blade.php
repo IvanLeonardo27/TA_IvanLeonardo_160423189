@@ -127,6 +127,33 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+
+                    {{-- Penataan Waosan Latin per Suku Kata --}}
+                    <div class="col-12 mt-3">
+                        <div class="card border rounded-4 bg-light shadow-2xs overflow-hidden">
+                            <div class="card-header bg-white border-bottom py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                <div>
+                                    <span class="fw-bold text-main d-block" style="font-size: 0.95rem;">
+                                        <i class="fa-solid fa-layer-group text-primary me-1.5"></i> Penataan Waosan Latin per Suku Kata (Interlinear)
+                                    </span>
+                                    <small class="text-muted">Waosan Latin akan tampil tepat di bawah aksara masing-masing. Anda dapat menyesuaikannya bila diperlukan.</small>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold shadow-xs" id="btnAutoGenerateSyllables">
+                                    <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Sinkronkan dari Teks
+                                </button>
+                            </div>
+                            <div class="card-body p-4">
+                                <input type="hidden" name="syllable_breakdown" id="syllableBreakdownInput" value="{{ old('syllable_breakdown', isset($example) && $example->syllable_breakdown ? json_encode($example->syllable_breakdown) : '') }}">
+                                
+                                <div id="syllablesPreviewContainer" class="d-flex flex-wrap align-items-end gap-2 p-3 bg-white rounded-3 border" style="min-height: 85px;">
+                                    <!-- Rendered dynamically -->
+                                </div>
+                                <small class="text-muted d-block mt-2 fst-italic">
+                                    <i class="fa-solid fa-lightbulb text-warning me-1"></i> Tip: Klik tombol <strong>"Sinkronkan dari Teks"</strong> untuk membaca teks aksara di atas. Anda dapat mengubah suku kata Latin pada tiap kotak kecil di atas.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="d-flex justify-content-end gap-2 pt-3 border-top">
@@ -140,3 +167,158 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const scriptInput = document.querySelector('input[name="javanese_script_text"]');
+    const hiddenInput = document.getElementById('syllableBreakdownInput');
+    const container   = document.getElementById('syllablesPreviewContainer');
+    const btnSync     = document.getElementById('btnAutoGenerateSyllables');
+
+    const consonantMap = {
+        'ꦲ': 'h', 'ꦤ': 'n', 'ꦕ': 'c', 'ꦫ': 'r', 'ꦏ': 'k',
+        'ꦢ': 'd', 'ꦠ': 't', 'ꦱ': 's', 'ꦮ': 'w', 'ꦭ': 'l',
+        'ꦥ': 'p', 'ꦝ': 'dh', 'ꦗ': 'j', 'ꦪ': 'y', 'ꦚ': 'ny',
+        'ꦩ': 'm', 'ꦒ': 'g', 'ꦧ': 'b', 'ꦛ': 'th', 'ꦔ': 'ng',
+        'ꦟ': 'n', 'ꦑ': 'k', 'ꦡ': 't', 'ꦯ': 's', 'ꦦ': 'p', 'ꦓ': 'g', 'ꦨ': 'b',
+        'ꦄ': 'a', 'ꦅ': 'i', 'ꦈ': 'u', 'ꦌ': 'e', 'ꦎ': 'o', 'ꦉ': 're', 'ꦊ': 'le',
+        '꧐': '0', '꧑': '1', '꧒': '2', '꧓': '3', '꧔': '4',
+        '꧕': '5', '꧖': '6', '꧗': '7', '꧘': '8', '꧙': '9'
+    };
+
+    function splitJavaneseClusters(text) {
+        if (!text) return [];
+        const regex = /(?:[\uA984-\uA9B2\uA9D0-\uA9D9]\uA9B3?(?:\uA9C0[\uA984-\uA9B2]\uA9B3?)?[\uA9BD-\uA9BF]?[\uA9B4-\uA9BC]*[\uA980-\uA983]*(?:\uA9C0)?|[\uA9C1-\uA9CF]|[^\uA980-\uA9DF\s]+|\s+)/gu;
+        const matches = text.match(regex);
+        return matches ? matches.filter(c => c !== '') : [];
+    }
+
+    function clusterToLatinApprox(cluster) {
+        const trimmed = cluster.trim();
+        if (!trimmed) return '';
+        const numbers = {'꧐': '0', '꧑': '1', '꧒': '2', '꧓': '3', '꧔': '4', '꧕': '5', '꧖': '6', '꧗': '7', '꧘': '8', '꧙': '9', '꧈': ',', '꧉': '.', '꧇': ':'};
+        if (numbers[trimmed] !== undefined) return numbers[trimmed];
+
+        let base = '', pasangan = '', medial = '', vowel = 'a', finalConsonant = '', isDead = false;
+        let clusterNoPangkon = trimmed;
+        if (trimmed.endsWith('꧀')) {
+            isDead = true;
+            clusterNoPangkon = trimmed.slice(0, -1);
+        }
+
+        const hasTaling = trimmed.includes('ꦺ');
+        const hasTarung = trimmed.includes('ꦴ');
+        const hasWulu = trimmed.includes('ꦶ') || trimmed.includes('ꦷ');
+        const hasSuku = trimmed.includes('ꦸ') || trimmed.includes('ꦹ');
+        const hasPepet = trimmed.includes('ꦼ');
+        const hasDirgaMure = trimmed.includes('ꦻ');
+
+        if (hasDirgaMure && hasTarung) vowel = 'au';
+        else if (hasTaling && hasTarung) vowel = 'o';
+        else if (hasDirgaMure) vowel = 'ai';
+        else if (hasTaling || hasPepet) vowel = 'e';
+        else if (hasWulu) vowel = 'i';
+        else if (hasSuku) vowel = 'u';
+        else if (hasTarung) vowel = 'a';
+
+        if (trimmed.includes('ꦾ')) medial = 'y';
+        if (trimmed.includes('ꦿ')) medial = 'r';
+        if (trimmed.includes('ꦽ')) { medial = 'r'; vowel = 'e'; }
+
+        if (trimmed.includes('ꦁ')) finalConsonant = 'ng';
+        if (trimmed.includes('ꦂ')) finalConsonant = 'r';
+        if (trimmed.includes('ꦃ')) finalConsonant = 'h';
+
+        const pMatch = clusterNoPangkon.match(/꧀([\uA984-\uA9B2])/u);
+        if (pMatch && consonantMap[pMatch[1]]) pasangan = consonantMap[pMatch[1]];
+
+        const bMatch = trimmed.match(/^[\uA9C0]?([\uA984-\uA9B2])/u);
+        if (bMatch && consonantMap[bMatch[1]]) base = consonantMap[bMatch[1]];
+        if (base === 'h') base = '';
+
+        if (pasangan) {
+            return (base || '') + pasangan + medial + (isDead ? '' : vowel) + finalConsonant;
+        } else {
+            return base + medial + (isDead ? '' : vowel) + finalConsonant;
+        }
+    }
+
+    function renderSyllables(data) {
+        container.innerHTML = '';
+        if (!data || data.length === 0) {
+            container.innerHTML = '<span class="text-muted small fst-italic py-2">Belum ada suku kata terdeteksi. Isi teks aksara di atas lalu klik Sinkronkan.</span>';
+            return;
+        }
+
+        data.forEach((item, index) => {
+            if (item.aksara === ' ' || (item.aksara.trim() === '' && item.latin.trim() === '')) {
+                const spaceDiv = document.createElement('div');
+                spaceDiv.className = 'mx-1';
+                spaceDiv.style.width = '12px';
+                container.appendChild(spaceDiv);
+                return;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'd-inline-flex flex-column align-items-center p-2 rounded-3 border bg-light shadow-2xs';
+            card.innerHTML = `
+                <span class="fs-4 fw-bold text-primary mb-1" style="font-family:'Noto Sans Javanese', serif; line-height:1.2;">${item.aksara}</span>
+                <input type="text" class="form-control form-control-sm text-center fw-bold p-1 latin-input" 
+                       value="${item.latin}" style="width: 58px; font-size: 0.84rem; background:#ffffff;" data-index="${index}">
+            `;
+            container.appendChild(card);
+        });
+
+        // Event listener update hidden JSON
+        container.querySelectorAll('.latin-input').forEach(input => {
+            input.addEventListener('input', function () {
+                const idx = parseInt(this.dataset.index);
+                if (data[idx]) {
+                    data[idx].latin = this.value;
+                    hiddenInput.value = JSON.stringify(data);
+                }
+            });
+        });
+
+        hiddenInput.value = JSON.stringify(data);
+    }
+
+    function generateFromScript() {
+        const text = scriptInput ? scriptInput.value.trim() : '';
+        if (!text) {
+            renderSyllables([]);
+            return;
+        }
+        const clusters = splitJavaneseClusters(text);
+        const data = clusters.map(c => ({
+            aksara: c,
+            latin: clusterToLatinApprox(c)
+        }));
+        renderSyllables(data);
+    }
+
+    if (btnSync) {
+        btnSync.addEventListener('click', generateFromScript);
+    }
+
+    // Initial load
+    let initialData = [];
+    try {
+        if (hiddenInput && hiddenInput.value) {
+            initialData = JSON.parse(hiddenInput.value);
+        }
+    } catch (e) {
+        initialData = [];
+    }
+
+    if (initialData && initialData.length > 0) {
+        renderSyllables(initialData);
+    } else if (scriptInput && scriptInput.value.trim()) {
+        generateFromScript();
+    } else {
+        renderSyllables([]);
+    }
+});
+</script>
+@endpush

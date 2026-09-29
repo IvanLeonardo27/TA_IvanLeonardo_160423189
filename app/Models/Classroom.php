@@ -80,7 +80,7 @@ class Classroom extends Model
                     ->from('quiz_attempts')
                     ->where(function ($match) {
                         $match->whereColumn('quiz_attempts.quiz_id', 'classroom_quizzes.id')
-                              ->orWhereColumn('quiz_attempts.quiz_set_id', 'classroom_quizzes.quiz_set_id');
+                              ->orWhereColumn('quiz_attempts.quiz_master_id', 'classroom_quizzes.quiz_master_id');
                     })
                     ->where(function ($user) use ($studentId) {
                         $user->where('quiz_attempts.student_id', $studentId)

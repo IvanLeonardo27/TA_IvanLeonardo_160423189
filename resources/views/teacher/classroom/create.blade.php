@@ -21,7 +21,6 @@
                     <h3 id="namePreviw" class="fw-bold mb-0 text-white" style="color:#ffffff !important; text-shadow:0 2px 8px rgba(0,0,0,.45);">
                         Nama Kelas Anda
                     </h3>
-                    <p id="subjectPreview" class="mb-0 text-white small mt-1" style="color:rgba(255,255,255,.88) !important; text-shadow:0 1px 4px rgba(0,0,0,.35);">Mata Pelajaran</p>
                 </div>
             </div>
 
@@ -30,20 +29,13 @@
                 <form action="{{ route('teacher.classroom.store') }}" method="POST" id="createClassForm">
                     @csrf
                     <div class="row g-4">
-                        <div class="col-md-8">
+                        <div class="col-12">
                             <label class="form-label fw-semibold">Nama Kelas <span class="text-danger">*</span></label>
                             <input type="text" name="name" id="nameInput"
                                    class="form-control form-control-lg rounded-4 border-0 bg-light @error('name') is-invalid @enderror"
-                                   placeholder="Contoh: Bahasa Jawa – Kelas 5A"
+                                   placeholder="Contoh: Kelas 5A"
                                    value="{{ old('name') }}" required>
                             @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">Mata Pelajaran</label>
-                            <input type="text" name="subject" id="subjectInput"
-                                   class="form-control form-control-lg rounded-4 border-0 bg-light"
-                                   placeholder="Bahasa Jawa"
-                                   value="{{ old('subject') }}">
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-semibold">Deskripsi Kelas</label>
@@ -99,14 +91,13 @@
 <script>
     // Live preview
     const nameInput    = document.getElementById('nameInput');
-    const subjectInput = document.getElementById('subjectInput');
     const namePrev     = document.getElementById('namePreviw');
-    const subjectPrev  = document.getElementById('subjectPreview');
     const banner       = document.getElementById('bannerPreview');
     const iconPrev     = document.getElementById('bannerIconPreview');
 
-    nameInput.addEventListener('input', () => namePrev.textContent = nameInput.value || 'Nama Kelas Anda');
-    subjectInput.addEventListener('input', () => subjectPrev.textContent = subjectInput.value || 'Mata Pelajaran');
+    if (nameInput && namePrev) {
+        nameInput.addEventListener('input', () => namePrev.textContent = nameInput.value || 'Nama Kelas Anda');
+    }
 
     // Pilih warna
     document.querySelectorAll('.color-btn').forEach(btn => {

@@ -157,7 +157,12 @@ class CalendarController extends Controller
         foreach ($quizzes as $quiz) {
             $hasAttempt = false;
             if (!$isTeacher) {
-                $hasAttempt = QuizAttempt::where('quiz_set_id', $quiz->quiz_set_id)
+                $hasAttempt = QuizAttempt::where(function($q) use ($quiz) {
+                        $q->where('quiz_id', $quiz->id);
+                        if (!empty($quiz->quiz_master_id)) {
+                            $q->orWhere('quiz_master_id', $quiz->quiz_master_id);
+                        }
+                    })
                     ->where('user_id', $user->id)
                     ->exists();
             }
@@ -484,7 +489,12 @@ class CalendarController extends Controller
             foreach ($quizzes as $quiz) {
                 $hasAttempt = false;
                 if (!$isTeacher) {
-                    $hasAttempt = QuizAttempt::where('quiz_set_id', $quiz->quiz_set_id)
+                    $hasAttempt = QuizAttempt::where(function($q) use ($quiz) {
+                            $q->where('quiz_id', $quiz->id);
+                            if (!empty($quiz->quiz_master_id)) {
+                                $q->orWhere('quiz_master_id', $quiz->quiz_master_id);
+                            }
+                        })
                         ->where('user_id', $user->id)
                         ->exists();
                 }

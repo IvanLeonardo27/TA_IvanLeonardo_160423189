@@ -7,8 +7,13 @@
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb bg-transparent p-0 mb-0">
+            @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isTeacher()))
+            <li class="breadcrumb-item"><a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : route('teacher.classroom.index') }}" class="text-decoration-none text-muted">{{ auth()->user()->isAdmin() ? 'Panel Admin' : 'Panel Pembelajaran' }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('teacher.javanese-script.index') }}" class="text-decoration-none text-muted">Materi Aksara Jawa</a></li>
+            @else
             <li class="breadcrumb-item"><a href="/ui/student" class="text-decoration-none text-muted">Home</a></li>
             <li class="breadcrumb-item"><a href="{{ route('javanese-script.index') }}" class="text-decoration-none text-muted">Aksara Jawa</a></li>
+            @endif
             <li class="breadcrumb-item active text-primary fw-semibold" aria-current="page">{{ $script->name }}</li>
         </ol>
     </nav>
@@ -16,10 +21,17 @@
     <!-- Tombol Kembali & Aksi Pengajar / Bookmark -->
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
         <div class="d-flex align-items-center gap-2">
+            @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isTeacher()))
+            <a href="{{ route('teacher.javanese-script.index') }}" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2 bg-white">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Kembali ke Kelola Aksara</span>
+            </a>
+            @else
             <a href="{{ route('javanese-script.index') }}" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2 bg-white">
                 <i class="fa-solid fa-arrow-left"></i>
                 <span>Kembali ke Katalog Aksara</span>
             </a>
+            @endif
 
             @auth
             @php
@@ -38,7 +50,7 @@
         </div>
 
         @auth
-            @if(auth()->user()->isAdmin())
+            @if(auth()->user()->isAdmin() || auth()->user()->isTeacher())
             <div class="d-flex gap-2">
                 <a href="{{ route('teacher.javanese-script.edit', $script->id) }}" class="btn btn-warning text-dark rounded-pill px-4 py-2 fw-semibold shadow-sm d-inline-flex align-items-center gap-2">
                     <i class="fa-solid fa-pen-to-square"></i>
@@ -89,8 +101,9 @@
             'angka 1' => '꧑', 'angka 2' => '꧒', 'angka 3' => '꧓', 'angka 4' => '꧔', 'angka 5' => '꧕',
             'angka 6' => '꧖', 'angka 7' => '꧗', 'angka 8' => '꧘', 'angka 9' => '꧙', 'angka 0' => '꧐'
         ];
-        $key = strtolower(trim($script->name));
-        $glyph = $javaneseGlyphs[$key] ?? $script->name;
+        $keyLatin = strtolower(trim($script->latin));
+        $keyName = strtolower(trim($script->name));
+        $glyph = $javaneseGlyphs[$keyLatin] ?? ($javaneseGlyphs[$keyName] ?? $script->name);
     @endphp
 
     <!-- Main Detail Card -->
@@ -176,11 +189,29 @@
                         @foreach($script->examples as $index => $example)
                         <div class="col-12">
                             <div class="p-4 bg-white rounded-4 border border-2 border-primary-subtle shadow-sm">
-                                <!-- Kalimat Aksara Jawa -->
-                                <div class="mb-3 p-3 bg-light rounded-3 text-center">
-                                    <small class="text-muted fw-semibold d-block mb-1 text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em;">Ukara Aksara Jawa</small>
-                                    <div class="javanese-sentence-display text-primary fw-bold">
-                                        {{ $example->javanese_script_text }}
+                                <!-- Kalimat Aksara Jawa & Waosan Latin per Suku Kata -->
+                                <div class="mb-4 p-4 bg-light rounded-4 border text-center position-relative shadow-xs">
+                                    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2 flex-wrap gap-2">
+                                        <span class="badge bg-primary text-white rounded-pill px-3 py-1.5 fw-semibold" style="font-size: 0.75rem; letter-spacing: 0.04em;">
+                                            <i class="fa-solid fa-align-center me-1.5"></i> Ukara Aksara Jawa & Waosan Latin
+                                        </span>
+                                        <small class="text-muted fst-italic" style="font-size: 0.78rem;">
+                                            <i class="fa-solid fa-circle-info me-1 text-primary"></i> Waosan Latin diselaraskan tepat di bawah tiap aksara
+                                        </small>
+                                    </div>
+
+                                    <!-- Interlinear Syllables Display -->
+                                    <div class="interlinear-sentence-wrap d-flex flex-wrap justify-content-center align-items-end gap-2 py-2">
+                                        @foreach($example->resolved_syllables as $syl)
+                                            @if($syl['aksara'] === ' ' || (trim($syl['aksara']) === '' && trim($syl['latin']) === ''))
+                                                <div class="interlinear-space mx-1"></div>
+                                            @else
+                                                <div class="interlinear-syllable-card d-inline-flex flex-column align-items-center">
+                                                    <span class="interlinear-javanese-char">{{ $syl['aksara'] }}</span>
+                                                    <span class="interlinear-latin-sub">{{ $syl['latin'] }}</span>
+                                                </div>
+                                            @endif
+                                        @endforeach
                                     </div>
                                 </div>
 
@@ -294,6 +325,49 @@
     font-size: 2rem;
     line-height: 1.5;
     letter-spacing: 0.02em;
+}
+.interlinear-sentence-wrap {
+    min-height: 90px;
+    line-height: 1.2;
+}
+.interlinear-syllable-card {
+    padding: 6px 10px;
+    background: #ffffff;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    min-width: 48px;
+}
+.interlinear-syllable-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary, #059669);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.07);
+}
+.interlinear-javanese-char {
+    font-family: 'Noto Sans Javanese', 'Noto Serif Javanese', 'Segoe UI Historic', 'Tuladha Jejeg', 'Javanese Text', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--primary, #059669);
+    display: block;
+    margin-bottom: 4px;
+}
+.interlinear-latin-sub {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #1F2937;
+    background: #F3F4F6;
+    padding: 2px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    letter-spacing: 0.02em;
+    min-width: 28px;
+    text-align: center;
+}
+.interlinear-space {
+    width: 14px;
 }
 </style>
 @endsection

@@ -53,6 +53,17 @@
                         {{ $q->question }}
                     </h5>
 
+                    @if(!empty($q->image_path))
+                    <div class="mb-4 text-center text-md-start">
+                        <a href="{{ asset('storage/' . $q->image_path) }}" target="_blank" title="Klik untuk memperbesar gambar">
+                            <img src="{{ asset('storage/' . $q->image_path) }}" alt="Gambar Soal {{ $qIndex + 1 }}" class="img-fluid rounded-4 border shadow-sm" style="max-height: 320px; object-fit: contain; background: #fff;">
+                        </a>
+                        <div class="mt-1.5">
+                            <small class="text-muted" style="font-size:0.75rem;"><i class="fa-solid fa-magnifying-glass-plus me-1"></i>Klik gambar untuk melihat ukuran penuh</small>
+                        </div>
+                    </div>
+                    @endif
+
                     <div class="d-flex flex-column gap-3 mb-2">
                         @if(is_array($q->options))
                             @foreach($q->options as $optIndex => $optText)

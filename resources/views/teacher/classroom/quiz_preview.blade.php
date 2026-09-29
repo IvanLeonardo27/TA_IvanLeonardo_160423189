@@ -16,7 +16,15 @@
                     <h4 class="fw-bold text-main m-0">{{ $post->title ?? 'Hasil Evaluasi Kuis' }}</h4>
                     <p class="text-muted small m-0 mt-1">Daftar rekap pengerjaan, nilai, durasi waktu, dan kunci jawaban kuis siswa.</p>
                 </div>
-                <div class="d-flex gap-2">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <form action="{{ route('teacher.classroom.quiz.toggle_review', $quiz) }}" method="POST" class="d-inline">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="btn rounded-pill px-3.5 py-2 fw-bold shadow-sm btn-bouncy {{ $quiz->show_explanation ? 'btn-outline-danger' : 'btn-purple text-white' }}" style="{{ !$quiz->show_explanation ? 'background:#8B5CF6;' : '' }}" title="{{ $quiz->show_explanation ? 'Klik untuk mengunci pembahasan bagi siswa' : 'Klik untuk membuka pembahasan bagi siswa' }}">
+                            <i class="fa-solid {{ $quiz->show_explanation ? 'fa-lock' : 'fa-lock-open' }} me-1.5"></i>
+                            {{ $quiz->show_explanation ? 'Kunci Pembahasan' : 'Buka Pembahasan Siswa' }}
+                        </button>
+                    </form>
                     <a href="{{ route('teacher.classroom.quiz.export_excel', $quiz) }}" class="btn btn-success rounded-pill px-4 py-2 fw-bold shadow-sm btn-bouncy">
                         <i class="fa-solid fa-file-excel me-2"></i>Ekspor Excel / CSV
                     </a>
@@ -134,20 +142,47 @@
                 <div class="border rounded-4 p-3.5 bg-light">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="fw-bold text-purple small" style="color:#8B5CF6;">Soal #{{ $qIdx + 1 }}</span>
-                        <span class="badge bg-white text-dark border small">Kunci Jawaban: <strong>{{ chr(65 + (int)$q->correct_index) }}</strong></span>
+                        @php
+                            $optPercentages = $q->option_percentages ?? [];
+                        @endphp
+                        <span class="badge bg-white text-dark border small">Kunci Utama (100%): <strong>{{ chr(65 + (int)$q->correct_index) }}</strong></span>
                     </div>
                     <p class="fw-semibold text-main mb-2" style="white-space:pre-line;">{{ $q->question }}</p>
+                    
+                    @if(!empty($q->image_path))
+                    <div class="mb-3">
+                        <a href="{{ asset('storage/' . $q->image_path) }}" target="_blank" title="Klik untuk memperbesar gambar">
+                            <img src="{{ asset('storage/' . $q->image_path) }}" alt="Gambar Soal #{{ $qIdx + 1 }}" class="img-fluid rounded-3 border shadow-xs" style="max-height: 240px; object-fit: contain; background: #fff;">
+                        </a>
+                    </div>
+                    @endif
                     
                     <div class="d-flex flex-wrap gap-2">
                         @if(is_array($q->options))
                             @foreach($q->options as $optIdx => $optTxt)
-                            @php $isCorrect = ($optIdx === (int)$q->correct_index); @endphp
-                            <div class="badge {{ $isCorrect ? 'bg-success text-white' : 'bg-white text-dark border' }} px-3 py-2 rounded-3 text-start fw-normal">
-                                <strong>{{ chr(65 + $optIdx) }}.</strong> {{ $optTxt }} {{ $isCorrect ? '✓' : '' }}
+                            @php 
+                                $isCorrect = ($optIdx === (int)$q->correct_index);
+                                $weight = isset($optPercentages[$optIdx]) ? (int)$optPercentages[$optIdx] : ($isCorrect ? 100 : 0);
+                            @endphp
+                            <div class="badge {{ $weight == 100 ? 'bg-success text-white' : ($weight > 0 ? 'bg-primary-subtle text-primary border border-primary' : 'bg-white text-dark border') }} px-3 py-2 rounded-3 text-start fw-normal d-inline-flex align-items-center gap-1.5">
+                                <strong>{{ chr(65 + $optIdx) }}.</strong>
+                                <span>{{ $optTxt }}</span>
+                                <span class="badge {{ $weight == 100 ? 'bg-white text-success' : ($weight > 0 ? 'bg-primary text-white' : 'bg-light text-muted border') }} rounded-pill px-2 py-0.5 ms-1 fw-bold" style="font-size:0.75rem;">
+                                    {{ $weight }}% {{ $weight == 100 ? '✓' : '' }}
+                                </span>
                             </div>
                             @endforeach
                         @endif
                     </div>
+
+                    @if(!empty($q->explanation))
+                    <div class="mt-2.5 p-2.5 px-3 rounded-3 border" style="background: #FEF9C3; border-color: #FDE047 !important; border-left: 3.5px solid #EAB308 !important;">
+                        <small class="fw-bold d-block text-warning-emphasis mb-0.5" style="color:#854D0E !important;">
+                            <i class="fa-solid fa-lightbulb me-1"></i>Penjelasan / Pembahasan Guru:
+                        </small>
+                        <small class="text-dark d-block" style="white-space:pre-line; color:#713F12 !important;">{{ $q->explanation }}</small>
+                    </div>
+                    @endif
                 </div>
                 @endforeach
             </div>

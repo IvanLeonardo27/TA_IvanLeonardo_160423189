@@ -78,6 +78,36 @@
 
                 </div>
 
+                @php
+                    $canReview = $quiz->show_explanation || (Auth::check() && Auth::id() === $classroom?->teacher_id) || (Auth::check() && Auth::user()?->isAdmin());
+                @endphp
+
+                <!-- Section Pembahasan & Tinjau Jawaban -->
+                <div class="p-3.5 p-md-4 rounded-4 mb-4 border d-flex align-items-center justify-content-between flex-wrap gap-3" style="{{ $canReview ? 'background:#F5F3FF; border-color:#DDD6FE !important;' : 'background:#F9FAFB; border-style:dashed !important;' }}">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:44px; height:44px; {{ $canReview ? 'background:#8B5CF6; color:#fff;' : 'background:#E5E7EB; color:#6B7280;' }}">
+                            <i class="fa-solid {{ $canReview ? 'fa-file-circle-check fs-5' : 'fa-lock fs-5' }}"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-main m-0" style="font-size:0.95rem;">
+                                {{ $canReview ? 'Pembahasan & Kunci Jawaban Soal' : 'Pembahasan Soal Masih Dikunci' }}
+                            </h6>
+                            <small class="text-muted d-block mt-0.5" style="font-size:0.78rem;">
+                                {{ $canReview ? 'Tinjau setiap nomor soal, jawaban yang Anda pilih, kunci yang benar, serta penjelasan dari pengajar.' : 'Pengajar belum membuka pembahasan untuk kuis ini. Silakan tunggu hingga dibuka oleh pengajar.' }}
+                            </small>
+                        </div>
+                    </div>
+                    @if($canReview)
+                    <a href="{{ route('student.classroom.quiz.review', [$quiz, $attempt]) }}" class="btn rounded-pill px-4 py-2.5 fw-bold text-white shadow-sm btn-bouncy ms-auto" style="background:#8B5CF6;">
+                        <i class="fa-solid fa-list-check me-2"></i>Lihat Pembahasan Soal
+                    </a>
+                    @else
+                    <span class="badge bg-white text-muted border rounded-pill px-3 py-2 fw-semibold ms-auto shadow-xs" style="font-size:0.8rem;">
+                        <i class="fa-solid fa-lock me-1 text-secondary"></i>Terkunci oleh Pengajar
+                    </span>
+                    @endif
+                </div>
+
                 <hr class="my-4">
 
                 <!-- Action Footer Buttons -->

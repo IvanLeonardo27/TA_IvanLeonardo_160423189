@@ -9,7 +9,7 @@
         <div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb bg-transparent p-0 mb-1">
-                    <li class="breadcrumb-item"><a href="{{ route('teacher.classroom.index') }}" class="text-decoration-none text-muted">Panel Pembelajaran</a></li>
+                    <li class="breadcrumb-item"><a href="{{ auth()->check() && auth()->user()->isAdmin() ? route('admin.dashboard') : route('teacher.classroom.index') }}" class="text-decoration-none text-muted">{{ auth()->check() && auth()->user()->isAdmin() ? 'Panel Admin' : 'Panel Pembelajaran' }}</a></li>
                     <li class="breadcrumb-item active text-primary fw-semibold" aria-current="page">Materi Aksara Jawa</li>
                 </ol>
             </nav>
@@ -127,6 +127,12 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
                                     <li>
+                                        <a class="dropdown-item fw-semibold text-primary" href="{{ route('javanese-script.show', $item->id) }}">
+                                            <i class="fa-solid fa-circle-info text-primary me-2"></i> Lihat Detail
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
                                         <a class="dropdown-item" href="{{ route('teacher.javanese-script.edit', $item->id) }}">
                                             <i class="fa-solid fa-pen-to-square text-warning me-2"></i> Edit Data
                                         </a>
@@ -146,15 +152,19 @@
                             @endif
                         </div>
 
-                        <!-- Flashcard Mini Display -->
-                        <div class="teacher-flashcard p-2 rounded-3 text-center my-2 position-relative bg-light border">
+                        <!-- Flashcard Mini Display (Klik untuk Detail) -->
+                        <a href="{{ route('javanese-script.show', $item->id) }}" class="text-decoration-none d-block teacher-flashcard p-2 rounded-3 text-center my-2 position-relative bg-light border shadow-2xs" title="Klik untuk lihat detail {{ $item->name }}">
                             <span class="javanese-char-teacher">{{ $glyph }}</span>
                             <div class="small fw-bold text-muted mt-1">{{ strtoupper($item->latin) }}</div>
-                        </div>
+                        </a>
 
                         <!-- Informasi Aksara -->
                         <div class="text-center my-2">
-                            <h5 class="fw-bold text-main mb-1">{{ $item->name }}</h5>
+                            <h5 class="fw-bold mb-1">
+                                <a href="{{ route('javanese-script.show', $item->id) }}" class="text-decoration-none text-main hover-primary" title="Lihat detail {{ $item->name }}">
+                                    {{ $item->name }}
+                                </a>
+                            </h5>
                             <small class="text-muted d-block">Latin: <strong>{{ $item->latin }}</strong> | Bunyi: /{{ $item->pronunciation ?? $item->latin }}/</small>
                         </div>
 
@@ -170,24 +180,26 @@
 
                     <!-- Tombol Aksi Bawah -->
                     <div class="mt-3 pt-2 border-top">
-                        @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isTeacher()))
-                        <div class="d-flex gap-2">
-                            <a href="{{ route('teacher.javanese-script.edit', $item->id) }}" class="btn btn-outline-warning btn-sm rounded-pill w-50 fw-semibold">
-                                <i class="fa-solid fa-pen-to-square me-1"></i> Edit
+                        <div class="d-flex flex-column gap-2">
+                            <a href="{{ route('javanese-script.show', $item->id) }}" class="btn btn-outline-primary btn-sm rounded-pill w-100 fw-semibold py-1.5 shadow-xs d-flex align-items-center justify-content-center gap-1.5">
+                                <i class="fa-solid fa-circle-info"></i>
+                                <span>Lihat Detail</span>
                             </a>
-                            <form method="POST" action="{{ route('teacher.javanese-script.destroy', $item->id) }}" class="w-50" onsubmit="return confirm('Hapus aksara {{ $item->name }}?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill w-100 fw-semibold">
-                                    <i class="fa-solid fa-trash me-1"></i> Hapus
-                                </button>
-                            </form>
+                            @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isTeacher()))
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('teacher.javanese-script.edit', $item->id) }}" class="btn btn-outline-warning btn-sm rounded-pill w-50 fw-semibold">
+                                    <i class="fa-solid fa-pen-to-square me-1"></i> Edit
+                                </a>
+                                <form method="POST" action="{{ route('teacher.javanese-script.destroy', $item->id) }}" class="w-50" onsubmit="return confirm('Hapus aksara {{ $item->name }}?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill w-100 fw-semibold">
+                                        <i class="fa-solid fa-trash me-1"></i> Hapus
+                                    </button>
+                                </form>
+                            </div>
+                            @endif
                         </div>
-                        @else
-                        <a href="{{ route('javanese-script.show', $item->id) }}" class="btn btn-outline-primary btn-sm rounded-pill w-100 fw-semibold py-1.5">
-                            <i class="fa-solid fa-book-open me-1.5"></i> Pelajari Aksara
-                        </a>
-                        @endif
                     </div>
                 </div>
             </div>
@@ -212,6 +224,19 @@
     background-color: #FBF9F4 !important;
     border: 2px solid #22201D !important;
     min-height: 100px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    cursor: pointer;
+}
+.teacher-flashcard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    border-color: var(--primary) !important;
+}
+.hover-primary {
+    transition: color 0.15s ease;
+}
+.hover-primary:hover {
+    color: var(--primary) !important;
 }
 .javanese-char-teacher {
     font-family: 'Noto Sans Javanese', 'Noto Serif Javanese', 'Segoe UI Historic', 'Tuladha Jejeg', 'Javanese Text', serif;

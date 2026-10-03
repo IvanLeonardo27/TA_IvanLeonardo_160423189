@@ -90,7 +90,7 @@
 
         .auth-container {
             width: 100%;
-            max-width: 960px;
+            max-width: 490px;
             position: relative;
             z-index: 10;
         }
@@ -260,11 +260,6 @@
             <div class="row g-0">
                 @yield('content')
             </div>
-        </div>
-
-        <!-- Footer Note -->
-        <div class="text-center mt-4">
-            <small class="text-white-50">© {{ date('Y') }} BasaKula. Wadhah Sinau Basa lan Sastra Jawa Interaktif.</small>
         </div>
     </div>
 

@@ -90,19 +90,19 @@
             </div>
 
             <!-- Single Page Quiz Navigation Controls -->
-            <div class="card border-0 shadow-sm rounded-4 p-4 mt-4 bg-white">
-                <div class="d-flex justify-content-between align-items-center gap-3">
-                    <button type="button" id="prevBtn" class="btn btn-light rounded-pill px-4 py-2.5 fw-bold text-muted border border-2 shadow-sm d-none">
-                        <i class="fa-solid fa-arrow-left me-2"></i>Sebelumnya
+            <div class="card border-0 shadow-sm rounded-4 p-3 p-sm-4 mt-4 bg-white">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <button type="button" id="prevBtn" class="btn btn-light rounded-pill px-3 px-sm-4 py-2 py-sm-2.5 fw-bold text-muted border border-2 shadow-sm d-none text-nowrap">
+                        <i class="fa-solid fa-arrow-left me-1 me-sm-2"></i>Sebelumnya
                     </button>
-                    <div class="text-muted small fw-semibold me-auto ms-2" id="pageIndicator">
+                    <div class="text-muted small fw-semibold order-3 order-sm-2 mx-auto mx-sm-0 my-1 my-sm-0 text-nowrap" id="pageIndicator">
                         Halaman <span id="currentNum">1</span> / {{ $questions->count() }}
                     </div>
-                    <button type="button" id="nextBtn" class="btn rounded-pill px-4 py-2.5 fw-bold text-white shadow-sm btn-bouncy" style="background:#8B5CF6;">
-                        Selanjutnya <i class="fa-solid fa-arrow-right ms-2"></i>
+                    <button type="button" id="nextBtn" class="btn rounded-pill px-3 px-sm-4 py-2 py-sm-2.5 fw-bold text-white shadow-sm btn-bouncy ms-auto ms-sm-0 order-2 order-sm-3 text-nowrap" style="background:#8B5CF6;">
+                        Selanjutnya <i class="fa-solid fa-arrow-right ms-1 ms-sm-2"></i>
                     </button>
-                    <button type="submit" id="submitBtn" class="btn rounded-pill px-4.5 py-2.5 fw-bold text-white shadow-sm btn-bouncy bg-success border-0 d-none">
-                        <i class="fa-solid fa-circle-check me-2"></i>Selesai & Kumpulkan
+                    <button type="submit" id="submitBtn" class="btn rounded-pill px-3 px-sm-4.5 py-2 py-sm-2.5 fw-bold text-white shadow-sm btn-bouncy bg-success border-0 d-none ms-auto ms-sm-0 order-2 order-sm-3 text-nowrap">
+                        <i class="fa-solid fa-circle-check me-1 me-sm-2"></i>Selesai & Kumpulkan
                     </button>
                 </div>
             </div>
@@ -333,9 +333,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // 3. Countdown Timer Engine with Auto-Submit & <1m Red Alert
-    const durationMinutes = {{ $quiz->duration_minutes ?? 30 }};
-    let totalSeconds = durationMinutes * 60;
-    const initialSeconds = totalSeconds;
+    @php
+        $calcSeconds = ($quiz->duration_minutes ?? 30) * 60;
+        if ($quiz->due_date) {
+            $secondsUntilDue = max(0, (int) now()->diffInSeconds($quiz->due_date, false));
+            $calcSeconds = min($calcSeconds, $secondsUntilDue);
+        }
+    @endphp
+    let totalSeconds = {{ $calcSeconds }};
+    const initialSeconds = {{ max(1, ($quiz->duration_minutes ?? 30) * 60) }};
 
     const timerDisplay  = document.getElementById('timerDisplay');
     const timerCard     = document.getElementById('timerCard');

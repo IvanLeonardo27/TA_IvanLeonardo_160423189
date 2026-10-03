@@ -23,26 +23,36 @@ class ClassroomQuizController extends Controller
         $classroom = $post?->classroom;
         $quizSet   = $quiz->quizSet;
 
-        // Cek jika batas pengisian adalah 1x saja dan siswa sudah pernah mengisi
-        if ((int)$quiz->max_attempts === 1) {
-            $existingAttempt = QuizAttempt::query()
-                ->where(function($q) use ($quiz) {
-                    $q->where('quiz_id', $quiz->id);
-                    if (!empty($quiz->quiz_master_id)) {
-                        $q->orWhere('quiz_master_id', $quiz->quiz_master_id);
-                    }
-                })
-                ->where(function($q) {
-                    $q->where('user_id', Auth::id())
-                      ->orWhere('student_id', Auth::id());
-                })
-                ->latest('id')
-                ->first();
+        // Ambil riwayat percobaan siswa jika ada
+        $existingAttempt = QuizAttempt::query()
+            ->where(function($q) use ($quiz) {
+                $q->where('quiz_id', $quiz->id);
+                if (!empty($quiz->quiz_master_id)) {
+                    $q->orWhere('quiz_master_id', $quiz->quiz_master_id);
+                }
+            })
+            ->where(function($q) {
+                $q->where('user_id', Auth::id())
+                  ->orWhere('student_id', Auth::id());
+            })
+            ->latest('id')
+            ->first();
 
+        // 1. Cek jika batas pengisian adalah 1x saja dan siswa sudah pernah mengisi
+        if ((int)$quiz->max_attempts === 1 && $existingAttempt) {
+            return redirect()->route('student.classroom.quiz.result', [$quiz, $existingAttempt])
+                ->with('info', 'Anda telah menyelesaikan kuis ini.');
+        }
+
+        // 2. Cek apakah batas waktu pengerjaan kuis telah berakhir
+        if ($quiz->due_date && now()->greaterThan($quiz->due_date)) {
             if ($existingAttempt) {
                 return redirect()->route('student.classroom.quiz.result', [$quiz, $existingAttempt])
-                    ->with('info', 'Anda telah menyelesaikan kuis ini.');
+                    ->with('error', 'Batas waktu pengerjaan kuis telah berakhir pada ' . $quiz->due_date->format('d M Y, H:i') . '. Pengerjaan ulang telah ditutup.');
             }
+
+            return redirect()->route('student.classroom.show', $classroom?->id ?? 1)
+                ->with('error', 'Maaf, batas waktu pengerjaan kuis ini telah berakhir pada ' . $quiz->due_date->format('d M Y, H:i') . '. Kuis sudah ditutup.');
         }
 
         // Ambil daftar soal pilihan ganda kuis
@@ -54,6 +64,15 @@ class ClassroomQuizController extends Controller
     /** Memproses jawaban kuis siswa & menghitung nilai otomatis */
     public function submit(Request $request, ClassroomQuiz $quiz)
     {
+        $post      = $quiz->post;
+        $classroom = $post?->classroom;
+
+        // Cek apakah batas waktu pengerjaan kuis telah berakhir saat submit
+        if ($quiz->due_date && now()->greaterThan($quiz->due_date)) {
+            return redirect()->route('student.classroom.show', $classroom?->id ?? 1)
+                ->with('error', 'Maaf, batas waktu pengerjaan kuis ini telah berakhir pada ' . $quiz->due_date->format('d M Y, H:i') . '. Jawaban Anda tidak dapat diterima.');
+        }
+
         Gate::authorize('attempt', $quiz);
 
         $quizSet   = $quiz->quizSet;

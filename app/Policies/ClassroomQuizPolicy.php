@@ -52,6 +52,11 @@ class ClassroomQuizPolicy
 
         if (!$isMember) return false;
 
+        // Cek batas tenggat waktu kuis
+        if ($quiz->due_date && now()->greaterThan($quiz->due_date)) {
+            return false;
+        }
+
         // Cek batas pengerjaan jika single attempt
         if ((int)$quiz->max_attempts === 1) {
             $hasAttempt = QuizAttempt::where(function($q) use ($quiz) {

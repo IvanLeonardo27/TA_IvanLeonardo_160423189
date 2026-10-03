@@ -91,22 +91,22 @@
         </div>
 
         {{-- Filter Allegiance & Admin/Teacher Actions --}}
-        <div class="d-flex align-items-center gap-2 flex-wrap">
+        <div class="d-flex align-items-center gap-2 flex-nowrap flex-md-wrap overflow-auto pb-1" style="scrollbar-width: thin; -webkit-overflow-scrolling: touch;">
             @if(auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isTeacher()))
-            <a href="{{ route('wayang.create') }}" class="btn btn-warning rounded-pill px-3 py-1.5 fw-bold shadow-xs text-dark d-inline-flex align-items-center gap-1.5 me-2" style="background:#FBBF24; border:none; font-size: 0.84rem;">
+            <a href="{{ route('wayang.create') }}" class="btn btn-warning rounded-pill px-3 py-1.5 fw-bold shadow-xs text-dark d-inline-flex align-items-center gap-1.5 me-2 flex-shrink-0 text-nowrap" style="background:#FBBF24; border:none; font-size: 0.84rem;">
                 <i class="fa-solid fa-plus-circle"></i> Tambah Tokoh Wayang
             </a>
             @endif
 
-            <span class="small fw-bold" style="color: #475569;"><i class="fa-solid fa-flag me-1 text-secondary"></i> Pihak:</span>
+            <span class="small fw-bold flex-shrink-0 text-nowrap" style="color: #475569;"><i class="fa-solid fa-flag me-1 text-secondary"></i> Pihak:</span>
             <a href="{{ route('wayang.index', array_filter(['category' => $categoryId, 'search' => $search])) }}" 
-               class="badge rounded-pill px-3 py-1.5 text-decoration-none fw-semibold shadow-xs"
+               class="badge rounded-pill px-3 py-1.5 text-decoration-none fw-semibold shadow-xs flex-shrink-0 text-nowrap"
                style="{{ !$allegiance ? 'background: #16402E; color: #ffffff; border: 1px solid #16402E;' : 'background: #FFFFFF; color: #334155; border: 1px solid #CBD5E1;' }}">
                 Semua
             </a>
             @foreach($allegiances as $alg)
             <a href="{{ route('wayang.index', array_filter(['allegiance' => $alg, 'category' => $categoryId, 'search' => $search])) }}" 
-               class="badge rounded-pill px-3 py-1.5 text-decoration-none fw-semibold shadow-xs"
+               class="badge rounded-pill px-3 py-1.5 text-decoration-none fw-semibold shadow-xs flex-shrink-0 text-nowrap"
                style="{{ $allegiance == $alg ? 'background: #16402E; color: #ffffff; border: 1px solid #16402E;' : 'background: #FFFFFF; color: #334155; border: 1px solid #CBD5E1;' }}">
                 {{ $alg }}
             </a>

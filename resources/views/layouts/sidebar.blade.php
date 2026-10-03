@@ -184,7 +184,7 @@
     </ul>
     </div>
 
-    <div class="dropdown sidebar-user-dropdown pt-2 border-top border-light-subtle">
+    <div class="dropdown sidebar-user-dropdown pt-2 pb-3 pb-sm-2 border-top border-light-subtle">
 
         @auth
         <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle px-3 py-2 text-main" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">

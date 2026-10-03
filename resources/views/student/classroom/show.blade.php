@@ -347,6 +347,7 @@
                             $hasAttempted = $userAttempts->isNotEmpty();
                             $lastAttempt  = $userAttempts->first();
                             $isSingleOnly = ((int)$post->quiz->max_attempts === 1);
+                            $isQuizOverdue = $post->quiz->due_date && now()->greaterThan($post->quiz->due_date);
                         @endphp
                         <div class="rounded-4 p-4 mb-3" style="background:#F3E8FF; border-left:4px solid #8B5CF6;">
                             <div class="row align-items-center g-3">
@@ -367,16 +368,30 @@
                                     <div class="small text-muted mt-1">
                                         <i class="fa-solid fa-clock me-1 text-purple"></i> Durasi: {{ $post->quiz->duration_minutes }} Menit
                                         <span class="mx-2">•</span>
-                                        <i class="fa-solid fa-calendar me-1 text-purple"></i> Tenggat: {{ $post->quiz->due_date ? $post->quiz->due_date->format('d M Y, H:i') : 'Tidak ada tenggat' }}
+                                        @if($isQuizOverdue)
+                                            <span class="text-danger fw-bold">
+                                                <i class="fa-solid fa-calendar-xmark me-1"></i> Tenggat: {{ $post->quiz->due_date->format('d M Y, H:i') }} <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-0.5 ms-1">Berakhir</span>
+                                            </span>
+                                        @else
+                                            <i class="fa-solid fa-calendar me-1 text-purple"></i> Tenggat: {{ $post->quiz->due_date ? $post->quiz->due_date->format('d M Y, H:i') : 'Tidak ada tenggat' }}
+                                        @endif
                                     </div>
 
-                                    {{-- Keterangan Waktu Pengerjaan Jika 1 Kali Saja --}}
+                                    {{-- Keterangan Waktu Pengerjaan Jika Sudah Pernah Mengisi / Lewat Tenggat --}}
                                     @if($hasAttempted && $isSingleOnly)
                                     <div class="alert alert-success bg-white border border-success rounded-3 p-2.5 mt-2.5 mb-0 text-success small fw-semibold">
                                         <i class="fa-solid fa-circle-check me-1"></i> Anda telah menyelesaikan kuis ini pada <strong class="user-local-time" data-utc="{{ $lastAttempt->taken_at ? $lastAttempt->taken_at->toIso8601String() : $lastAttempt->created_at->toIso8601String() }}">{{ $lastAttempt->taken_at ? $lastAttempt->taken_at->format('d M Y, H:i') : $lastAttempt->created_at->format('d M Y, H:i') }}</strong>
                                         @if($post->quiz->show_score)
                                             <span class="ms-1">(Nilai Anda: <strong>{{ $lastAttempt->score }} / {{ $post->quiz->max_score }}</strong>)</span>
                                         @endif
+                                    </div>
+                                    @elseif($hasAttempted && $isQuizOverdue)
+                                    <div class="alert alert-warning bg-white border border-warning rounded-3 p-2.5 mt-2.5 mb-0 text-dark small fw-semibold">
+                                        <i class="fa-solid fa-clock-rotate-left text-warning me-1"></i> Tenggat waktu kuis telah berakhir. Pengerjaan ulang telah ditutup.
+                                    </div>
+                                    @elseif(!$hasAttempted && $isQuizOverdue)
+                                    <div class="alert alert-danger bg-white border border-danger rounded-3 p-2.5 mt-2.5 mb-0 text-danger small fw-semibold">
+                                        <i class="fa-solid fa-triangle-exclamation me-1"></i> Batas waktu pengerjaan kuis ini telah berakhir pada {{ $post->quiz->due_date->format('d M Y, H:i') }}. Kuis sudah ditutup dan tidak dapat dikerjakan.
                                     </div>
                                     @endif
                                 </div>
@@ -387,6 +402,16 @@
                                         <a href="{{ route('student.classroom.quiz.result', [$post->quiz, $lastAttempt]) }}" target="_blank" class="btn rounded-pill fw-bold btn-bouncy shadow-sm px-4 text-white" style="background:#8B5CF6;">
                                             <i class="fa-solid fa-square-poll-vertical me-2"></i>Lihat Hasil Evaluasi
                                         </a>
+                                    @elseif($hasAttempted && $isQuizOverdue)
+                                        {{-- Sudah Mengisi dan Tenggat Berakhir (Pengerjaan Ulang Ditutup) --}}
+                                        <a href="{{ route('student.classroom.quiz.result', [$post->quiz, $lastAttempt]) }}" target="_blank" class="btn rounded-pill fw-bold btn-bouncy shadow-sm px-4 text-white" style="background:#8B5CF6;">
+                                            <i class="fa-solid fa-square-poll-vertical me-2"></i>Lihat Hasil Evaluasi
+                                        </a>
+                                    @elseif(!$hasAttempted && $isQuizOverdue)
+                                        {{-- Belum Mengisi dan Tenggat Berakhir --}}
+                                        <button class="btn rounded-pill fw-bold shadow-sm px-4 btn-secondary opacity-75" disabled title="Batas waktu pengerjaan kuis telah berakhir">
+                                            <i class="fa-solid fa-lock me-2"></i>Kuis Ditutup
+                                        </button>
                                     @else
                                         {{-- Masih Bisa Mengerjakan --}}
                                         <a href="{{ route('student.classroom.quiz.show', $post->quiz) }}" target="_blank" class="btn rounded-pill fw-bold btn-bouncy shadow-sm px-4 text-white" style="background:#8B5CF6;">

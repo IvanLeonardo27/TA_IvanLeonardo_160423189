@@ -27,9 +27,19 @@
                 } elseif ($post->type === 'assignment' && $post->assignment) {
                     $targetUrl = route('student.classroom.submission.show', $post->assignment->id);
                 } elseif ($post->type === 'quiz' && $post->quiz) {
-                    $targetUrl = $isTeacherUser
-                        ? route('teacher.classroom.quiz.preview_submissions', $post->quiz->id)
-                        : route('student.classroom.quiz.show', $post->quiz->id);
+                    if ($isTeacherUser) {
+                        $targetUrl = route('teacher.classroom.quiz.preview_submissions', $post->quiz->id);
+                    } else {
+                        $qAtt = $post->quiz->myAttempt;
+                        $isQuizOverdue = $post->quiz->due_date && now()->greaterThan($post->quiz->due_date);
+                        if ($qAtt) {
+                            $targetUrl = route('student.classroom.quiz.result', [$post->quiz->id, $qAtt->id]);
+                        } elseif ($isQuizOverdue) {
+                            $targetUrl = 'javascript:void(0);';
+                        } else {
+                            $targetUrl = route('student.classroom.quiz.show', $post->quiz->id);
+                        }
+                    }
                 } elseif ($post->type === 'url') {
                     $targetUrl = $post->link_url ?: '#';
                 }
@@ -122,8 +132,12 @@
                                         @endif
                                     </small>
                                 @elseif($post->quiz->due_date)
-                                    <small class="text-purple fw-semibold d-block mt-1" style="font-size: 0.75rem; color:#8B5CF6;">
-                                        <i class="fa-regular fa-calendar me-1"></i> Tenggat: {{ \Carbon\Carbon::parse($post->quiz->due_date)->format('d M Y, H:i') }}
+                                    @php $isQuizOverdue = now()->greaterThan($post->quiz->due_date); @endphp
+                                    <small class="{{ $isQuizOverdue ? 'text-danger' : 'text-purple' }} fw-semibold d-block mt-1" style="font-size: 0.75rem; {{ $isQuizOverdue ? '' : 'color:#8B5CF6;' }}">
+                                        <i class="fa-regular {{ $isQuizOverdue ? 'fa-calendar-xmark' : 'fa-calendar' }} me-1"></i> Tenggat: {{ \Carbon\Carbon::parse($post->quiz->due_date)->format('d M Y, H:i') }}
+                                        @if($isQuizOverdue)
+                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-1.5 ms-1">Berakhir</span>
+                                        @endif
                                     </small>
                                 @endif
                             @endif
@@ -202,18 +216,23 @@
                                     @php
                                         $myAttempt = $post->quiz ? $post->quiz->myAttempt : null;
                                         $isSingleOnly = $post->quiz && ((int)$post->quiz->max_attempts === 1);
+                                        $isQuizOverdue = $post->quiz && $post->quiz->due_date && now()->greaterThan($post->quiz->due_date);
                                     @endphp
                                     @if($myAttempt)
                                         <div class="d-flex align-items-center gap-1.5 flex-wrap">
                                             <a href="{{ route('student.classroom.quiz.result', [$post->quiz->id, $myAttempt->id]) }}" class="btn btn-sm rounded-pill px-3 py-1.5 fw-bold text-white border-0 shadow-xs btn-bouncy text-nowrap" style="font-size: 0.78rem; background-color: #10B981;" title="Lihat Hasil Evaluasi / Quiz">
                                                 <i class="fa-solid fa-circle-check me-1"></i> Telah Mengerjakan Quiz
                                             </a>
-                                            @if(!$isSingleOnly)
+                                            @if(!$isSingleOnly && !$isQuizOverdue)
                                                 <a href="{{ route('student.classroom.quiz.show', $post->quiz->id) }}" class="btn btn-sm btn-light border rounded-pill px-2.5 py-1.5 fw-semibold text-muted shadow-xs hover-shadow flex-shrink-0" style="font-size: 0.75rem;" title="Ulangi Kerjakan Kuis">
                                                     <i class="fa-solid fa-rotate-right"></i>
                                                 </a>
                                             @endif
                                         </div>
+                                    @elseif($isQuizOverdue)
+                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-3 py-1.5 fw-semibold text-nowrap" style="font-size: 0.78rem;" title="Batas waktu pengerjaan kuis ini telah berakhir">
+                                            <i class="fa-solid fa-lock me-1"></i> Tenggat Berakhir
+                                        </span>
                                     @else
                                         <a href="{{ $targetUrl }}" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold text-success border-success border btn-bouncy text-nowrap" style="font-size: 0.78rem;">
                                             Kerjakan <i class="fa-solid fa-pen-to-square ms-1"></i>

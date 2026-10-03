@@ -64,13 +64,13 @@
     </div>
 
     <!-- Filter Kategori (Pills) -->
-    <div class="category-filter-wrapper mb-4 text-center">
-        <div class="d-flex flex-wrap justify-content-center gap-2" id="categoryFilterContainer">
-            <button type="button" class="btn btn-category active rounded-pill px-4 py-2 fw-semibold shadow-sm" data-category-id="all">
+    <div class="category-filter-wrapper mb-4">
+        <div class="d-flex flex-nowrap flex-md-wrap overflow-auto pb-2 px-1 gap-2 justify-content-start justify-content-md-center align-items-center" id="categoryFilterContainer" style="scrollbar-width: thin; -webkit-overflow-scrolling: touch;">
+            <button type="button" class="btn btn-category active rounded-pill px-3.5 py-1.5 py-md-2 fw-semibold shadow-sm text-nowrap flex-shrink-0" data-category-id="all">
                 Semua
             </button>
             @foreach($categories as $cat)
-            <button type="button" class="btn btn-category rounded-pill px-4 py-2 fw-semibold shadow-sm" data-category-id="{{ $cat->id }}">
+            <button type="button" class="btn btn-category rounded-pill px-3.5 py-1.5 py-md-2 fw-semibold shadow-sm text-nowrap flex-shrink-0" data-category-id="{{ $cat->id }}">
                 {{ $cat->name }}
             </button>
             @endforeach

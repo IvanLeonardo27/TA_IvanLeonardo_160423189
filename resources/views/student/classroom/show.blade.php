@@ -391,7 +391,7 @@
                                     </div>
                                     @elseif(!$hasAttempted && $isQuizOverdue)
                                     <div class="alert alert-danger bg-white border border-danger rounded-3 p-2.5 mt-2.5 mb-0 text-danger small fw-semibold">
-                                        <i class="fa-solid fa-triangle-exclamation me-1"></i> Batas waktu pengerjaan kuis ini telah berakhir pada {{ $post->quiz->due_date->format('d M Y, H:i') }}. Kuis sudah ditutup dan tidak dapat dikerjakan.
+                                        <i class="fa-solid fa-triangle-exclamation me-1"></i> Anda sudah terlambat mengerjakan kuis ini. Batas waktu pengerjaan telah berakhir pada {{ $post->quiz->due_date->format('d M Y, H:i') }}. Kuis sudah ditutup dan tidak dapat dikerjakan.
                                     </div>
                                     @endif
                                 </div>
@@ -409,8 +409,8 @@
                                         </a>
                                     @elseif(!$hasAttempted && $isQuizOverdue)
                                         {{-- Belum Mengisi dan Tenggat Berakhir --}}
-                                        <button class="btn rounded-pill fw-bold shadow-sm px-4 btn-secondary opacity-75" disabled title="Batas waktu pengerjaan kuis telah berakhir">
-                                            <i class="fa-solid fa-lock me-2"></i>Kuis Ditutup
+                                        <button class="btn rounded-pill fw-bold shadow-sm px-4 btn-danger disabled opacity-75" disabled title="Batas waktu pengerjaan kuis telah berakhir">
+                                            <i class="fa-solid fa-clock-rotate-left me-2"></i>Sudah Terlambat Mengerjakan
                                         </button>
                                     @else
                                         {{-- Masih Bisa Mengerjakan --}}

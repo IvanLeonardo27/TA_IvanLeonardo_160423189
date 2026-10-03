@@ -52,7 +52,7 @@ class ClassroomQuizController extends Controller
             }
 
             return redirect()->route('student.classroom.show', $classroom?->id ?? 1)
-                ->with('error', 'Maaf, batas waktu pengerjaan kuis ini telah berakhir pada ' . $quiz->due_date->format('d M Y, H:i') . '. Kuis sudah ditutup.');
+                ->with('error', 'Maaf, Anda sudah terlambat mengerjakan kuis ini. Batas waktu pengerjaan telah berakhir pada ' . $quiz->due_date->format('d M Y, H:i') . '.');
         }
 
         // Ambil daftar soal pilihan ganda kuis
@@ -70,7 +70,7 @@ class ClassroomQuizController extends Controller
         // Cek apakah batas waktu pengerjaan kuis telah berakhir saat submit
         if ($quiz->due_date && now()->greaterThan($quiz->due_date)) {
             return redirect()->route('student.classroom.show', $classroom?->id ?? 1)
-                ->with('error', 'Maaf, batas waktu pengerjaan kuis ini telah berakhir pada ' . $quiz->due_date->format('d M Y, H:i') . '. Jawaban Anda tidak dapat diterima.');
+                ->with('error', 'Maaf, Anda sudah terlambat mengerjakan kuis ini. Batas waktu pengerjaan telah berakhir pada ' . $quiz->due_date->format('d M Y, H:i') . '. Jawaban Anda tidak dapat diterima.');
         }
 
         Gate::authorize('attempt', $quiz);

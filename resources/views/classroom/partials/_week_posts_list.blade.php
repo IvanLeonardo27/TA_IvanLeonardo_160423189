@@ -81,9 +81,24 @@
                                         Hidden
                                     </span>
                                 @endif
-                                <small class="text-muted" style="font-size: 0.72rem;">
-                                    <i class="fa-regular fa-clock me-1 opacity-75"></i>{{ $post->created_at->format('d M Y, H:i') }}
-                                </small>
+                                @if($post->type === 'quiz' && $post->quiz && $post->quiz->due_date)
+                                    @php $isQuizOverdueHeader = now()->greaterThan($post->quiz->due_date); @endphp
+                                    <small class="{{ $isQuizOverdueHeader ? 'text-danger fw-bold' : 'text-purple fw-semibold' }}" style="font-size: 0.72rem; {{ $isQuizOverdueHeader ? '' : 'color:#8B5CF6;' }}">
+                                        <i class="fa-regular {{ $isQuizOverdueHeader ? 'fa-calendar-xmark' : 'fa-calendar' }} me-1"></i>Tenggat: {{ \Carbon\Carbon::parse($post->quiz->due_date)->format('d M Y, H:i') }}
+                                        @if($isQuizOverdueHeader)
+                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-1.5 ms-1">Terlewat</span>
+                                        @endif
+                                    </small>
+                                @elseif($post->type === 'assignment' && $post->assignment && $post->assignment->due_date)
+                                    @php $isAssignOverdueHeader = now()->greaterThan($post->assignment->due_date); @endphp
+                                    <small class="{{ $isAssignOverdueHeader ? 'text-danger fw-bold' : 'text-muted' }}" style="font-size: 0.72rem;">
+                                        <i class="fa-regular fa-calendar-xmark me-1"></i>Tenggat: {{ \Carbon\Carbon::parse($post->assignment->due_date)->format('d M Y, H:i') }}
+                                    </small>
+                                @else
+                                    <small class="text-muted" style="font-size: 0.72rem;">
+                                        <i class="fa-regular fa-clock me-1 opacity-75"></i>{{ $post->created_at->format('d M Y, H:i') }}
+                                    </small>
+                                @endif
                             </div>
 
                             @if($isTeacherUser && $post->type === 'assignment' && $post->assignment)
@@ -230,8 +245,8 @@
                                             @endif
                                         </div>
                                     @elseif($isQuizOverdue)
-                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-3 py-1.5 fw-semibold text-nowrap" style="font-size: 0.78rem;" title="Batas waktu pengerjaan kuis ini telah berakhir">
-                                            <i class="fa-solid fa-lock me-1"></i> Tenggat Berakhir
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-1.5 fw-semibold text-nowrap shadow-xs" style="font-size: 0.78rem;" title="Batas waktu pengerjaan kuis ini telah berakhir">
+                                            <i class="fa-solid fa-clock-rotate-left me-1"></i> Sudah Terlambat Mengerjakan
                                         </span>
                                     @else
                                         <a href="{{ $targetUrl }}" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold text-success border-success border btn-bouncy text-nowrap" style="font-size: 0.78rem;">

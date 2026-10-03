@@ -294,7 +294,7 @@
                         <h6 class="fw-bold text-purple mb-3" style="color: #8B5CF6;"><i class="fa-solid fa-pen-to-square me-2"></i>Pengaturan Evaluasi / Quiz Kelas</h6>
                         <div class="row g-3 g-md-4 mb-4">
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold small">Tenggat Waktu Kuis</label>
+                                <label class="form-label fw-semibold small">Tenggat Waktu Kuis <span class="text-danger">*</span></label>
                                 <input type="datetime-local" name="quiz_due_date" id="quizDueDate" class="form-control rounded-4 border-0 bg-light" value="{{ old('quiz_due_date', old('due_date')) }}">
                             </div>
                             <div class="col-md-4">
@@ -511,6 +511,15 @@
         assignFields.querySelectorAll('input, select, textarea').forEach(el => el.disabled = (type !== 'assignment'));
         quizFields.querySelectorAll('input, select, textarea').forEach(el => el.disabled = (type !== 'quiz'));
         materialSection.querySelectorAll('input, select, textarea').forEach(el => el.disabled = (type !== 'material'));
+
+        const quizDueDate = document.getElementById('quizDueDate');
+        if (quizDueDate) {
+            if (type === 'quiz') {
+                quizDueDate.setAttribute('required', 'required');
+            } else {
+                quizDueDate.removeAttribute('required');
+            }
+        }
 
         // Dynamic labels based on type
         if (type === 'url') {

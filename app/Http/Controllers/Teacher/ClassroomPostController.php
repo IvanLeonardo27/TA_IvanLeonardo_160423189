@@ -35,7 +35,7 @@ class ClassroomPostController extends Controller
             // Assignment / Quiz fields
             'due_date'            => 'nullable|date',
             'assignment_due_date' => 'nullable|date',
-            'quiz_due_date'       => 'nullable|date',
+            'quiz_due_date'       => $request->input('type') === 'quiz' ? 'required|date' : 'nullable|date',
             'duration_minutes'    => 'nullable|integer|min:1|max:300',
             'max_score'           => 'nullable|integer|min:0|max:1000',
             'show_score'          => 'nullable|boolean',

@@ -41,8 +41,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->unique()->constrained('users')->onDelete('cascade');
             $table->string('nisn', 30)->nullable();
-            $table->string('school_name', 150)->nullable();
-            $table->string('grade_level', 50)->nullable();
+            $table->enum('grade_level', \App\Models\StudentProfile::GRADE_LEVELS)->nullable();
             $table->string('phone_number', 30)->nullable();
             $table->timestamps();
         });

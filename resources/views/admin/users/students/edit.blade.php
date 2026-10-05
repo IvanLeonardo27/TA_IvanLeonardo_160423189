@@ -67,25 +67,24 @@
 
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold text-main small">Nama Sekolah</label>
-                        <input type="text" name="school_name" class="form-control rounded-3" 
-                               value="{{ old('school_name', $user->studentProfile->school_name ?? '') }}">
+                        <label class="form-label fw-semibold text-main small">Kelas / Tingkat <span class="text-danger">*</span></label>
+                        <select name="grade_level" class="form-select rounded-3 @error('grade_level') is-invalid @enderror" required>
+                            <option value="" disabled {{ old('grade_level', $user->studentProfile->grade_level ?? '') == '' ? 'selected' : '' }}>-- Pilih Kelas / Tingkat --</option>
+                            @foreach(\App\Models\StudentProfile::GRADE_LEVELS as $grade)
+                                <option value="{{ $grade }}" {{ old('grade_level', $user->studentProfile->grade_level ?? '') === $grade ? 'selected' : '' }}>{{ $grade }}</option>
+                            @endforeach
+                        </select>
+                        @error('grade_level')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold text-main small">Kelas / Tingkat</label>
-                        <input type="text" name="grade_level" class="form-control rounded-3" 
-                               value="{{ old('grade_level', $user->studentProfile->grade_level ?? '') }}">
+                        <label class="form-label fw-semibold text-main small">Nomor Telepon / WhatsApp</label>
+                        <input type="text" name="phone_number" class="form-control rounded-3" 
+                               value="{{ old('phone_number', $user->studentProfile->phone_number ?? '') }}" placeholder="08xxxxxxxxxx">
                     </div>
                 </div>
 
                 <div class="row g-3 mb-4">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold text-main small">Nomor Telepon / WhatsApp</label>
-                        <input type="text" name="phone_number" class="form-control rounded-3" 
-                               value="{{ old('phone_number', $user->studentProfile->phone_number ?? '') }}">
-                    </div>
-
                     <div class="col-md-6">
                         <label class="form-label fw-semibold text-main small">Status Akun</label>
                         <select name="status" class="form-select rounded-3">

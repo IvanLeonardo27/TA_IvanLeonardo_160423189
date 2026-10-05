@@ -94,7 +94,6 @@ class ProfileController extends Controller
                 ['user_id' => $user->id],
                 [
                     'nisn'         => $validated['nisn'] ?? null,
-                    'school_name'  => $validated['school_name'] ?? null,
                     'grade_level'  => $validated['grade_level'] ?? null,
                     'phone_number' => $validated['phone_number'] ?? null,
                 ]

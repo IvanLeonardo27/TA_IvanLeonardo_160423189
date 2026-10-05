@@ -79,26 +79,26 @@ class DummyDataSeeder extends Seeder
         // 2. DATA DUMMY 20 SISWA (STUDENTS) & STUDENT_PROFILES (20 DATA)
         // ==========================================
         $studentsData = [
-            ['name' => 'Ahmad Rizky Pratama', 'email' => 'ahmad.rizky@student.basakula.edu', 'code' => '27705001', 'nisn' => '0051234001', 'grade' => 'Kelas XI IPA 1'],
-            ['name' => 'Anisa Rahmawati', 'email' => 'anisa.rahma@student.basakula.edu', 'code' => '27705002', 'nisn' => '0051234002', 'grade' => 'Kelas XI IPA 2'],
-            ['name' => 'Bagas Maulana', 'email' => 'bagas.maulana@student.basakula.edu', 'code' => '27705003', 'nisn' => '0051234003', 'grade' => 'Kelas XI IPS 1'],
-            ['name' => 'Citra Dewi Permata', 'email' => 'citra.dewi@student.basakula.edu', 'code' => '27705004', 'nisn' => '0051234004', 'grade' => 'Kelas XI IPS 2'],
-            ['name' => 'Dwi Cahyo Nugroho', 'email' => 'dwi.cahyo@student.basakula.edu', 'code' => '27705005', 'nisn' => '0051234005', 'grade' => 'Kelas X-A'],
-            ['name' => 'Eka Putri Lestari', 'email' => 'eka.putri@student.basakula.edu', 'code' => '27705006', 'nisn' => '0051234006', 'grade' => 'Kelas X-B'],
-            ['name' => 'Fajar Kurniawan', 'email' => 'fajar.kurnia@student.basakula.edu', 'code' => '27705007', 'nisn' => '0051234007', 'grade' => 'Kelas X-C'],
-            ['name' => 'Gita Gutawa Putri', 'email' => 'gita.gutawa@student.basakula.edu', 'code' => '27705008', 'nisn' => '0051234008', 'grade' => 'Kelas XII IPA 1'],
-            ['name' => 'Hafiz Hendrawan', 'email' => 'hafiz.hendra@student.basakula.edu', 'code' => '27705009', 'nisn' => '0051234009', 'grade' => 'Kelas XII IPA 2'],
-            ['name' => 'Indah Kusuma Wardani', 'email' => 'indah.kusuma@student.basakula.edu', 'code' => '27705010', 'nisn' => '0051234010', 'grade' => 'Kelas XII IPS 1'],
-            ['name' => 'Joko Susilo', 'email' => 'joko.susilo@student.basakula.edu', 'code' => '27705011', 'nisn' => '0051234011', 'grade' => 'Kelas XI Bahasa'],
-            ['name' => 'Karin Novilda', 'email' => 'karin.novilda@student.basakula.edu', 'code' => '27705012', 'nisn' => '0051234012', 'grade' => 'Kelas XI IPA 3'],
-            ['name' => 'Lukman Hakim', 'email' => 'lukman.hakim@student.basakula.edu', 'code' => '27705013', 'nisn' => '0051234013', 'grade' => 'Kelas X-D'],
-            ['name' => 'Maya Anggraini', 'email' => 'maya.anggraini@student.basakula.edu', 'code' => '27705014', 'nisn' => '0051234014', 'grade' => 'Kelas XI IPS 3'],
-            ['name' => 'Naufal Alifi', 'email' => 'naufal.alifi@student.basakula.edu', 'code' => '27705015', 'nisn' => '0051234015', 'grade' => 'Kelas XII Bahasa'],
-            ['name' => 'Olivia Zalianty', 'email' => 'olivia.z@student.basakula.edu', 'code' => '27705016', 'nisn' => '0051234016', 'grade' => 'Kelas XI IPA 4'],
-            ['name' => 'Panji Pradana', 'email' => 'panji.pradana@student.basakula.edu', 'code' => '27705017', 'nisn' => '0051234017', 'grade' => 'Kelas X-E'],
-            ['name' => 'Qonita Rahmani', 'email' => 'qonita.rahma@student.basakula.edu', 'code' => '27705018', 'nisn' => '0051234018', 'grade' => 'Kelas XII IPA 3'],
-            ['name' => 'Rian Ardianto', 'email' => 'rian.ardianto@student.basakula.edu', 'code' => '27705019', 'nisn' => '0051234019', 'grade' => 'Kelas XI IPS 4'],
-            ['name' => 'Salsabila Putri', 'email' => 'salsabila.p@student.basakula.edu', 'code' => '27705020', 'nisn' => '0051234020', 'grade' => 'Kelas X-F']
+            ['name' => 'Ahmad Rizky Pratama', 'email' => 'ahmad.rizky@student.basakula.edu', 'code' => '27705001', 'nisn' => '0051234001', 'grade' => 'Kelas 11'],
+            ['name' => 'Anisa Rahmawati', 'email' => 'anisa.rahma@student.basakula.edu', 'code' => '27705002', 'nisn' => '0051234002', 'grade' => 'Kelas 11'],
+            ['name' => 'Bagas Maulana', 'email' => 'bagas.maulana@student.basakula.edu', 'code' => '27705003', 'nisn' => '0051234003', 'grade' => 'Kelas 11'],
+            ['name' => 'Citra Dewi Permata', 'email' => 'citra.dewi@student.basakula.edu', 'code' => '27705004', 'nisn' => '0051234004', 'grade' => 'Kelas 11'],
+            ['name' => 'Dwi Cahyo Nugroho', 'email' => 'dwi.cahyo@student.basakula.edu', 'code' => '27705005', 'nisn' => '0051234005', 'grade' => 'Kelas 10'],
+            ['name' => 'Eka Putri Lestari', 'email' => 'eka.putri@student.basakula.edu', 'code' => '27705006', 'nisn' => '0051234006', 'grade' => 'Kelas 10'],
+            ['name' => 'Fajar Kurniawan', 'email' => 'fajar.kurnia@student.basakula.edu', 'code' => '27705007', 'nisn' => '0051234007', 'grade' => 'Kelas 10'],
+            ['name' => 'Gita Gutawa Putri', 'email' => 'gita.gutawa@student.basakula.edu', 'code' => '27705008', 'nisn' => '0051234008', 'grade' => 'Kelas 12'],
+            ['name' => 'Hafiz Hendrawan', 'email' => 'hafiz.hendra@student.basakula.edu', 'code' => '27705009', 'nisn' => '0051234009', 'grade' => 'Kelas 12'],
+            ['name' => 'Indah Kusuma Wardani', 'email' => 'indah.kusuma@student.basakula.edu', 'code' => '27705010', 'nisn' => '0051234010', 'grade' => 'Kelas 12'],
+            ['name' => 'Joko Susilo', 'email' => 'joko.susilo@student.basakula.edu', 'code' => '27705011', 'nisn' => '0051234011', 'grade' => 'Kelas 11'],
+            ['name' => 'Karin Novilda', 'email' => 'karin.novilda@student.basakula.edu', 'code' => '27705012', 'nisn' => '0051234012', 'grade' => 'Kelas 11'],
+            ['name' => 'Lukman Hakim', 'email' => 'lukman.hakim@student.basakula.edu', 'code' => '27705013', 'nisn' => '0051234013', 'grade' => 'Kelas 10'],
+            ['name' => 'Maya Anggraini', 'email' => 'maya.anggraini@student.basakula.edu', 'code' => '27705014', 'nisn' => '0051234014', 'grade' => 'Kelas 11'],
+            ['name' => 'Naufal Alifi', 'email' => 'naufal.alifi@student.basakula.edu', 'code' => '27705015', 'nisn' => '0051234015', 'grade' => 'Kelas 12'],
+            ['name' => 'Olivia Zalianty', 'email' => 'olivia.z@student.basakula.edu', 'code' => '27705016', 'nisn' => '0051234016', 'grade' => 'Kelas 11'],
+            ['name' => 'Panji Pradana', 'email' => 'panji.pradana@student.basakula.edu', 'code' => '27705017', 'nisn' => '0051234017', 'grade' => 'Kelas 10'],
+            ['name' => 'Qonita Rahmani', 'email' => 'qonita.rahma@student.basakula.edu', 'code' => '27705018', 'nisn' => '0051234018', 'grade' => 'Kelas 12'],
+            ['name' => 'Rian Ardianto', 'email' => 'rian.ardianto@student.basakula.edu', 'code' => '27705019', 'nisn' => '0051234019', 'grade' => 'Kelas 11'],
+            ['name' => 'Salsabila Putri', 'email' => 'salsabila.p@student.basakula.edu', 'code' => '27705020', 'nisn' => '0051234020', 'grade' => 'Kelas 10']
         ];
 
         $studentUserIds = [];
@@ -119,7 +119,6 @@ class DummyDataSeeder extends Seeder
                 ['user_id' => $user->id],
                 [
                     'nisn'         => $sd['nisn'],
-                    'school_name'  => 'SMA Negeri 1 Yogyakarta',
                     'grade_level'  => $sd['grade'],
                     'phone_number' => '0857' . sprintf('%08d', $idx + 1),
                 ]

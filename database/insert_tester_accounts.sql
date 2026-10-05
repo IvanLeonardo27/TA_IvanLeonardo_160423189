@@ -71,8 +71,8 @@ ON DUPLICATE KEY UPDATE `updated_at` = NOW();
 -- ------------------------------------------------------------------------------
 -- 4. PROFIL PELAJAR (student_profiles)
 -- ------------------------------------------------------------------------------
-INSERT INTO `student_profiles` (`user_id`, `nisn`, `school_name`, `grade_level`, `created_at`, `updated_at`)
-SELECT `id`, CONCAT('008', LPAD(`id`, 7, '0')), 'SMP/SMA Negeri BasaKula', 'Kelas 8', NOW(), NOW()
+INSERT INTO `student_profiles` (`user_id`, `nisn`, `grade_level`, `created_at`, `updated_at`)
+SELECT `id`, CONCAT('008', LPAD(`id`, 7, '0')), 'Kelas 8', NOW(), NOW()
 FROM `users` WHERE `email` LIKE 'testerpelajar%@test.com'
 ON DUPLICATE KEY UPDATE `updated_at` = NOW();
 

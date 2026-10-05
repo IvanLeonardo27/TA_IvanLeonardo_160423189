@@ -222,8 +222,7 @@ class UserController extends Controller
             'email'        => 'required|string|email|max:150|unique:users,email',
             'password'     => 'required|string|min:6',
             'nisn'         => 'nullable|string|max:50',
-            'school_name'  => 'nullable|string|max:120',
-            'grade_level'  => 'nullable|string|max:50',
+            'grade_level'  => ['required', 'string', Rule::in(StudentProfile::GRADE_LEVELS)],
             'phone_number' => 'nullable|string|max:25',
             'status'       => 'required|in:active,inactive',
         ]);
@@ -244,7 +243,6 @@ class UserController extends Controller
         StudentProfile::create([
             'user_id'      => $user->id,
             'nisn'         => $request->nisn,
-            'school_name'  => $request->school_name,
             'grade_level'  => $request->grade_level,
             'phone_number' => $request->phone_number,
         ]);
@@ -273,8 +271,7 @@ class UserController extends Controller
             'email'        => ['required', 'string', 'email', 'max:150', Rule::unique('users')->ignore($user->id)],
             'password'     => 'nullable|string|min:6',
             'nisn'         => 'nullable|string|max:50',
-            'school_name'  => 'nullable|string|max:120',
-            'grade_level'  => 'nullable|string|max:50',
+            'grade_level'  => ['required', 'string', Rule::in(StudentProfile::GRADE_LEVELS)],
             'phone_number' => 'nullable|string|max:25',
             'status'       => 'required|in:active,inactive',
         ]);
@@ -293,7 +290,6 @@ class UserController extends Controller
             ['user_id' => $user->id],
             [
                 'nisn'         => $request->nisn,
-                'school_name'  => $request->school_name,
                 'grade_level'  => $request->grade_level,
                 'phone_number' => $request->phone_number,
             ]

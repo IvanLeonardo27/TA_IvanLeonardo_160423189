@@ -232,12 +232,6 @@
                                     </div>
                                 </div>
 
-                                <div class="col-sm-6">
-                                    <div class="p-3 bg-light bg-opacity-50 rounded-4 border">
-                                        <small class="text-muted fw-semibold d-block mb-1">Asal Sekolah</small>
-                                        <div class="fw-bold text-dark">{{ $user->studentProfile->school_name ?? '-' }}</div>
-                                    </div>
-                                </div>
 
                                 <div class="col-sm-6">
                                     <div class="p-3 bg-light bg-opacity-50 rounded-4 border">
@@ -441,20 +435,15 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label fw-bold text-dark small">Nama Asal Sekolah</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-0"><i class="fa-solid fa-school text-muted"></i></span>
-                                    <input type="text" name="school_name" class="form-control bg-light border-0 py-2.5 text-dark" 
-                                           value="{{ old('school_name', $user->studentProfile->school_name ?? '') }}" placeholder="Contoh: SMP Negeri 7 Surabaya">
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
                                 <label class="form-label fw-bold text-dark small">Kelas / Tingkat</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-0"><i class="fa-solid fa-graduation-cap text-muted"></i></span>
-                                    <input type="text" name="grade_level" class="form-control bg-light border-0 py-2.5 text-dark" 
-                                           value="{{ old('grade_level', $user->studentProfile->grade_level ?? '') }}" placeholder="Contoh: Kelas 7A">
+                                    <select name="grade_level" class="form-select bg-light border-0 py-2.5 text-dark">
+                                        <option value="" disabled {{ old('grade_level', $user->studentProfile->grade_level ?? '') == '' ? 'selected' : '' }}>-- Pilih Kelas / Tingkat --</option>
+                                        @foreach(\App\Models\StudentProfile::GRADE_LEVELS as $level)
+                                            <option value="{{ $level }}" {{ old('grade_level', $user->studentProfile->grade_level ?? '') === $level ? 'selected' : '' }}>{{ $level }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
 

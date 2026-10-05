@@ -169,7 +169,7 @@
                             <tr>
                                 <th class="fw-bold text-dark py-3 ps-3">Kode</th>
                                 <th class="fw-bold text-dark py-3">Nama Pelajar</th>
-                                <th class="fw-bold text-dark py-3">Sekolah / Kelas</th>
+                                <th class="fw-bold text-dark py-3">Kelas / Tingkat</th>
                                 <th class="fw-bold text-dark py-3 pe-3">Status</th>
                             </tr>
                         </thead>
@@ -186,7 +186,7 @@
                                     <div class="fw-bold text-dark">{{ $ls->name }}</div>
                                     <small class="text-muted">{{ $ls->email }}</small>
                                 </td>
-                                <td class="text-muted py-3">{{ $ls->studentProfile->school_name ?? ($ls->studentProfile->grade_level ?? '-') }}</td>
+                                <td class="text-muted py-3">{{ $ls->studentProfile->grade_level ?? '-' }}</td>
                                 <td class="py-3 pe-3">
                                     <span class="d-inline-flex align-items-center rounded-pill fw-bold shadow-xs" 
                                           style="{{ $ls->status === 'active' ? 'background: #DCFCE7; color: #166534 !important; border: 1px solid #86EFAC;' : 'background: #FEE2E2; color: #991B1B !important; border: 1px solid #FCA5A5;' }}; font-size: 0.76rem; padding: 5px 12px;">

@@ -99,7 +99,6 @@ class TesterAccountsSeeder extends Seeder
                 ['user_id' => $student->id],
                 [
                     'nisn'         => '008' . str_pad($student->id, 7, '0', STR_PAD_LEFT),
-                    'school_name'  => 'SMP/SMA Negeri BasaKula',
                     'grade_level'  => 'Kelas 8',
                     'phone_number' => '0821' . str_pad($i, 8, '0', STR_PAD_LEFT),
                 ]

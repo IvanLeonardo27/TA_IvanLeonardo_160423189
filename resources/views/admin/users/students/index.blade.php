@@ -81,8 +81,8 @@
                     <tr>
                         <th class="ps-4 py-3.5 fw-bold text-dark">Kode Pelajar</th>
                         <th class="py-3.5 fw-bold text-dark">Nama & Email</th>
-                        <th class="py-3.5 fw-bold text-dark">NISN & Kelas</th>
-                        <th class="py-3.5 fw-bold text-dark">Sekolah / Lembaga</th>
+                        <th class="py-3.5 fw-bold text-dark">NISN</th>
+                        <th class="py-3.5 fw-bold text-dark">Kelas / Tingkat</th>
                         <th class="py-3.5 fw-bold text-dark">Kelas Diikuti</th>
                         <th class="py-3.5 fw-bold text-dark">Status</th>
                         <th class="py-3.5 fw-bold text-dark">Login Terakhir</th>
@@ -103,10 +103,13 @@
                             <small class="text-muted">{{ $s->email }}</small>
                         </td>
                         <td class="py-3">
-                            <div class="fw-semibold text-dark">{{ $s->studentProfile->nisn ?? '-' }}</div>
-                            <small class="text-muted">{{ $s->studentProfile->grade_level ?? '-' }}</small>
+                            <span class="font-monospace fw-semibold text-dark">{{ $s->studentProfile->nisn ?? '-' }}</span>
                         </td>
-                        <td class="text-dark py-3">{{ $s->studentProfile->school_name ?? '-' }}</td>
+                        <td class="py-3">
+                            <span class="badge bg-light text-dark border px-2.5 py-1.5 rounded-pill fw-medium" style="font-size:0.83rem;">
+                                {{ $s->studentProfile->grade_level ?? '-' }}
+                            </span>
+                        </td>
                         <td class="py-3">
                             <div class="d-inline-flex align-items-center px-3 py-1.5 rounded-pill fw-semibold shadow-xs" 
                                  style="background: #F8FAFC; color: #334155 !important; border: 1.5px solid #E2E8F0; font-size: 0.83rem;">

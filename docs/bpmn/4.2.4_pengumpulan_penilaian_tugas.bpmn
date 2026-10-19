@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_AssignGrade" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.25.1">
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_AssignGrade" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.31.0">
   <bpmn:collaboration id="Collaboration_AssignGrade">
     <bpmn:participant id="Participant_AssignGrade" name="LMS Pembelajaran Bahasa Jawa BasaKula" processRef="Process_AssignGrade" />
   </bpmn:collaboration>
@@ -45,30 +45,18 @@
       <bpmn:incoming>Flow_A4</bpmn:incoming>
       <bpmn:outgoing>Flow_A5</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Task_SaveAssignment" name="Insert ke &#39;classroom_assignments&#39; &#38; Tampilkan di Akun Siswa">
+    <bpmn:task id="Task_SaveAssignment" name="Validasi &#38; Terbitkan Penugasan di Feed Kelas">
       <bpmn:incoming>Flow_A2</bpmn:incoming>
       <bpmn:outgoing>Flow_A3</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:exclusiveGateway id="Gateway_Deadline" name="Waktu Kirim &#62; Deadline?">
-      <bpmn:incoming>Flow_A5</bpmn:incoming>
-      <bpmn:outgoing>Flow_Late</bpmn:outgoing>
-      <bpmn:outgoing>Flow_OnTime</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:task id="Task_SaveLate" name="Simpan Berkas &#38; Tandai Status &#39;Terlambat&#39;">
-      <bpmn:incoming>Flow_Late</bpmn:incoming>
-      <bpmn:outgoing>Flow_ToTeacherGrade1</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:task id="Task_SaveOnTime" name="Simpan Berkas &#38; Tandai Status &#39;Tepat Waktu&#39;">
-      <bpmn:incoming>Flow_OnTime</bpmn:incoming>
-      <bpmn:outgoing>Flow_ToTeacherGrade2</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_Assignments">
+        <bpmn:targetRef>DataStore_Assignments</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
     </bpmn:task>
     <bpmn:sequenceFlow id="Flow_A1" sourceRef="Start_TaskCreate" targetRef="Task_CreateTask" />
     <bpmn:sequenceFlow id="Flow_A2" sourceRef="Task_CreateTask" targetRef="Task_SaveAssignment" />
     <bpmn:sequenceFlow id="Flow_A3" sourceRef="Task_SaveAssignment" targetRef="Task_ReadTask" />
     <bpmn:sequenceFlow id="Flow_A4" sourceRef="Task_ReadTask" targetRef="Task_UploadWork" />
     <bpmn:sequenceFlow id="Flow_A5" sourceRef="Task_UploadWork" targetRef="Gateway_Deadline" />
-    <bpmn:sequenceFlow id="Flow_Late" name="Ya" sourceRef="Gateway_Deadline" targetRef="Task_SaveLate" />
-    <bpmn:sequenceFlow id="Flow_OnTime" name="Tidak" sourceRef="Gateway_Deadline" targetRef="Task_SaveOnTime" />
     <bpmn:sequenceFlow id="Flow_ToTeacherGrade1" sourceRef="Task_SaveLate" targetRef="Task_GradeSubmission" />
     <bpmn:sequenceFlow id="Flow_ToTeacherGrade2" sourceRef="Task_SaveOnTime" targetRef="Task_GradeSubmission" />
     <bpmn:sequenceFlow id="Flow_A6" sourceRef="Task_GradeSubmission" targetRef="Task_UpdateGradeDB" />
@@ -81,23 +69,49 @@
     <bpmn:endEvent id="End_TaskStudent" name="Tugas Diterima &#38; Dinilai">
       <bpmn:incoming>Flow_EndStudent</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:task id="Task_UpdateGradeDB" name="Update Nilai ke &#39;classroom_submissions&#39; &#38; Set Status &#39;Graded&#39;">
-      <bpmn:incoming>Flow_A6</bpmn:incoming>
-      <bpmn:outgoing>Flow_ToStudentGrade</bpmn:outgoing>
-      <bpmn:outgoing>Flow_A7</bpmn:outgoing>
-    </bpmn:task>
     <bpmn:task id="Task_ViewFinalGrade" name="Melihat Nilai Akhir &#38; Catatan Evaluasi Guru">
       <bpmn:incoming>Flow_ToStudentGrade</bpmn:incoming>
       <bpmn:outgoing>Flow_EndStudent</bpmn:outgoing>
     </bpmn:task>
+    <bpmn:dataStoreReference id="DataStore_Assignments" name="Tabel classroom_assignments" />
+    <bpmn:exclusiveGateway id="Gateway_Deadline" name="Waktu Kirim &#62; Deadline?">
+      <bpmn:incoming>Flow_A5</bpmn:incoming>
+      <bpmn:outgoing>Flow_Late</bpmn:outgoing>
+      <bpmn:outgoing>Flow_OnTime</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_SaveLate" name="Simpan Berkas &#38; Tandai Status &#39;Terlambat&#39;">
+      <bpmn:incoming>Flow_Late</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToTeacherGrade1</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_SubmissionsLate">
+        <bpmn:targetRef>DataStore_Submissions</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:task id="Task_SaveOnTime" name="Simpan Berkas &#38; Tandai Status &#39;Tepat Waktu&#39;">
+      <bpmn:incoming>Flow_OnTime</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToTeacherGrade2</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_SubmissionsOnTime">
+        <bpmn:targetRef>DataStore_Submissions</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:task id="Task_UpdateGradeDB" name="Kalkulasi Skor Nilai &#38; Simpan Feedback Evaluasi Guru">
+      <bpmn:incoming>Flow_A6</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToStudentGrade</bpmn:outgoing>
+      <bpmn:outgoing>Flow_A7</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_Grade">
+        <bpmn:targetRef>DataStore_Submissions</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_Late" name="Ya" sourceRef="Gateway_Deadline" targetRef="Task_SaveLate" />
+    <bpmn:sequenceFlow id="Flow_OnTime" name="Tidak" sourceRef="Gateway_Deadline" targetRef="Task_SaveOnTime" />
+    <bpmn:dataStoreReference id="DataStore_Submissions" name="Tabel classroom_submissions" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_AssignGrade">
     <bpmndi:BPMNPlane id="BPMNPlane_AssignGrade" bpmnElement="Collaboration_AssignGrade">
       <bpmndi:BPMNShape id="Participant_AssignGrade_di" bpmnElement="Participant_AssignGrade" isHorizontal="true">
-        <dc:Bounds x="160" y="80" width="1290" height="520" />
+        <dc:Bounds x="160" y="80" width="1290" height="670" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_Sys_Assign_di" bpmnElement="Lane_Sys_Assign" isHorizontal="true">
-        <dc:Bounds x="190" y="400" width="1260" height="200" />
+        <dc:Bounds x="190" y="400" width="1260" height="350" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_S_Assign_di" bpmnElement="Lane_S_Assign" isHorizontal="true">
         <dc:Bounds x="190" y="240" width="1260" height="160" />
@@ -126,18 +140,6 @@
       <bpmndi:BPMNShape id="Task_SaveAssignment_di" bpmnElement="Task_SaveAssignment">
         <dc:Bounds x="310" y="450" width="140" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_Deadline_di" bpmnElement="Gateway_Deadline" isMarkerVisible="true">
-        <dc:Bounds x="680" y="465" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="672" y="522" width="67" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_SaveLate_di" bpmnElement="Task_SaveLate">
-        <dc:Bounds x="770" y="420" width="130" height="70" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_SaveOnTime_di" bpmnElement="Task_SaveOnTime">
-        <dc:Bounds x="770" y="510" width="130" height="70" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="End_TaskTeacher_di" bpmnElement="End_TaskTeacher">
         <dc:Bounds x="1372" y="142" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -150,11 +152,35 @@
           <dc:Bounds x="1278" y="345" width="85" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_UpdateGradeDB_di" bpmnElement="Task_UpdateGradeDB">
-        <dc:Bounds x="1060" y="450" width="140" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_ViewFinalGrade_di" bpmnElement="Task_ViewFinalGrade">
         <dc:Bounds x="1065" y="280" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataStore_Assignments_di" bpmnElement="DataStore_Assignments">
+        <dc:Bounds x="355" y="585" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="340" y="642" width="82" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Deadline_di" bpmnElement="Gateway_Deadline" isMarkerVisible="true">
+        <dc:Bounds x="680" y="520" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="671" y="577" width="69" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SaveLate_di" bpmnElement="Task_SaveLate">
+        <dc:Bounds x="770" y="475" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SaveOnTime_di" bpmnElement="Task_SaveOnTime">
+        <dc:Bounds x="770" y="565" width="130" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UpdateGradeDB_di" bpmnElement="Task_UpdateGradeDB">
+        <dc:Bounds x="1060" y="505" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataStore_Submissions_di" bpmnElement="DataStore_Submissions">
+        <dc:Bounds x="995" y="615" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="978" y="672" width="86" height="40" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_A1_di" bpmnElement="Flow_A1">
         <di:waypoint x="268" y="160" />
@@ -176,44 +202,26 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_A5_di" bpmnElement="Flow_A5">
         <di:waypoint x="705" y="360" />
-        <di:waypoint x="705" y="465" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Late_di" bpmnElement="Flow_Late">
-        <di:waypoint x="730" y="490" />
-        <di:waypoint x="750" y="490" />
-        <di:waypoint x="750" y="455" />
-        <di:waypoint x="770" y="455" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="734" y="437" width="13" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_OnTime_di" bpmnElement="Flow_OnTime">
-        <di:waypoint x="730" y="490" />
-        <di:waypoint x="750" y="490" />
-        <di:waypoint x="750" y="545" />
-        <di:waypoint x="770" y="545" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="734" y="553" width="28" height="14" />
-        </bpmndi:BPMNLabel>
+        <di:waypoint x="705" y="520" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_ToTeacherGrade1_di" bpmnElement="Flow_ToTeacherGrade1">
-        <di:waypoint x="900" y="455" />
-        <di:waypoint x="915" y="455" />
+        <di:waypoint x="900" y="510" />
+        <di:waypoint x="915" y="510" />
         <di:waypoint x="915" y="160" />
         <di:waypoint x="930" y="160" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_ToTeacherGrade2_di" bpmnElement="Flow_ToTeacherGrade2">
-        <di:waypoint x="900" y="545" />
-        <di:waypoint x="960" y="545" />
+        <di:waypoint x="900" y="600" />
+        <di:waypoint x="960" y="600" />
         <di:waypoint x="960" y="200" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_A6_di" bpmnElement="Flow_A6">
         <di:waypoint x="1000" y="200" />
-        <di:waypoint x="1000" y="490" />
-        <di:waypoint x="1060" y="490" />
+        <di:waypoint x="1000" y="545" />
+        <di:waypoint x="1060" y="545" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_ToStudentGrade_di" bpmnElement="Flow_ToStudentGrade">
-        <di:waypoint x="1130" y="450" />
+        <di:waypoint x="1130" y="505" />
         <di:waypoint x="1130" y="360" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_EndStudent_di" bpmnElement="Flow_EndStudent">
@@ -221,9 +229,43 @@
         <di:waypoint x="1302" y="320" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_A7_di" bpmnElement="Flow_A7">
-        <di:waypoint x="1200" y="490" />
-        <di:waypoint x="1390" y="490" />
+        <di:waypoint x="1200" y="545" />
+        <di:waypoint x="1390" y="545" />
         <di:waypoint x="1390" y="178" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Late_di" bpmnElement="Flow_Late">
+        <di:waypoint x="730" y="545" />
+        <di:waypoint x="750" y="545" />
+        <di:waypoint x="750" y="510" />
+        <di:waypoint x="770" y="510" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="734" y="492" width="13" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_OnTime_di" bpmnElement="Flow_OnTime">
+        <di:waypoint x="730" y="545" />
+        <di:waypoint x="750" y="545" />
+        <di:waypoint x="750" y="600" />
+        <di:waypoint x="770" y="600" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="735" y="608" width="27" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_Assignments_di" bpmnElement="DataOutputAssociation_Assignments">
+        <di:waypoint x="380" y="530" />
+        <di:waypoint x="380" y="585" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_SubmissionsLate_di" bpmnElement="DataOutputAssociation_SubmissionsLate">
+        <di:waypoint x="900" y="519" />
+        <di:waypoint x="995" y="631" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_SubmissionsOnTime_di" bpmnElement="DataOutputAssociation_SubmissionsOnTime">
+        <di:waypoint x="900" y="612" />
+        <di:waypoint x="995" y="630" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_Grade_di" bpmnElement="DataOutputAssociation_Grade">
+        <di:waypoint x="1079" y="585" />
+        <di:waypoint x="1045" y="621" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

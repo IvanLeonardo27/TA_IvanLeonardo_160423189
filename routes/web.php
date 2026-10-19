@@ -178,6 +178,17 @@ Route::middleware(['auth'])->prefix('wayang')->name('wayang.')->group(function (
 // Detail Tokoh Wayang (Evaluasi setelah /create)
 Route::get('/wayang/{character}', [\App\Http\Controllers\WayangController::class, 'show'])->name('wayang.show');
 
+// Rute Kawruh Basa untuk Pengajar & Admin (Teacher CRUD)
+Route::middleware(['auth'])->prefix('teacher/kawruh-basa')->name('teacher.kawruh-basa.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Teacher\KawruhBasaController::class, 'index'])->name('index');
+    Route::post('/', [\App\Http\Controllers\Teacher\KawruhBasaController::class, 'store'])->name('store');
+    Route::put('/{category}/{id}', [\App\Http\Controllers\Teacher\KawruhBasaController::class, 'update'])->name('update');
+    Route::delete('/{category}/{id}', [\App\Http\Controllers\Teacher\KawruhBasaController::class, 'destroy'])->name('destroy');
+});
+
+// Halaman Pembelajaran Kawruh Basa Jawa (Katalog Siswa/Publik)
+Route::get('/kawruh-basa', [\App\Http\Controllers\KawruhBasaController::class, 'index'])->name('kawruh-basa.index');
+
 Route::post('/translate', CustomerTranslateController::class)->name('customer.translate');
 Route::post('/quiz/attempt', CustomerQuizAttemptController::class)->name('customer.quiz.attempt');
 

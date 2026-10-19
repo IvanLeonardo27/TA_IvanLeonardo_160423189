@@ -272,9 +272,7 @@ class ClassroomController extends Controller
                 'Mengeluarkan Pelajar dari Kelas',
                 'classroom',
                 "Mengeluarkan (kick) pelajar '{$user->name}' dari kelas '{$classroom->name}'. Data histori nilai & tugas tetap tersimpan aman (out_at).",
-                $classroom->name,
-                'fa-solid fa-user-xmark',
-                'bg-danger'
+                $classroom->name
             );
         }
 

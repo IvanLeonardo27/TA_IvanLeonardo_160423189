@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_Wayang_Learning" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.25.1">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_Wayang_Learning" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.31.0">
   <bpmn:collaboration id="Collaboration_Wayang">
     <bpmn:participant id="Participant_Wayang" name="4.2.8 Proses Pembelajaran Mandiri Pewayangan Jawa - BasaKula" processRef="Process_Wayang" />
   </bpmn:collaboration>
@@ -97,22 +97,26 @@
       <bpmn:incoming>Flow_S6</bpmn:incoming>
       <bpmn:outgoing>Flow_S7</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Task_MutateDB" name="Simpan Berkas Gambar ke Storage &#38; Insert/Update ke Database">
+    <bpmn:task id="Task_MutateDB" name="Simpan File Gambar &#38; Rekam Profil Tokoh Wayang">
       <bpmn:incoming>Flow_T4</bpmn:incoming>
       <bpmn:outgoing>Flow_T5</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_Wayang">
+        <bpmn:targetRef>DataStore_Wayang</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
     </bpmn:task>
     <bpmn:task id="Task_InputWayang" name="Input Data &#38; Foto Tokoh">
       <bpmn:incoming>Flow_T2</bpmn:incoming>
       <bpmn:outgoing>Flow_T3</bpmn:outgoing>
     </bpmn:task>
+    <bpmn:dataStoreReference id="DataStore_Wayang" name="Tabel wayang_characters" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_Wayang">
     <bpmndi:BPMNPlane id="BPMNPlane_Wayang" bpmnElement="Collaboration_Wayang">
       <bpmndi:BPMNShape id="Participant_Wayang_di" bpmnElement="Participant_Wayang" isHorizontal="true">
-        <dc:Bounds x="160" y="80" width="1660" height="690" />
+        <dc:Bounds x="160" y="80" width="1660" height="780" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_System_di" bpmnElement="Lane_System" isHorizontal="true">
-        <dc:Bounds x="190" y="540" width="1630" height="230" />
+        <dc:Bounds x="190" y="540" width="1630" height="320" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_Student_di" bpmnElement="Lane_Student" isHorizontal="true">
         <dc:Bounds x="190" y="280" width="1630" height="260" />
@@ -155,10 +159,6 @@
       <bpmndi:BPMNShape id="Activity_0qaabem_di" bpmnElement="Task_OpenPanel">
         <dc:Bounds x="340" y="130" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_03xag30_di" bpmnElement="Task_InputWayang">
-        <dc:Bounds x="500" y="130" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0dm616o_di" bpmnElement="Task_SubmitWayang">
         <dc:Bounds x="680" y="130" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -186,6 +186,16 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1g9tnzq_di" bpmnElement="Task_MutateDB">
         <dc:Bounds x="1250" y="600" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_03xag30_di" bpmnElement="Task_InputWayang">
+        <dc:Bounds x="500" y="130" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataStore_Wayang_di" bpmnElement="DataStore_Wayang">
+        <dc:Bounds x="1385" y="735" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1367" y="792" width="87" height="40" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_T1_di" bpmnElement="Flow_T1">
         <di:waypoint x="288" y="170" />
@@ -263,6 +273,10 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1441" y="382" width="27" height="14" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_Wayang_di" bpmnElement="DataOutputAssociation_Wayang">
+        <di:waypoint x="1337" y="680" />
+        <di:waypoint x="1387" y="735" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

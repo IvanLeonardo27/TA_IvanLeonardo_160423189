@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Aksara" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.25.1">
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Aksara" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.31.0">
   <bpmn:collaboration id="Collaboration_Aksara">
     <bpmn:participant id="Participant_Aksara" name="LMS Pembelajaran Bahasa Jawa BasaKula" processRef="Process_Aksara" />
   </bpmn:collaboration>
@@ -74,18 +74,22 @@
     <bpmn:endEvent id="End_AksaraTeacher" name="Data Aksara Jawa Diperbarui">
       <bpmn:incoming>Flow_AJ_T3</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:task id="Task_UpdateAksaraDB" name="Insert / Update / Delete ke &#39;javanese_script_details&#39; &#38; &#39;examples&#39;">
+    <bpmn:task id="Task_UpdateAksaraDB" name="Sinkronisasi Koleksi Glif Aksara &#38; Contoh Kalimat">
       <bpmn:incoming>Flow_AJ_T2</bpmn:incoming>
       <bpmn:outgoing>Flow_AJ_T3</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_Aksara">
+        <bpmn:targetRef>DataStore_Aksara</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
     </bpmn:task>
+    <bpmn:dataStoreReference id="DataStore_Aksara" name="Tabel javanese_script_details" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_Aksara">
     <bpmndi:BPMNPlane id="BPMNPlane_Aksara" bpmnElement="Collaboration_Aksara">
       <bpmndi:BPMNShape id="Participant_Aksara_di" bpmnElement="Participant_Aksara" isHorizontal="true">
-        <dc:Bounds x="160" y="80" width="1320" height="500" />
+        <dc:Bounds x="160" y="80" width="1320" height="610" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_Sys_Aksara_di" bpmnElement="Lane_Sys_Aksara" isHorizontal="true">
-        <dc:Bounds x="190" y="390" width="1290" height="190" />
+        <dc:Bounds x="190" y="390" width="1290" height="300" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_S_Aksara_di" bpmnElement="Lane_S_Aksara" isHorizontal="true">
         <dc:Bounds x="190" y="230" width="1290" height="160" />
@@ -141,6 +145,12 @@
       <bpmndi:BPMNShape id="Task_UpdateAksaraDB_di" bpmnElement="Task_UpdateAksaraDB">
         <dc:Bounds x="545" y="450" width="150" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataStore_Aksara_di" bpmnElement="DataStore_Aksara">
+        <dc:Bounds x="595" y="575" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="576" y="632" width="89" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_AJ_T1_di" bpmnElement="Flow_AJ_T1">
         <di:waypoint x="268" y="150" />
         <di:waypoint x="320" y="150" />
@@ -186,6 +196,10 @@
       <bpmndi:BPMNEdge id="Flow_AJ_EndS_di" bpmnElement="Flow_AJ_EndS">
         <di:waypoint x="1235" y="310" />
         <di:waypoint x="1332" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_Aksara_di" bpmnElement="DataOutputAssociation_Aksara">
+        <di:waypoint x="620" y="530" />
+        <di:waypoint x="620" y="575" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

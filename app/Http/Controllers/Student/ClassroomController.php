@@ -99,9 +99,7 @@ class ClassroomController extends Controller
             'Bergabung ke Kelas',
             'classroom',
             "Bergabung ke ruang kelas '{$classroom->name}'.",
-            $classroom->name,
-            'fa-solid fa-right-to-bracket',
-            'bg-info'
+            $classroom->name
         );
 
         return redirect()->route('student.classroom.show', $classroom)

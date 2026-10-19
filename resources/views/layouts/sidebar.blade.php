@@ -69,6 +69,11 @@
                         <i class="fa-solid fa-masks-theater"></i> Pewayangan
                     </a>
                 </li>
+                <li class="nav-item mb-1" data-tour="sidebar-kawruh-basa">
+                    <a href="{{ route('teacher.kawruh-basa.index') }}" class="nav-link {{ request()->is('*kawruh-basa*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-book-open"></i> Kawruh Basa
+                    </a>
+                </li>
                 <li class="nav-item mb-1" data-tour="sidebar-kamus">
                     <a href="/ui/kosakata" class="nav-link {{ request()->is('*kosakata*') ? 'active' : '' }}">
                         <i class="fa-solid fa-book-journal-whills"></i> Kamus Kosakata
@@ -118,6 +123,11 @@
                         <i class="fa-solid fa-masks-theater"></i> Pewayangan
                     </a>
                 </li>
+                <li class="nav-item mb-1" data-tour="sidebar-kawruh-basa">
+                    <a href="{{ route('teacher.kawruh-basa.index') }}" class="nav-link {{ request()->is('*kawruh-basa*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-book-open"></i> Kawruh Basa
+                    </a>
+                </li>
                 <li class="nav-item mb-1" data-tour="sidebar-kamus">
                     <a href="/ui/kosakata" class="nav-link {{ request()->is('*kosakata*') ? 'active' : '' }}">
                         <i class="fa-solid fa-book-journal-whills"></i> Kamus Kosakata
@@ -153,6 +163,11 @@
                 <li class="nav-item mb-1" data-tour="sidebar-wayang">
                     <a href="{{ route('wayang.index') }}" class="nav-link {{ request()->is('*wayang*') ? 'active' : '' }}">
                         <i class="fa-solid fa-masks-theater"></i> Pewayangan
+                    </a>
+                </li>
+                <li class="nav-item mb-1" data-tour="sidebar-kawruh-basa">
+                    <a href="{{ route('kawruh-basa.index') }}" class="nav-link {{ request()->is('*kawruh-basa*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-book-open"></i> Kawruh Basa
                     </a>
                 </li>
                 <li class="nav-item mb-1" data-tour="sidebar-kamus">

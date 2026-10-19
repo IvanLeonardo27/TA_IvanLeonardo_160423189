@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Quiz" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.25.1">
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Quiz" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.31.0">
   <bpmn:collaboration id="Collaboration_Quiz">
     <bpmn:participant id="Participant_Quiz" name="LMS Pembelajaran Bahasa Jawa BasaKula" processRef="Process_Quiz" />
   </bpmn:collaboration>
@@ -8,96 +8,137 @@
       <bpmn:lane id="Lane_T_Quiz" name="Pengajar">
         <bpmn:flowNodeRef>Start_QuizT</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_CreateQuiz</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_QuizPublish</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Start_QuizReview</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_ViewSummary</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>End_QuizT</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_ExportExcel</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_QuizT</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_S_Quiz" name="Pelajar">
         <bpmn:flowNodeRef>Start_QuizS</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_AnswerQuestions</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_ViewResult</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RedirectResult</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>End_QuizS</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ViewResult</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AnswerQuestions</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_QuizDenied</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_Sys_Quiz" name="Sistem (Laravel &#38; MySQL)">
-        <bpmn:flowNodeRef>Task_StartTimer</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_AutoGrade</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_GenerateExcel</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_SaveQuizQuestions</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_CheckAttempt</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_GenerateExcel</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AutoGrade</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_StartTimer</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:startEvent id="Start_QuizT" name="Buka Form Buat Kuis">
       <bpmn:outgoing>Flow_Q_T1</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:task id="Task_CreateQuiz" name="Input Judul Kuis, Waktu Durasi, &#38; Bank Soal Pilihan Ganda / Essay">
+    <bpmn:task id="Task_CreateQuiz" name="Input Judul, Durasi, Batas Percobaan, &#38; Soal Pilihan Ganda (A-E)">
       <bpmn:incoming>Flow_Q_T1</bpmn:incoming>
       <bpmn:outgoing>Flow_Q_T2</bpmn:outgoing>
     </bpmn:task>
+    <bpmn:task id="Task_SaveQuizQuestions" name="Validasi Form, Inisialisasi QuizSet, &#38; Terbitkan Post Kuis">
+      <bpmn:incoming>Flow_Q_T2</bpmn:incoming>
+      <bpmn:outgoing>Flow_Q_T_Saved</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_QuizMaster">
+        <bpmn:targetRef>DataStore_QuizMaster</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:endEvent id="End_QuizPublish" name="Kuis Aktif &#38; Terbit di Kelas">
+      <bpmn:incoming>Flow_Q_T_Saved</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:startEvent id="Start_QuizReview" name="Akses Rekap Nilai Kuis Kelas">
+      <bpmn:outgoing>Flow_Review_Start</bpmn:outgoing>
+    </bpmn:startEvent>
     <bpmn:task id="Task_ViewSummary" name="Melihat Rekapitulasi Nilai Seluruh Siswa">
-      <bpmn:incoming>Flow_Q_SysToT</bpmn:incoming>
+      <bpmn:incoming>Flow_Review_Start</bpmn:incoming>
       <bpmn:outgoing>Flow_Q_T3</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:startEvent id="Start_QuizS" name="Buka Kuis &#38; Klik Mulai Kuis">
-      <bpmn:outgoing>Flow_Q_S1</bpmn:outgoing>
-    </bpmn:startEvent>
-    <bpmn:task id="Task_AnswerQuestions" name="Menjawab Butir Soal Sebelum Batas Waktu Timer Habis">
-      <bpmn:incoming>Flow_Q_S2</bpmn:incoming>
-      <bpmn:outgoing>Flow_Q_S3</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:task id="Task_StartTimer" name="Aktifkan Timer Hitung Mundur &#38; Render Soal Kuis">
-      <bpmn:incoming>Flow_Q_S1</bpmn:incoming>
-      <bpmn:outgoing>Flow_Q_S2</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:task id="Task_AutoGrade" name="Koreksi Otomatis Jawaban, Kalkulasi Skor Nilai 0-100, &#38; Insert ke &#39;quiz_attempts&#39;">
-      <bpmn:incoming>Flow_Q_S3</bpmn:incoming>
-      <bpmn:outgoing>Flow_Q_SysToS</bpmn:outgoing>
-      <bpmn:outgoing>Flow_Q_SysToT</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:task id="Task_GenerateExcel" name="Generate Spreadsheet .xlsx &#38; Download Berkas">
-      <bpmn:incoming>Flow_Q_T4</bpmn:incoming>
-      <bpmn:outgoing>Flow_Q_T5</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:sequenceFlow id="Flow_Q_T1" sourceRef="Start_QuizT" targetRef="Task_CreateQuiz" />
-    <bpmn:sequenceFlow id="Flow_Q_T2" sourceRef="Task_CreateQuiz" targetRef="Task_SaveQuizQuestions" />
-    <bpmn:sequenceFlow id="Flow_Q_S1" sourceRef="Start_QuizS" targetRef="Task_StartTimer" />
-    <bpmn:sequenceFlow id="Flow_Q_S2" sourceRef="Task_StartTimer" targetRef="Task_AnswerQuestions" />
-    <bpmn:sequenceFlow id="Flow_Q_S3" sourceRef="Task_AnswerQuestions" targetRef="Task_AutoGrade" />
-    <bpmn:sequenceFlow id="Flow_Q_SysToS" sourceRef="Task_AutoGrade" targetRef="Task_ViewResult" />
-    <bpmn:sequenceFlow id="Flow_Q_EndS" sourceRef="Task_ViewResult" targetRef="End_QuizS" />
-    <bpmn:sequenceFlow id="Flow_Q_SysToT" sourceRef="Task_AutoGrade" targetRef="Task_ViewSummary" />
-    <bpmn:sequenceFlow id="Flow_Q_T3" sourceRef="Task_ViewSummary" targetRef="Task_ExportExcel" />
-    <bpmn:sequenceFlow id="Flow_Q_T4" sourceRef="Task_ExportExcel" targetRef="Task_GenerateExcel" />
-    <bpmn:sequenceFlow id="Flow_Q_T5" sourceRef="Task_GenerateExcel" targetRef="End_QuizT" />
-    <bpmn:endEvent id="End_QuizT" name="Rekapitulasi Nilai Diunduh">
-      <bpmn:incoming>Flow_Q_T5</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:task id="Task_ExportExcel" name="Klik Tombol Unduh Rekap Nilai Excel (.xlsx)">
+    <bpmn:task id="Task_ExportExcel" name="Klik Tombol Unduh Rekap Nilai (.xlsx / .csv)">
       <bpmn:incoming>Flow_Q_T3</bpmn:incoming>
       <bpmn:outgoing>Flow_Q_T4</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Task_ViewResult" name="Melihat Skor Nilai Instan &#38; Pembahasan Kuis">
-      <bpmn:incoming>Flow_Q_SysToS</bpmn:incoming>
-      <bpmn:outgoing>Flow_Q_EndS</bpmn:outgoing>
+    <bpmn:sequenceFlow id="Flow_Q_T1" sourceRef="Start_QuizT" targetRef="Task_CreateQuiz" />
+    <bpmn:sequenceFlow id="Flow_Q_T2" sourceRef="Task_CreateQuiz" targetRef="Task_SaveQuizQuestions" />
+    <bpmn:sequenceFlow id="Flow_Q_T_Saved" sourceRef="Task_SaveQuizQuestions" targetRef="End_QuizPublish" />
+    <bpmn:sequenceFlow id="Flow_Q_S1" sourceRef="Start_QuizS" targetRef="Gateway_CheckAttempt" />
+    <bpmn:sequenceFlow id="Flow_Check_Denied" name="Ya (Selesai / Terlambat)" sourceRef="Gateway_CheckAttempt" targetRef="Task_RedirectResult" />
+    <bpmn:sequenceFlow id="Flow_Denied_End" sourceRef="Task_RedirectResult" targetRef="End_QuizDenied" />
+    <bpmn:sequenceFlow id="Flow_Check_Allowed" name="Tidak (Boleh Mengisi)" sourceRef="Gateway_CheckAttempt" targetRef="Task_StartTimer" />
+    <bpmn:sequenceFlow id="Flow_Review_Start" sourceRef="Start_QuizReview" targetRef="Task_ViewSummary" />
+    <bpmn:sequenceFlow id="Flow_Q_T3" sourceRef="Task_ViewSummary" targetRef="Task_ExportExcel" />
+    <bpmn:sequenceFlow id="Flow_Q_T4" sourceRef="Task_ExportExcel" targetRef="Task_GenerateExcel" />
+    <bpmn:sequenceFlow id="Flow_Q_T5" sourceRef="Task_GenerateExcel" targetRef="End_QuizT" />
+    <bpmn:dataStoreReference id="DataStore_QuizMaster" name="Tabel classroom_posts, classroom_quizzes, quiz_questions" />
+    <bpmn:dataStoreReference id="DataStore_QuizAttempts" name="Tabel quiz_attempts &#38; quiz_answers" />
+    <bpmn:sequenceFlow id="Flow_Q_S2" sourceRef="Task_StartTimer" targetRef="Task_AnswerQuestions" />
+    <bpmn:sequenceFlow id="Flow_Q_S3" sourceRef="Task_AnswerQuestions" targetRef="Task_StartTimer" />
+    <bpmn:sequenceFlow id="Flow_Q_SysToS" sourceRef="Task_AutoGrade" targetRef="Task_ViewResult" />
+    <bpmn:sequenceFlow id="Flow_Q_EndS" sourceRef="Task_ViewResult" targetRef="End_QuizS" />
+    <bpmn:startEvent id="Start_QuizS" name="Buka Kuis Kelas &#38; Klik Mulai Kuis">
+      <bpmn:outgoing>Flow_Q_S1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="Gateway_CheckAttempt" name="Batas Waktu Habis / Sudah Pernah Mengerjakan?">
+      <bpmn:incoming>Flow_Q_S1</bpmn:incoming>
+      <bpmn:outgoing>Flow_Check_Denied</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Check_Allowed</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_RedirectResult" name="Tampilkan Notifikasi Waktu Berakhir / Lembar Hasil">
+      <bpmn:incoming>Flow_Check_Denied</bpmn:incoming>
+      <bpmn:outgoing>Flow_Denied_End</bpmn:outgoing>
     </bpmn:task>
+    <bpmn:task id="Task_GenerateExcel" name="Generate File Spreadsheet .xlsx &#38; Unduh Berkas">
+      <bpmn:incoming>Flow_Q_T4</bpmn:incoming>
+      <bpmn:outgoing>Flow_Q_T5</bpmn:outgoing>
+      <bpmn:dataInputAssociation id="DataInputAssociation_QuizAttempts">
+        <bpmn:sourceRef>DataStore_QuizAttempts</bpmn:sourceRef>
+      </bpmn:dataInputAssociation>
+    </bpmn:task>
+    <bpmn:endEvent id="End_QuizT" name="Rekapitulasi Nilai Diunduh">
+      <bpmn:incoming>Flow_Q_T5</bpmn:incoming>
+    </bpmn:endEvent>
     <bpmn:endEvent id="End_QuizS" name="Pengerjaan Kuis Selesai">
       <bpmn:incoming>Flow_Q_EndS</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:task id="Task_SaveQuizQuestions" name="Insert ke &#39;classroom_quizzes&#39; &#38; &#39;quiz_questions&#39;">
-      <bpmn:incoming>Flow_Q_T2</bpmn:incoming>
+    <bpmn:task id="Task_ViewResult" name="Melihat Skor Nilai Akhir, Jawaban Benar/Salah, &#38; Pembahasan">
+      <bpmn:incoming>Flow_Q_SysToS</bpmn:incoming>
+      <bpmn:outgoing>Flow_Q_EndS</bpmn:outgoing>
     </bpmn:task>
+    <bpmn:task id="Task_AutoGrade" name="Koreksi Otomatis Jawaban Siswa &#38; Hitung Skor Nilai (0-100)">
+      <bpmn:incoming>Flow_1jiss91</bpmn:incoming>
+      <bpmn:outgoing>Flow_Q_SysToS</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_QuizAttempts">
+        <bpmn:targetRef>DataStore_QuizAttempts</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_1jiss91" sourceRef="Task_StartTimer" targetRef="Task_AutoGrade" />
+    <bpmn:task id="Task_StartTimer" name="Render Soal Pilihan Ganda &#38; Aktifkan Timer Hitung Mundur">
+      <bpmn:incoming>Flow_Check_Allowed</bpmn:incoming>
+      <bpmn:incoming>Flow_Q_S3</bpmn:incoming>
+      <bpmn:outgoing>Flow_Q_S2</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1jiss91</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_AnswerQuestions" name="Menjawab Soal Pilihan Ganda Sebelum Batas Waktu Habis">
+      <bpmn:incoming>Flow_Q_S2</bpmn:incoming>
+      <bpmn:outgoing>Flow_Q_S3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="End_QuizDenied" name="Pengerjaan Kuis Ditutup">
+      <bpmn:incoming>Flow_Denied_End</bpmn:incoming>
+    </bpmn:endEvent>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_Quiz">
     <bpmndi:BPMNPlane id="BPMNPlane_Quiz" bpmnElement="Collaboration_Quiz">
       <bpmndi:BPMNShape id="Participant_Quiz_di" bpmnElement="Participant_Quiz" isHorizontal="true">
-        <dc:Bounds x="160" y="80" width="1320" height="520" />
+        <dc:Bounds x="160" y="80" width="1440" height="670" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_Sys_Quiz_di" bpmnElement="Lane_Sys_Quiz" isHorizontal="true">
-        <dc:Bounds x="190" y="400" width="1290" height="200" />
+        <dc:Bounds x="190" y="400" width="1410" height="350" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_S_Quiz_di" bpmnElement="Lane_S_Quiz" isHorizontal="true">
-        <dc:Bounds x="190" y="240" width="1290" height="160" />
+        <dc:Bounds x="190" y="240" width="1410" height="160" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_T_Quiz_di" bpmnElement="Lane_T_Quiz" isHorizontal="true">
-        <dc:Bounds x="190" y="80" width="1290" height="160" />
+        <dc:Bounds x="190" y="80" width="1410" height="160" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Start_QuizT_di" bpmnElement="Start_QuizT">
         <dc:Bounds x="232" y="142" width="36" height="36" />
@@ -106,104 +147,178 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_CreateQuiz_di" bpmnElement="Task_CreateQuiz">
-        <dc:Bounds x="310" y="120" width="150" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_ViewSummary_di" bpmnElement="Task_ViewSummary">
-        <dc:Bounds x="700" y="120" width="140" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Start_QuizS_di" bpmnElement="Start_QuizS">
-        <dc:Bounds x="232" y="302" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="209" y="264.5" width="81" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_AnswerQuestions_di" bpmnElement="Task_AnswerQuestions">
-        <dc:Bounds x="480" y="280" width="140" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_StartTimer_di" bpmnElement="Task_StartTimer">
-        <dc:Bounds x="480" y="450" width="140" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_AutoGrade_di" bpmnElement="Task_AutoGrade">
-        <dc:Bounds x="660" y="450" width="160" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_GenerateExcel_di" bpmnElement="Task_GenerateExcel">
-        <dc:Bounds x="880" y="450" width="140" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="End_QuizT_di" bpmnElement="End_QuizT">
-        <dc:Bounds x="1202" y="142" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1178" y="185" width="85" height="27" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_ExportExcel_di" bpmnElement="Task_ExportExcel">
-        <dc:Bounds x="990" y="130" width="140" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_ViewResult_di" bpmnElement="Task_ViewResult">
-        <dc:Bounds x="820" y="260" width="140" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="End_QuizS_di" bpmnElement="End_QuizS">
-        <dc:Bounds x="1002" y="282" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="980" y="325" width="81" height="27" />
-        </bpmndi:BPMNLabel>
+        <dc:Bounds x="305" y="120" width="150" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_SaveQuizQuestions_di" bpmnElement="Task_SaveQuizQuestions">
-        <dc:Bounds x="305" y="450" width="150" height="80" />
+        <dc:Bounds x="305" y="440" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_QuizPublish_di" bpmnElement="End_QuizPublish">
+        <dc:Bounds x="492" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="473" y="185" width="75" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_QuizReview_di" bpmnElement="Start_QuizReview">
+        <dc:Bounds x="1052" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1031" y="185" width="79" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ViewSummary_di" bpmnElement="Task_ViewSummary">
+        <dc:Bounds x="1130" y="120" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ExportExcel_di" bpmnElement="Task_ExportExcel">
+        <dc:Bounds x="1290" y="120" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataStore_QuizMaster_di" bpmnElement="DataStore_QuizMaster">
+        <dc:Bounds x="355" y="585" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="332" y="642" width="97" height="53" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataStore_QuizAttempts_di" bpmnElement="DataStore_QuizAttempts">
+        <dc:Bounds x="1105" y="595" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1091" y="652" width="79" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_QuizS_di" bpmnElement="Start_QuizS">
+        <dc:Bounds x="282" y="292" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="259" y="335" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_CheckAttempt_di" bpmnElement="Gateway_CheckAttempt" isMarkerVisible="true">
+        <dc:Bounds x="565" y="455" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="555" y="512" width="70" height="53" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RedirectResult_di" bpmnElement="Task_RedirectResult">
+        <dc:Bounds x="660" y="275" width="120" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_GenerateExcel_di" bpmnElement="Task_GenerateExcel">
+        <dc:Bounds x="1350" y="440" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_QuizT_di" bpmnElement="End_QuizT">
+        <dc:Bounds x="1502" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1477" y="104.5" width="85" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_QuizS_di" bpmnElement="End_QuizS">
+        <dc:Bounds x="1282" y="292" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1260" y="335" width="81" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ViewResult_di" bpmnElement="Task_ViewResult">
+        <dc:Bounds x="1090" y="270" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_AutoGrade_di" bpmnElement="Task_AutoGrade">
+        <dc:Bounds x="1085" y="440" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_StartTimer_di" bpmnElement="Task_StartTimer">
+        <dc:Bounds x="890" y="440" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_AnswerQuestions_di" bpmnElement="Task_AnswerQuestions">
+        <dc:Bounds x="890" y="270" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_QuizDenied_di" bpmnElement="End_QuizDenied">
+        <dc:Bounds x="822" y="292" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="800" y="335" width="81" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_Q_T1_di" bpmnElement="Flow_Q_T1">
         <di:waypoint x="268" y="160" />
-        <di:waypoint x="310" y="160" />
+        <di:waypoint x="305" y="160" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Q_T2_di" bpmnElement="Flow_Q_T2">
-        <di:waypoint x="405" y="200" />
-        <di:waypoint x="405" y="450" />
+        <di:waypoint x="380" y="200" />
+        <di:waypoint x="380" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Q_T_Saved_di" bpmnElement="Flow_Q_T_Saved">
+        <di:waypoint x="455" y="480" />
+        <di:waypoint x="510" y="480" />
+        <di:waypoint x="510" y="178" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Q_S1_di" bpmnElement="Flow_Q_S1">
-        <di:waypoint x="250" y="338" />
-        <di:waypoint x="250" y="560" />
-        <di:waypoint x="550" y="560" />
-        <di:waypoint x="550" y="530" />
+        <di:waypoint x="318" y="310" />
+        <di:waypoint x="540" y="310" />
+        <di:waypoint x="540" y="480" />
+        <di:waypoint x="565" y="480" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Q_S2_di" bpmnElement="Flow_Q_S2">
-        <di:waypoint x="550" y="450" />
-        <di:waypoint x="550" y="360" />
+      <bpmndi:BPMNEdge id="Flow_Check_Denied_di" bpmnElement="Flow_Check_Denied">
+        <di:waypoint x="590" y="455" />
+        <di:waypoint x="590" y="310" />
+        <di:waypoint x="660" y="310" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="594" y="316" width="62" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Q_S3_di" bpmnElement="Flow_Q_S3">
-        <di:waypoint x="620" y="320" />
-        <di:waypoint x="640" y="320" />
-        <di:waypoint x="640" y="490" />
-        <di:waypoint x="660" y="490" />
+      <bpmndi:BPMNEdge id="Flow_Denied_End_di" bpmnElement="Flow_Denied_End">
+        <di:waypoint x="780" y="310" />
+        <di:waypoint x="822" y="310" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Q_SysToS_di" bpmnElement="Flow_Q_SysToS">
-        <di:waypoint x="820" y="490" />
-        <di:waypoint x="840" y="490" />
-        <di:waypoint x="840" y="340" />
+      <bpmndi:BPMNEdge id="Flow_Check_Allowed_di" bpmnElement="Flow_Check_Allowed">
+        <di:waypoint x="615" y="480" />
+        <di:waypoint x="890" y="480" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="610" y="446" width="62" height="27" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Q_EndS_di" bpmnElement="Flow_Q_EndS">
-        <di:waypoint x="960" y="300" />
-        <di:waypoint x="1002" y="300" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Q_SysToT_di" bpmnElement="Flow_Q_SysToT">
-        <di:waypoint x="740" y="450" />
-        <di:waypoint x="740" y="200" />
+      <bpmndi:BPMNEdge id="Flow_Review_Start_di" bpmnElement="Flow_Review_Start">
+        <di:waypoint x="1088" y="160" />
+        <di:waypoint x="1130" y="160" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Q_T3_di" bpmnElement="Flow_Q_T3">
-        <di:waypoint x="840" y="160" />
-        <di:waypoint x="915" y="160" />
-        <di:waypoint x="915" y="170" />
-        <di:waypoint x="990" y="170" />
+        <di:waypoint x="1260" y="160" />
+        <di:waypoint x="1290" y="160" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Q_T4_di" bpmnElement="Flow_Q_T4">
-        <di:waypoint x="1110" y="210" />
-        <di:waypoint x="1110" y="380" />
-        <di:waypoint x="950" y="380" />
-        <di:waypoint x="950" y="450" />
+        <di:waypoint x="1355" y="200" />
+        <di:waypoint x="1355" y="320" />
+        <di:waypoint x="1420" y="320" />
+        <di:waypoint x="1420" y="440" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_Q_T5_di" bpmnElement="Flow_Q_T5">
-        <di:waypoint x="1020" y="490" />
-        <di:waypoint x="1160" y="490" />
-        <di:waypoint x="1160" y="160" />
-        <di:waypoint x="1202" y="160" />
+        <di:waypoint x="1490" y="480" />
+        <di:waypoint x="1520" y="480" />
+        <di:waypoint x="1520" y="178" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Q_S2_di" bpmnElement="Flow_Q_S2">
+        <di:waypoint x="960" y="440" />
+        <di:waypoint x="960" y="350" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Q_S3_di" bpmnElement="Flow_Q_S3">
+        <di:waypoint x="960" y="350" />
+        <di:waypoint x="960" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Q_SysToS_di" bpmnElement="Flow_Q_SysToS">
+        <di:waypoint x="1160" y="440" />
+        <di:waypoint x="1160" y="350" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Q_EndS_di" bpmnElement="Flow_Q_EndS">
+        <di:waypoint x="1230" y="310" />
+        <di:waypoint x="1282" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1jiss91_di" bpmnElement="Flow_1jiss91">
+        <di:waypoint x="1030" y="480" />
+        <di:waypoint x="1085" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_QuizMaster_di" bpmnElement="DataOutputAssociation_QuizMaster">
+        <di:waypoint x="380" y="520" />
+        <di:waypoint x="380" y="585" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataInputAssociation_QuizAttempts_di" bpmnElement="DataInputAssociation_QuizAttempts">
+        <di:waypoint x="1155" y="616" />
+        <di:waypoint x="1355" y="580" />
+        <di:waypoint x="1394" y="520" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_QuizAttempts_di" bpmnElement="DataOutputAssociation_QuizAttempts">
+        <di:waypoint x="1151" y="520" />
+        <di:waypoint x="1135" y="595" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

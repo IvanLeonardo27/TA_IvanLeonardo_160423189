@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Macapat" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.25.1">
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Macapat" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.31.0">
   <bpmn:collaboration id="Collaboration_Macapat">
     <bpmn:participant id="Participant_Macapat" name="LMS Pembelajaran Bahasa Jawa BasaKula" processRef="Process_Macapat" />
   </bpmn:collaboration>
@@ -20,8 +20,8 @@
       </bpmn:lane>
       <bpmn:lane id="Lane_Sys_Macapat" name="Sistem (Laravel &#38; TTS Engine)">
         <bpmn:flowNodeRef>Task_SynthesizeTTS</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_FetchMacRules</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_SaveMacDB</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FetchMacRules</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:startEvent id="Start_MacTeacher" name="Buka Kelola Macapat">
@@ -70,22 +70,26 @@
       <bpmn:incoming>Flow_M_S3</bpmn:incoming>
       <bpmn:outgoing>Flow_M_S4</bpmn:outgoing>
     </bpmn:task>
+    <bpmn:task id="Task_SaveMacDB" name="Simpan Kaidah Guru Gatra &#38; Bait Tembang">
+      <bpmn:incoming>Flow_M_T2</bpmn:incoming>
+      <bpmn:outgoing>Flow_M_T3</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_Macapat">
+        <bpmn:targetRef>DataStore_Macapat</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:task>
     <bpmn:task id="Task_FetchMacRules" name="Select Kaidah &#39;macapat_categories&#39; &#38; Bait dari &#39;macapat_details&#39;">
       <bpmn:incoming>Flow_M_S2</bpmn:incoming>
       <bpmn:outgoing>Flow_M_S3</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Task_SaveMacDB" name="Insert / Update ke &#39;macapat_categories&#39; &#38; &#39;macapat_details&#39;">
-      <bpmn:incoming>Flow_M_T2</bpmn:incoming>
-      <bpmn:outgoing>Flow_M_T3</bpmn:outgoing>
-    </bpmn:task>
+    <bpmn:dataStoreReference id="DataStore_Macapat" name="Tabel macapat_categories &#38; details" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_Macapat">
     <bpmndi:BPMNPlane id="BPMNPlane_Macapat" bpmnElement="Collaboration_Macapat">
       <bpmndi:BPMNShape id="Participant_Macapat_di" bpmnElement="Participant_Macapat" isHorizontal="true">
-        <dc:Bounds x="160" y="80" width="1290" height="630" />
+        <dc:Bounds x="160" y="80" width="1290" height="760" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_Sys_Macapat_di" bpmnElement="Lane_Sys_Macapat" isHorizontal="true">
-        <dc:Bounds x="190" y="390" width="1260" height="320" />
+        <dc:Bounds x="190" y="390" width="1260" height="450" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_S_Macapat_di" bpmnElement="Lane_S_Macapat" isHorizontal="true">
         <dc:Bounds x="190" y="230" width="1260" height="160" />
@@ -135,11 +139,17 @@
       <bpmndi:BPMNShape id="Task_StudyMacRules_di" bpmnElement="Task_StudyMacRules">
         <dc:Bounds x="625" y="270" width="150" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_FetchMacRules_di" bpmnElement="Task_FetchMacRules">
-        <dc:Bounds x="495" y="590" width="150" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_SaveMacDB_di" bpmnElement="Task_SaveMacDB">
         <dc:Bounds x="465" y="450" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_FetchMacRules_di" bpmnElement="Task_FetchMacRules">
+        <dc:Bounds x="495" y="680" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataStore_Macapat_di" bpmnElement="DataStore_Macapat">
+        <dc:Bounds x="515" y="565" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="497" y="622" width="88" height="40" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_M_T1_di" bpmnElement="Flow_M_T1">
         <di:waypoint x="268" y="150" />
@@ -161,12 +171,12 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_M_S2_di" bpmnElement="Flow_M_S2">
         <di:waypoint x="390" y="350" />
-        <di:waypoint x="390" y="630" />
-        <di:waypoint x="495" y="630" />
+        <di:waypoint x="390" y="720" />
+        <di:waypoint x="495" y="720" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_M_S3_di" bpmnElement="Flow_M_S3">
-        <di:waypoint x="645" y="630" />
-        <di:waypoint x="700" y="630" />
+        <di:waypoint x="645" y="720" />
+        <di:waypoint x="700" y="720" />
         <di:waypoint x="700" y="350" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_M_S4_di" bpmnElement="Flow_M_S4">
@@ -186,6 +196,10 @@
       <bpmndi:BPMNEdge id="Flow_M_EndS_di" bpmnElement="Flow_M_EndS">
         <di:waypoint x="1210" y="310" />
         <di:waypoint x="1282" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_Macapat_di" bpmnElement="DataOutputAssociation_Macapat">
+        <di:waypoint x="540" y="530" />
+        <di:waypoint x="540" y="565" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

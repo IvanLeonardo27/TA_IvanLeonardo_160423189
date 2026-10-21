@@ -93,7 +93,7 @@
     <ul class="nav nav-pills gap-2.5 mb-4 animate__animated animate__fadeInUp">
         <li class="nav-item">
             <a href="{{ route('teacher.classroom.show', $classroom) }}" class="nav-link classroom-nav-pill rounded-pill px-4 py-2.5 fw-semibold">
-                <i class="fa-solid fa-layer-group me-2"></i>Kurikulum & Minggu (Week)
+                <i class="fa-solid fa-layer-group me-2"></i>Kurikulum & Minggu
             </a>
         </li>
         <li class="nav-item">

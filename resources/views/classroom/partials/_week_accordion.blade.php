@@ -67,13 +67,14 @@
     </div>
     @endif
 
-    {{-- WEEK 1 HINGGA WEEK MAX --}}
+    {{-- MINGGU 1 HINGGA MINGGU MAX --}}
     @for($w = 1; $w <= $maxWeekCount; $w++)
         @php
             $weekPosts = $postsByWeek->get($w, collect());
             $customTitle = $classroom->week_titles[$w] ?? null;
             $rawTitle = trim($customTitle ?? '');
-            $displayHeaderTitle = !empty($rawTitle) ? "Week {$w} - {$rawTitle}" : "Week {$w}";
+            $rawTitle = preg_replace('/^(Week|Minggu)\s*' . $w . '\s*[-:]?\s*/i', '', $rawTitle);
+            $displayHeaderTitle = !empty($rawTitle) ? "Minggu {$w} - {$rawTitle}" : "Minggu {$w}";
             $isExpanded = $w === 1;
         @endphp
         <div class="accordion-item border-0 shadow-sm rounded-4 mb-3 overflow-hidden" style="border: 1px solid #E2E8F0 !important;">
@@ -96,7 +97,7 @@
 
                         <span class="btn btn-sm btn-light border rounded-circle text-danger p-0 d-inline-flex align-items-center justify-content-center shadow-xs hover-bg-danger flex-shrink-0"
                               style="width: 29px; height: 29px; cursor: pointer; transition: all 0.2s;"
-                              title="Hapus Week {{ $w }} Beserta Seluruh Isinya"
+                              title="Hapus Minggu {{ $w }} Beserta Seluruh Isinya"
                               onclick="event.stopPropagation(); confirmDeleteWeek({{ $w }})">
                             <i class="fa-solid fa-trash" style="font-size: 0.72rem;"></i>
                         </span>
@@ -114,11 +115,11 @@
                         <a href="{{ route('teacher.classroom.post.create', [$classroom, 'week' => $w]) }}" 
                            class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 bg-white shadow-xs fw-semibold position-relative d-inline-flex align-items-center gap-2 hover-elevate transition" 
                            style="z-index: 2; border-color: #CBD5E1; color: #1E293B; font-size: 0.8rem;"
-                           title="Tambahkan aktivitas atau materi di Week {{ $w }}">
+                           title="Tambahkan aktivitas atau materi di Minggu {{ $w }}">
                             <div class="rounded-circle d-flex align-items-center justify-content-center bg-primary text-white" style="width: 20px; height: 20px;">
                                 <i class="fa-solid fa-plus" style="font-size: 0.65rem;"></i>
                             </div>
-                            <span>Tambah Materi / Aktivitas di Week {{ $w }}</span>
+                            <span>Tambah Materi / Aktivitas di Minggu {{ $w }}</span>
                         </a>
                     </div>
                     @endif
@@ -138,14 +139,14 @@
             </div>
             <div>
                 <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.95rem;">Perluas Kurikulum Pembelajaran</h6>
-                <small class="text-muted">Tambahkan minggu baru (Week {{ $maxWeekCount + 1 }}) secara manual untuk menyusun silabus pembelajaran berikutnya.</small>
+                <small class="text-muted">Tambahkan minggu baru (Minggu {{ $maxWeekCount + 1 }}) secara manual untuk menyusun silabus pembelajaran berikutnya.</small>
             </div>
         </div>
         <form action="{{ route('teacher.classroom.week.add', $classroom) }}" method="POST" class="m-0">
             @csrf
             <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-xs btn-bouncy d-inline-flex align-items-center gap-2">
                 <i class="fa-solid fa-plus"></i>
-                <span>Tambah Minggu Baru (Add Week)</span>
+                <span>Tambah Minggu Baru</span>
             </button>
         </form>
     </div>
@@ -153,7 +154,7 @@
 @endif
 
 @if($isTeacher)
-{{-- Form Global untuk Hapus Week (Disimpan di luar akordion agar tidak merusak HTML button) --}}
+{{-- Form Global untuk Hapus Minggu (Disimpan di luar akordion agar tidak merusak HTML button) --}}
 <form id="deleteWeekFormGlobal" method="POST" style="display: none;">
     @csrf
     @method('DELETE')
@@ -172,7 +173,7 @@ function openEditWeekTitleModal(weekNum, currentTitle) {
 }
 
 function confirmDeleteWeek(weekNum) {
-    if (confirm('Apakah Anda yakin ingin menghapus Week ' + weekNum + ' beserta seluruh materi dan postingan di dalamnya secara langsung?')) {
+    if (confirm('Apakah Anda yakin ingin menghapus Minggu ' + weekNum + ' beserta seluruh materi dan postingan di dalamnya secara langsung?')) {
         const form = document.getElementById('deleteWeekFormGlobal');
         form.action = "{{ url('teacher/classroom/' . $classroom->id . '/weeks') }}/" + weekNum;
         form.submit();

@@ -71,8 +71,6 @@ class UserController extends Controller
             'email'                  => 'required|string|email|max:150|unique:users,email',
             'password'               => 'required|string|min:6',
             'nip'                    => 'nullable|string|max:50',
-            'institution_name'       => 'nullable|string|max:120',
-            'subject_specialization' => 'nullable|string|max:100',
             'phone_number'           => 'nullable|string|max:25',
             'status'                 => 'required|in:active,inactive',
         ]);
@@ -93,8 +91,6 @@ class UserController extends Controller
         TeacherProfile::create([
             'user_id'                => $user->id,
             'nip'                    => $request->nip,
-            'institution_name'       => $request->institution_name,
-            'subject_specialization' => $request->subject_specialization,
             'phone_number'           => $request->phone_number,
         ]);
 
@@ -122,8 +118,6 @@ class UserController extends Controller
             'email'                  => ['required', 'string', 'email', 'max:150', Rule::unique('users')->ignore($user->id)],
             'password'               => 'nullable|string|min:6',
             'nip'                    => 'nullable|string|max:50',
-            'institution_name'       => 'nullable|string|max:120',
-            'subject_specialization' => 'nullable|string|max:100',
             'phone_number'           => 'nullable|string|max:25',
             'status'                 => 'required|in:active,inactive',
         ]);
@@ -142,8 +136,6 @@ class UserController extends Controller
             ['user_id' => $user->id],
             [
                 'nip'                    => $request->nip,
-                'institution_name'       => $request->institution_name,
-                'subject_specialization' => $request->subject_specialization,
                 'phone_number'           => $request->phone_number,
             ]
         );

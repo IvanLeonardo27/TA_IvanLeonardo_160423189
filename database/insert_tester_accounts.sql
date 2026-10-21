@@ -63,8 +63,8 @@ ON DUPLICATE KEY UPDATE `password` = VALUES(`password`), `role_id` = VALUES(`rol
 -- ------------------------------------------------------------------------------
 -- 3. PROFIL PENGAJAR (teacher_profiles)
 -- ------------------------------------------------------------------------------
-INSERT INTO `teacher_profiles` (`user_id`, `nip`, `institution_name`, `subject_specialization`, `created_at`, `updated_at`)
-SELECT `id`, CONCAT('19800101', LPAD(`id`, 4, '0')), 'SMP/SMA Negeri BasaKula', 'Bahasa & Sastra Jawa', NOW(), NOW()
+INSERT INTO `teacher_profiles` (`user_id`, `nip`, `created_at`, `updated_at`)
+SELECT `id`, CONCAT('19800101', LPAD(`id`, 4, '0')), NOW(), NOW()
 FROM `users` WHERE `email` LIKE 'testerpengajar%@test.com'
 ON DUPLICATE KEY UPDATE `updated_at` = NOW();
 

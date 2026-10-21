@@ -18,6 +18,25 @@
         </div>
         @endif
 
+        @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        @endif
+
+        @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4">
+            <div class="fw-bold mb-1"><i class="fa-solid fa-circle-exclamation me-2"></i>Gagal Mengumpulkan Tugas:</div>
+            <ul class="mb-0 ps-3 small">
+                @foreach($errors->all() as $err)
+                    <li>{{ $err }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        @endif
+
         {{-- Detail Tugas --}}
         <div class="card border-0 shadow-sm mb-4 overflow-hidden" style="border-radius:20px;">
             <div class="p-1" style="background:linear-gradient(135deg,#EF4444,#F97316);"></div>
@@ -132,10 +151,10 @@
                     @csrf
 
                     {{-- Drag & Drop Zone --}}
+                    <input type="file" name="file" id="fileInput" required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="d-none">
+
                     <div id="dropZone" class="border-2 border-dashed rounded-4 p-4 p-sm-5 text-center position-relative mb-4"
                          style="border-color:#CBD5E1; background:#F8FAFC; cursor:pointer; transition:.25s; min-height:180px;">
-                        <input type="file" name="file" id="fileInput" required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                               class="position-absolute w-100 h-100 opacity-0" style="top:0;left:0;cursor:pointer;">
 
                         <div id="dropDefault">
                             <div class="mb-2 animate-float d-inline-block">
@@ -149,8 +168,13 @@
                         <div id="dropSelected" class="d-none">
                             <i class="fa-solid fa-circle-check text-success mb-2 fs-1"></i>
                             <h6 class="fw-bold text-main text-truncate px-3 d-block" id="selectedFileName">–</h6>
-                            <small class="text-muted d-block" id="selectedFileSize">–</small>
+                            <small class="text-muted d-block mb-2" id="selectedFileSize">–</small>
+                            <span class="badge bg-white text-secondary border rounded-pill px-3 py-1">Klik untuk ganti file</span>
                         </div>
+                    </div>
+
+                    <div id="fileErrorAlert" class="alert alert-danger rounded-4 border-0 shadow-sm mb-4 d-none small">
+                        <i class="fa-solid fa-circle-exclamation me-2"></i><span id="fileErrorText"></span>
                     </div>
 
                     <div class="mb-4">
@@ -188,34 +212,110 @@
 
 @push('scripts')
 <script>
-    const fileInput   = document.getElementById('fileInput');
-    const dropZone    = document.getElementById('dropZone');
-    const dropDefault = document.getElementById('dropDefault');
-    const dropSelected = document.getElementById('dropSelected');
-    const nameEl      = document.getElementById('selectedFileName');
-    const sizeEl      = document.getElementById('selectedFileSize');
+    const fileInput      = document.getElementById('fileInput');
+    const dropZone       = document.getElementById('dropZone');
+    const dropDefault    = document.getElementById('dropDefault');
+    const dropSelected   = document.getElementById('dropSelected');
+    const nameEl         = document.getElementById('selectedFileName');
+    const sizeEl         = document.getElementById('selectedFileSize');
+    const submitForm     = document.getElementById('submitForm');
+    const fileErrorAlert = document.getElementById('fileErrorAlert');
+    const fileErrorText  = document.getElementById('fileErrorText');
 
-    function showSelected(file) {
-        nameEl.textContent = file.name;
-        sizeEl.textContent = (file.size/1024/1024).toFixed(2) + ' MB';
-        dropDefault.classList.add('d-none');
-        dropSelected.classList.remove('d-none');
-        dropZone.style.borderColor = '#22C55E';
-        dropZone.style.background  = '#F0FDF4';
+    function showFileError(msg) {
+        if (!fileErrorAlert) return;
+        fileErrorText.textContent = msg;
+        fileErrorAlert.classList.remove('d-none');
+        fileInput.value = '';
+        dropDefault.classList.remove('d-none');
+        dropSelected.classList.add('d-none');
+        dropZone.style.borderColor = '#EF4444';
+        dropZone.style.background  = '#FEF2F2';
     }
 
-    fileInput.addEventListener('change', () => { if (fileInput.files[0]) showSelected(fileInput.files[0]); });
+    function clearFileError() {
+        if (!fileErrorAlert) return;
+        fileErrorAlert.classList.add('d-none');
+        fileErrorText.textContent = '';
+    }
 
-    ['dragover','dragenter'].forEach(e => dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.add('dragover'); }));
-    ['dragleave','drop'].forEach(e => dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.remove('dragover'); }));
-    dropZone.addEventListener('drop', ev => {
-        const file = ev.dataTransfer.files[0];
-        if (file) {
-            const dt = new DataTransfer();
-            dt.items.add(file);
-            fileInput.files = dt.files;
-            showSelected(file);
+    function validateAndShowFile(file) {
+        clearFileError();
+
+        if (file.size > 20 * 1024 * 1024) {
+            showFileError('Ukuran file melebihi batas maksimal 20MB.');
+            return;
         }
-    });
+
+        // Uji apakah file benar-benar dapat diakses dari disk lokal (mencegah ERR_FILE_NOT_FOUND di browser)
+        const reader = new FileReader();
+        reader.onload = function() {
+            nameEl.textContent = file.name;
+            sizeEl.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+            dropDefault.classList.add('d-none');
+            dropSelected.classList.remove('d-none');
+            dropZone.style.borderColor = '#22C55E';
+            dropZone.style.background  = '#F0FDF4';
+        };
+        reader.onerror = function() {
+            showFileError('File tidak dapat diakses oleh browser (mungkin telah dipindahkan, dihapus, sedang dikunci aplikasi lain, atau belum terunduh dari OneDrive/Google Drive). Silakan pilih ulang file dari folder lokal Anda.');
+        };
+        reader.readAsArrayBuffer(file.slice(0, 64));
+    }
+
+    if (dropZone && fileInput) {
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files && fileInput.files[0]) {
+                validateAndShowFile(fileInput.files[0]);
+            }
+        });
+
+        ['dragover', 'dragenter'].forEach(e => {
+            dropZone.addEventListener(e, ev => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                dropZone.classList.add('dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(e => {
+            dropZone.addEventListener(e, ev => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                dropZone.classList.remove('dragover');
+            });
+        });
+
+        dropZone.addEventListener('drop', ev => {
+            const file = ev.dataTransfer && ev.dataTransfer.files ? ev.dataTransfer.files[0] : null;
+            if (file) {
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                fileInput.files = dt.files;
+                validateAndShowFile(file);
+            }
+        });
+
+        submitForm.addEventListener('submit', ev => {
+            const file = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+            if (!file) {
+                ev.preventDefault();
+                showFileError('Silakan pilih file tugas terlebih dahulu.');
+                return;
+            }
+            // Cek ulang keterbacaan file tepat saat tombol Kumpulkan diklik
+            ev.preventDefault();
+            const reader = new FileReader();
+            reader.onload = function() {
+                submitForm.submit();
+            };
+            reader.onerror = function() {
+                showFileError('File tidak dapat dibaca saat akan dikirim (mungkin telah dipindahkan, diganti nama, atau dihapus setelah dipilih). Silakan pilih ulang file Anda.');
+            };
+            reader.readAsArrayBuffer(file.slice(0, 64));
+        });
+    }
 </script>
 @endpush

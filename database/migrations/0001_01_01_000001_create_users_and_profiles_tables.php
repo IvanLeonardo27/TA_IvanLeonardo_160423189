@@ -51,8 +51,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->unique()->constrained('users')->onDelete('cascade');
             $table->string('nip', 50)->nullable();
-            $table->string('institution_name', 150)->nullable();
-            $table->string('subject_specialization', 100)->nullable();
             $table->string('phone_number', 30)->nullable();
             $table->timestamps();
         });

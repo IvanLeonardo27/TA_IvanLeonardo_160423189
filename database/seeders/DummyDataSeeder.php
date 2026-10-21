@@ -66,8 +66,6 @@ class DummyDataSeeder extends Seeder
                 ['user_id' => $user->id],
                 [
                     'nip'                    => $td['nip'],
-                    'institution_name'       => $td['school'],
-                    'subject_specialization' => $td['spec'],
                     'phone_number'           => '0812' . sprintf('%08d', $idx + 1),
                 ]
             );

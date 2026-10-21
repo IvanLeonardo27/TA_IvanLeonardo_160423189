@@ -77,8 +77,19 @@ class LoginRequest extends FormRequest
             }
         }
 
-        // Catat waktu login terakhir
+        // Tolak akun yang tidak aktif (dinonaktifkan oleh Administrator)
         $user = Auth::user();
+        if ($user && $user->status !== 'active') {
+            Auth::guard('web')->logout();
+            $this->session()->invalidate();
+            $this->session()->regenerateToken();
+
+            throw ValidationException::withMessages([
+                'email' => 'Akun Anda telah dinonaktifkan oleh Administrator. Silakan hubungi Administrator.',
+            ]);
+        }
+
+        // Catat waktu login terakhir
         if ($user) {
             $user->update(['last_login' => now()]);
         }

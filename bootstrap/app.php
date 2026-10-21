@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'logout',
         ]);
         $middleware->web(append: [
+            \App\Http\Middleware\EnsureAccountActive::class,
             \App\Http\Middleware\AutoLogoutCustom::class,
         ]);
         $middleware->alias([

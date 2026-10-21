@@ -30,14 +30,18 @@ class Classroom extends Model
         $titles = $this->week_titles ?? [];
         
         if (isset($titles[$weekNumber]) && !empty(trim($titles[$weekNumber]))) {
-            return $titles[$weekNumber];
+            $trimmed = trim($titles[$weekNumber]);
+            if (strcasecmp($trimmed, "Week {$weekNumber}") === 0) {
+                return "Minggu {$weekNumber}";
+            }
+            return $trimmed;
         }
 
         if ($weekNumber === 0) {
             return 'General';
         }
 
-        return "Week {$weekNumber}";
+        return "Minggu {$weekNumber}";
     }
 
     /**

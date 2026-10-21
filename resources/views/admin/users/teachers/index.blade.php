@@ -79,7 +79,7 @@
                     <tr>
                         <th class="ps-4 py-3.5 fw-bold text-dark">Kode Pengajar</th>
                         <th class="py-3.5 fw-bold text-dark">Nama & Email</th>
-                        <th class="py-3.5 fw-bold text-dark">NIP & Lembaga</th>
+                        <th class="py-3.5 fw-bold text-dark">NIP</th>
                         <th class="py-3.5 fw-bold text-dark">Ruang Kelas</th>
                         <th class="py-3.5 fw-bold text-dark">Status</th>
                         <th class="py-3.5 fw-bold text-dark">Login Terakhir</th>
@@ -101,7 +101,6 @@
                         </td>
                         <td class="py-3">
                             <div class="fw-semibold text-dark">{{ $t->teacherProfile->nip ?? '-' }}</div>
-                            <small class="text-muted">{{ $t->teacherProfile->institution_name ?? '-' }}</small>
                         </td>
                         <td class="py-3">
                             <div class="d-inline-flex align-items-center px-3 py-1.5 rounded-pill fw-semibold shadow-xs" 

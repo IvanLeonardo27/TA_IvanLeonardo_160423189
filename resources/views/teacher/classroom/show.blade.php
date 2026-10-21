@@ -98,7 +98,7 @@
         <button class="nav-link active rounded-pill px-4 py-2 fw-semibold"
                 id="tab-weeks" data-bs-toggle="pill" data-bs-target="#pane-weeks"
                 type="button" role="tab" data-tab="weeks">
-            <i class="fa-solid fa-layer-group me-2"></i>Kurikulum & Minggu (Week)
+            <i class="fa-solid fa-layer-group me-2"></i>Kurikulum & Minggu
         </button>
     </li>
     <li class="nav-item" role="presentation">
@@ -616,7 +616,7 @@
                         <label class="form-label fw-semibold">Judul Topik / Header Minggu</label>
                         <input type="text" name="title" id="modalWeekTitleInput" class="form-control rounded-3" placeholder="Contoh: Pengenalan Basa Jawa" required>
                     </div>
-                    <small class="text-muted">Judul ini akan langsung menggantikan nama header minggu di ruang kelas siswa (misal: <em>Week 1 - Pengenalan Basa Jawa</em>).</small>
+                    <small class="text-muted">Judul ini akan langsung menggantikan nama header minggu di ruang kelas siswa (misal: <em>Minggu 1 - Pengenalan Basa Jawa</em>).</small>
                 </div>
                 <div class="modal-footer border-0 pt-0">
                     <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>

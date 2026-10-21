@@ -31,7 +31,7 @@ class AuthenticatedSessionController extends Controller
         $user = Auth::user();
 
         // Cek status akun pengguna
-        if ($user && $user->status === 'banned') {
+        if ($user && $user->status !== 'active') {
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();

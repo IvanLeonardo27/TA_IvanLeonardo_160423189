@@ -49,7 +49,7 @@
     <ul class="nav nav-pills nav-justified flex-column flex-md-row gap-2" id="classroomTab" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active rounded-3 fw-bold py-2.5 btn-tab-custom" id="weeks-tab" data-bs-toggle="tab" data-bs-target="#weeks-pane" type="button" role="tab">
-                <i class="fa-solid fa-layer-group me-2"></i> Kurikulum & Materi Mingguan (Week)
+                <i class="fa-solid fa-layer-group me-2"></i> Kurikulum & Materi Mingguan
             </button>
         </li>
         <li class="nav-item" role="presentation">

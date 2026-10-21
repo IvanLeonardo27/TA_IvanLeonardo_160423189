@@ -32,9 +32,18 @@ class ClassroomSubmissionController extends Controller
 
         $classroom = $assignment->post->classroom;
 
+        if (!$request->hasFile('file') || !$request->file('file')->isValid()) {
+            return back()->with('error', 'File gagal diunggah. Pastikan ukuran file tidak melebihi batas server dan file tidak rusak.');
+        }
+
         $request->validate([
-            'file' => 'required|file|max:20480',
+            'file' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:20480',
             'note' => 'nullable|string|max:500',
+        ], [
+            'file.required' => 'Silakan pilih file tugas untuk diunggah.',
+            'file.file'     => 'File yang diunggah tidak valid.',
+            'file.mimes'    => 'Format file harus berupa PDF, DOC, DOCX, JPG, JPEG, atau PNG.',
+            'file.max'      => 'Ukuran file maksimal adalah 20MB.',
         ]);
 
         // Hapus submission lama jika ada (ganti file)

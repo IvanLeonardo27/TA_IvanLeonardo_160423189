@@ -45,8 +45,6 @@ class TesterAccountsSeeder extends Seeder
                 ['user_id' => $user->id],
                 [
                     'nip'                    => '19800101' . str_pad($user->id, 4, '0', STR_PAD_LEFT),
-                    'institution_name'       => 'SMP/SMA Negeri BasaKula',
-                    'subject_specialization' => 'Bahasa & Sastra Jawa',
                     'phone_number'           => '0812' . str_pad($i, 8, '0', STR_PAD_LEFT),
                 ]
             );

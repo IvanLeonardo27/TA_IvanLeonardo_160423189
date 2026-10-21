@@ -63,20 +63,6 @@
                     </div>
                 </div>
 
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold text-main small">Nama Lembaga / Sekolah</label>
-                        <input type="text" name="institution_name" class="form-control rounded-3" 
-                               value="{{ old('institution_name') }}" placeholder="Contoh: SMP Negeri 1 Surabaya">
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold text-main small">Bidang Keahlian / Mata Pelajaran</label>
-                        <input type="text" name="subject_specialization" class="form-control rounded-3" 
-                               value="{{ old('subject_specialization', 'Bahasa & Sastra Jawa') }}" placeholder="Bahasa Jawa">
-                    </div>
-                </div>
-
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold text-main small">Nomor Telepon / WhatsApp</label>

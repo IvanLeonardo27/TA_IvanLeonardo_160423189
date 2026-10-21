@@ -77,9 +77,6 @@
     <p class="text-muted col-md-6 mx-auto">
         Simpan pertanyaan dan pilihan jawaban pilihan ganda ke Bank Soal agar Anda dapat dengan mudah menggunakannya kembali pada kuis kelas kapan saja.
     </p>
-    <a href="{{ route('teacher.question-bank.create') }}" class="btn btn-primary rounded-pill px-4 mt-2 shadow btn-bouncy" style="background:#8B5CF6; border-color:#8B5CF6;">
-        <i class="fa-solid fa-plus me-2"></i>Buat Butir Soal Pertama
-    </a>
 </div>
 @else
 <div class="d-flex flex-column gap-3 mb-4">

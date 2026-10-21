@@ -22,7 +22,10 @@
                     @php
                         $selectedType = old('type', request('type', 'material'));
                         $targetWeek = (int) request('week', old('week_number', 1));
-                        $targetWeekTitle = $targetWeek === 0 ? 'General (Pengumuman Umum)' : ('Week ' . $targetWeek . ' - ' . $classroom->getWeekTitle($targetWeek));
+                        $weekCustomTitle = preg_replace('/^(Week|Minggu)\s*' . $targetWeek . '\s*[-:]?\s*/i', '', $classroom->getWeekTitle($targetWeek));
+                        $targetWeekTitle = $targetWeek === 0
+                            ? 'General (Pengumuman Umum)'
+                            : (!empty($weekCustomTitle) ? ("Minggu {$targetWeek} - " . $weekCustomTitle) : "Minggu {$targetWeek}");
                     @endphp
 
                     {{-- Target Minggu Otomatis Terhubung dari Button + (Menghilangkan Dropdown Manual) --}}

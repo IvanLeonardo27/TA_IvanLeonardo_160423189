@@ -29,8 +29,6 @@ class ProfileUpdateRequest extends FormRequest
             // Field profil opsional (Pengajar / Pelajar)
             'nip'                    => ['nullable', 'string', 'max:50'],
             'nisn'                   => ['nullable', 'string', 'max:50'],
-            'institution_name'       => ['nullable', 'string', 'max:150'],
-            'subject_specialization' => ['nullable', 'string', 'max:100'],
             'grade_level'            => ['nullable', 'string', Rule::in(\App\Models\StudentProfile::GRADE_LEVELS)],
             'phone_number'           => ['nullable', 'string', 'max:30'],
         ];

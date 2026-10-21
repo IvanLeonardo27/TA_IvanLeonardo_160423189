@@ -101,12 +101,74 @@
                     <button type="button" id="nextBtn" class="btn rounded-pill px-3 px-sm-4 py-2 py-sm-2.5 fw-bold text-white shadow-sm btn-bouncy ms-auto ms-sm-0 order-2 order-sm-3 text-nowrap" style="background:#8B5CF6;">
                         Selanjutnya <i class="fa-solid fa-arrow-right ms-1 ms-sm-2"></i>
                     </button>
-                    <button type="submit" id="submitBtn" class="btn rounded-pill px-3 px-sm-4.5 py-2 py-sm-2.5 fw-bold text-white shadow-sm btn-bouncy bg-success border-0 d-none ms-auto ms-sm-0 order-2 order-sm-3 text-nowrap">
+                    <button type="button" id="submitBtn" class="btn rounded-pill px-3 px-sm-4.5 py-2 py-sm-2.5 fw-bold text-white shadow-sm btn-bouncy bg-success border-0 d-none ms-auto ms-sm-0 order-2 order-sm-3 text-nowrap">
                         <i class="fa-solid fa-circle-check me-1 me-sm-2"></i>Selesai & Kumpulkan
                     </button>
                 </div>
             </div>
         </form>
+
+        <!-- Modal Peringatan Soal Belum Terjawab -->
+        <div class="modal fade" id="unansweredWarningModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                    <div class="p-1.5" style="background: linear-gradient(90deg, #F59E0B, #EF4444);"></div>
+                    <div class="modal-body p-4 p-sm-5 text-center">
+                        <div class="mx-auto mb-3 rounded-circle d-flex align-items-center justify-content-center"
+                             style="width: 72px; height: 72px; background: #FEF3C7; color: #D97706;">
+                            <i class="fa-solid fa-triangle-exclamation fs-1"></i>
+                        </div>
+                        <h5 class="fw-bold text-main mb-2">Soal Belum Terjawab Semua!</h5>
+                        <p class="text-muted small mb-3">
+                            Masih terdapat <strong class="text-danger" id="unansweredCountText">0 soal</strong> yang belum Anda jawab. Pastikan seluruh soal telah dijawab agar nilai Anda maksimal.
+                        </p>
+
+                        <div class="bg-light rounded-4 p-3 mb-4 text-start border">
+                            <div class="small fw-bold text-muted mb-2">
+                                <i class="fa-solid fa-list-ol me-1 text-warning"></i>Nomor soal yang belum dijawab (klik untuk menuju soal):
+                            </div>
+                            <div class="d-flex flex-wrap gap-2" id="unansweredListContainer"></div>
+                        </div>
+
+                        <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center">
+                            <button type="button" id="goToFirstUnansweredBtn" class="btn rounded-pill px-4 py-2.5 fw-bold text-white shadow-sm flex-grow-1" style="background:#8B5CF6;">
+                                <i class="fa-solid fa-pen-to-square me-2"></i>Lengkapi Jawaban Dulu
+                            </button>
+                            <button type="button" id="forceSubmitBtn" class="btn btn-outline-danger rounded-pill px-4 py-2.5 fw-semibold">
+                                Tetap Kumpulkan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Konfirmasi Semua Soal Sudah Terjawab -->
+        <div class="modal fade" id="confirmSubmitModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                    <div class="p-1.5" style="background: linear-gradient(90deg, #10B981, #059669);"></div>
+                    <div class="modal-body p-4 p-sm-5 text-center">
+                        <div class="mx-auto mb-3 rounded-circle d-flex align-items-center justify-content-center"
+                             style="width: 72px; height: 72px; background: #DCFCE7; color: #16A34A;">
+                            <i class="fa-solid fa-circle-check fs-1"></i>
+                        </div>
+                        <h5 class="fw-bold text-main mb-2">Kumpulkan Evaluasi Sekarang?</h5>
+                        <p class="text-muted small mb-4">
+                            Seluruh soal (<strong>{{ $questions->count() }} soal</strong>) telah terjawab. Apakah Anda yakin ingin menyelesaikan dan mengumpulkan jawaban sekarang?
+                        </p>
+                        <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center">
+                            <button type="button" class="btn btn-light border rounded-pill px-4 py-2.5 fw-semibold" data-bs-dismiss="modal">
+                                Periksa Kembali
+                            </button>
+                            <button type="button" id="confirmFinalSubmitBtn" class="btn btn-success rounded-pill px-4 py-2.5 fw-bold text-white shadow-sm flex-grow-1">
+                                <i class="fa-solid fa-paper-plane me-2"></i>Ya, Kumpulkan Sekarang
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         @endif
 
     </div>
@@ -331,6 +393,91 @@ document.addEventListener('DOMContentLoaded', function() {
         const answered = document.querySelectorAll('.nav-grid-btn.answered-grid').length;
         document.getElementById('answeredCountBadge').textContent = `${answered} / ${totalQuestions} Terjawab`;
     }
+
+    // 2b. Peringatan Sebelum Kumpulkan Jika Masih Ada Soal Belum Terjawab
+    let isSubmittingConfirmed = false;
+    const unansweredModalEl      = document.getElementById('unansweredWarningModal');
+    const confirmSubmitModalEl   = document.getElementById('confirmSubmitModal');
+    const unansweredCountText    = document.getElementById('unansweredCountText');
+    const unansweredListContainer = document.getElementById('unansweredListContainer');
+    const goToFirstUnansweredBtn = document.getElementById('goToFirstUnansweredBtn');
+    const forceSubmitBtn         = document.getElementById('forceSubmitBtn');
+    const confirmFinalSubmitBtn  = document.getElementById('confirmFinalSubmitBtn');
+
+    function getUnansweredIndices() {
+        const unanswered = [];
+        slides.forEach((slide, idx) => {
+            const checked = slide.querySelector('input.option-radio-input:checked, input.option-checkbox-input:checked');
+            if (!checked) {
+                unanswered.push(idx);
+            }
+        });
+        return unanswered;
+    }
+
+    function handleAttemptSubmit() {
+        const unansweredIndices = getUnansweredIndices();
+
+        if (unansweredIndices.length > 0) {
+            unansweredCountText.textContent = `${unansweredIndices.length} dari ${totalQuestions} soal`;
+            unansweredListContainer.innerHTML = '';
+
+            unansweredIndices.forEach(qIdx => {
+                const badgeBtn = document.createElement('button');
+                badgeBtn.type = 'button';
+                badgeBtn.className = 'btn btn-sm btn-outline-warning text-dark fw-bold rounded-pill px-3 py-1';
+                badgeBtn.innerHTML = `<i class="fa-solid fa-circle-question me-1 text-warning"></i>Soal ${qIdx + 1}`;
+                badgeBtn.addEventListener('click', () => {
+                    const modalInstance = bootstrap.Modal.getInstance(unansweredModalEl);
+                    if (modalInstance) modalInstance.hide();
+                    goToSlide(qIdx);
+                });
+                unansweredListContainer.appendChild(badgeBtn);
+            });
+
+            goToFirstUnansweredBtn.onclick = () => {
+                const modalInstance = bootstrap.Modal.getInstance(unansweredModalEl);
+                if (modalInstance) modalInstance.hide();
+                goToSlide(unansweredIndices[0]);
+            };
+
+            const modal = bootstrap.Modal.getOrCreateInstance(unansweredModalEl);
+            modal.show();
+        } else {
+            const modal = bootstrap.Modal.getOrCreateInstance(confirmSubmitModalEl);
+            modal.show();
+        }
+    }
+
+    if (submitBtn) {
+        submitBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleAttemptSubmit();
+        });
+    }
+
+    if (forceSubmitBtn) {
+        forceSubmitBtn.addEventListener('click', function() {
+            isSubmittingConfirmed = true;
+            radioInputs.forEach(r => r.removeAttribute('required'));
+            quizForm.submit();
+        });
+    }
+
+    if (confirmFinalSubmitBtn) {
+        confirmFinalSubmitBtn.addEventListener('click', function() {
+            isSubmittingConfirmed = true;
+            radioInputs.forEach(r => r.removeAttribute('required'));
+            quizForm.submit();
+        });
+    }
+
+    quizForm.addEventListener('submit', function(e) {
+        if (!isSubmittingConfirmed) {
+            e.preventDefault();
+            handleAttemptSubmit();
+        }
+    });
 
     // 3. Countdown Timer Engine with Auto-Submit & <1m Red Alert
     @php

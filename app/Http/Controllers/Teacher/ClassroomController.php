@@ -355,14 +355,14 @@ class ClassroomController extends Controller
         $nextWeek = $currentMax + 1;
 
         $title = $request->input('title');
-        $customTitles[$nextWeek] = $title ? trim($title) : "Week {$nextWeek}";
+        $customTitles[$nextWeek] = $title ? trim($title) : "Minggu {$nextWeek}";
 
         $classroom->update(['week_titles' => $customTitles]);
 
-        return back()->with('success', "Minggu baru (Week {$nextWeek}) berhasil ditambahkan!");
+        return back()->with('success', "Minggu {$nextWeek} berhasil ditambahkan!");
     }
 
-    /** Hapus Minggu (Week) Beserta Seluruh Isinya Secara Permanen (Tanpa Soft Deletes) */
+    /** Hapus Minggu Beserta Seluruh Isinya Secara Permanen (Tanpa Soft Deletes) */
     public function destroyWeek(Request $request, Classroom $classroom, int $week)
     {
         Gate::authorize('update', $classroom);
@@ -404,6 +404,6 @@ class ClassroomController extends Controller
 
         $classroom->update(['week_titles' => $newTitles]);
 
-        return back()->with('success', "Week {$weekNumber} beserta seluruh materi dan postingan di dalamnya berhasil dihapus secara langsung.");
+        return back()->with('success', "Minggu {$weekNumber} beserta seluruh materi dan postingan di dalamnya berhasil dihapus secara langsung.");
     }
 }

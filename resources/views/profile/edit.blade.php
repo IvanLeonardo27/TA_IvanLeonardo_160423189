@@ -205,20 +205,6 @@
 
                                 <div class="col-sm-6">
                                     <div class="p-3 bg-light bg-opacity-50 rounded-4 border">
-                                        <small class="text-muted fw-semibold d-block mb-1">Nama Lembaga / Sekolah</small>
-                                        <div class="fw-bold text-dark">{{ $user->teacherProfile->institution_name ?? '-' }}</div>
-                                    </div>
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <div class="p-3 bg-light bg-opacity-50 rounded-4 border">
-                                        <small class="text-muted fw-semibold d-block mb-1">Bidang Keahlian / Mapel</small>
-                                        <div class="fw-bold text-dark">{{ $user->teacherProfile->subject_specialization ?? 'Bahasa & Sastra Jawa' }}</div>
-                                    </div>
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <div class="p-3 bg-light bg-opacity-50 rounded-4 border">
                                         <small class="text-muted fw-semibold d-block mb-1">Nomor Telepon / WhatsApp</small>
                                         <div class="fw-bold text-dark">{{ $user->teacherProfile->phone_number ?? '-' }}</div>
                                     </div>
@@ -395,24 +381,6 @@
                                     <span class="input-group-text bg-light border-0"><i class="fa-solid fa-id-card text-muted"></i></span>
                                     <input type="text" name="nip" class="form-control bg-light border-0 py-2.5 text-dark font-monospace" 
                                            value="{{ old('nip', $user->teacherProfile->nip ?? '') }}" placeholder="Contoh: 198501012010011001">
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-dark small">Nama Lembaga / Sekolah</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-0"><i class="fa-solid fa-school text-muted"></i></span>
-                                    <input type="text" name="institution_name" class="form-control bg-light border-0 py-2.5 text-dark" 
-                                           value="{{ old('institution_name', $user->teacherProfile->institution_name ?? '') }}" placeholder="Contoh: SMA Negeri 1 Surabaya">
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-dark small">Bidang Keahlian / Mapel</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-0"><i class="fa-solid fa-book text-muted"></i></span>
-                                    <input type="text" name="subject_specialization" class="form-control bg-light border-0 py-2.5 text-dark" 
-                                           value="{{ old('subject_specialization', $user->teacherProfile->subject_specialization ?? '') }}" placeholder="Contoh: Bahasa & Sastra Jawa">
                                 </div>
                             </div>
 

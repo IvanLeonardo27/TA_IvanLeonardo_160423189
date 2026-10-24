@@ -30,13 +30,6 @@
                 </div>
                 
                 <div class="col-lg-4 text-lg-end d-flex flex-column flex-sm-row flex-lg-column gap-2 justify-content-lg-end">
-                    <button type="button" 
-                            class="btn btn-warning rounded-pill px-4 py-2.5 shadow-sm fw-bold btn-bouncy d-inline-flex align-items-center justify-content-center gap-2 text-dark"
-                            data-bs-toggle="modal" data-bs-target="#createEventModal"
-                            onclick="prepareCreateEvent()">
-                        <i class="fa-solid fa-calendar-plus me-1.5" aria-hidden="true"></i>
-                        <span>+ Buat Jadwal Acara</span>
-                    </button>
                     <a href="{{ route('calendar.export_pdf', ['month' => $month, 'year' => $year]) }}" 
                        class="btn btn-accent rounded-pill px-4 py-2.5 shadow-sm fw-bold btn-bouncy d-inline-flex align-items-center justify-content-center gap-2 text-white">
                         <i class="fa-solid fa-file-pdf me-1.5" aria-hidden="true"></i>

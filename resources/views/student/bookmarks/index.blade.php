@@ -81,11 +81,6 @@
                     <p class="text-muted small mb-4" style="max-width: 450px; margin: 0 auto;">
                         Anda belum menandai materi apa pun. Jelajahi katalog Pewayangan, Macapat, atau Aksara Jawa dan klik ikon **Simpan Bookmark**!
                     </p>
-                    <div>
-                        <a href="{{ route('wayang.index') }}" class="btn btn-primary rounded-pill px-4 py-2 text-white fw-semibold btn-sm shadow-sm">
-                            <i class="fa-solid fa-compass me-1.5"></i> Jelajahi Materi Sekarang
-                        </a>
-                    </div>
                 </div>
             @else
                 <div class="row g-3 g-md-4">

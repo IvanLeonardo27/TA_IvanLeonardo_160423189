@@ -67,13 +67,13 @@
             <div class="p-3 p-sm-4 flex-grow-1">
                 <textarea class="form-control border-0 p-0 shadow-none text-main fw-normal" 
                           id="sourceText" rows="6" 
-                          placeholder="Ketik atau tempel kalimat yang ingin diterjemahkan di sini (minimal 10 kata)..." 
+                          placeholder="Ketik atau tempel kata atau kalimat yang ingin diterjemahkan di sini..." 
                           style="font-size: 1.05rem; resize: none; background: transparent;"></textarea>
             </div>
             
             {{-- Control Toolbar Input --}}
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3 px-3 px-sm-4 border-top border-light bg-light rounded-bottom-start-4">
-                <span class="small fw-semibold text-muted" id="charCount">0 / 10 kata (minimal)</span>
+                <span class="small fw-semibold text-muted" id="charCount">0 kata</span>
                 <div class="d-flex align-items-center gap-2">
                     {{-- Audio Speaker TTS Input --}}
                     <button type="button" class="btn btn-sm btn-white rounded-circle shadow-sm btn-action p-0 d-flex align-items-center justify-content-center me-1" 
@@ -330,25 +330,12 @@
             const words = val ? val.split(/\s+/).filter(w => w.length > 0) : [];
             const wordCount = words.length;
 
+            charCount.className = 'small fw-semibold text-muted';
+            charCount.textContent = `${wordCount} kata`;
+
             if (wordCount === 0) {
-                charCount.className = 'small fw-semibold text-muted';
-                charCount.textContent = '0 / 10 kata (minimal)';
                 resultText.value = '';
-                translateBtn.disabled = false;
-                return;
             }
-
-            if (wordCount < 10) {
-                charCount.className = 'small fw-bold text-danger';
-                charCount.textContent = `${wordCount} / 10 kata (Kurang dari minimal 10 kata!)`;
-                resultText.value = `Teks yang diterjemahkan minimal 10 kata.\nTeks Anda saat ini baru berjumlah ${wordCount} kata. Mohon tambahkan kata lagi.`;
-                translateBtn.disabled = true;
-                return;
-            }
-
-            charCount.className = 'small fw-bold text-success';
-            charCount.textContent = `${wordCount} kata (Memenuhi Syarat Minimal 10 Kata)`;
-            translateBtn.disabled = false;
         });
 
         // Clear Button
@@ -356,8 +343,7 @@
             sourceText.value = '';
             resultText.value = '';
             charCount.className = 'small fw-semibold text-muted';
-            charCount.textContent = '0 / 10 kata (minimal)';
-            translateBtn.disabled = false;
+            charCount.textContent = '0 kata';
             sourceText.focus();
         });
 
@@ -380,7 +366,7 @@
             resultText.value = tempVal;
             
             const words = sourceText.value.trim() ? sourceText.value.trim().split(/\s+/).filter(w => w.length > 0) : [];
-            charCount.textContent = `${words.length} / 10 kata (minimal)`;
+            charCount.textContent = `${words.length} kata`;
 
             if (sourceText.value.trim() !== '') {
                 performTranslation();

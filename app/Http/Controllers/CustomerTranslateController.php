@@ -23,16 +23,6 @@ class CustomerTranslateController extends Controller
         $target  = $data['target'] ?? 'jw';
         $dialect = $data['dialect'] ?? 'ngoko';
 
-        // Batasan Minimal 10 Kata
-        $words = preg_split('/\s+/u', trim($data['text']), -1, PREG_SPLIT_NO_EMPTY);
-        $wordCount = count($words);
-
-        if ($wordCount < 10) {
-            return response()->json([
-                'message' => "Teks yang dapat diterjemahkan minimal 10 kata. (Input Anda: {$wordCount} kata)",
-            ], 422);
-        }
-
         $rawTranslated = null;
 
         // Layer 1: Google Translate API
